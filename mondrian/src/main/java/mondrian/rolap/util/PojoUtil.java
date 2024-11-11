@@ -240,19 +240,19 @@ public class PojoUtil {
         return List.of();
 	}
 
+	// TODO: migrate to org.eclipse.daanse.rdb.structure.pojo.util.Converter
 	private static org.eclipse.daanse.rdb.structure.pojo.ColumnImpl getColumn(Column column) {
         if (column != null) {
             String name = column.getName();
             String type = column.getType();
-            List<String> typeQualifiers = column.getTypeQualifiers();
             String description = column.getDescription();
-            ColumnImpl c = ColumnImpl.builder().withName(name).withType(type).withTypeQualifiers(typeQualifiers).build();
+            ColumnImpl c = ColumnImpl.builder().withName(name).withType(type).build();
             c.setDescription(description);
             return c;
         }
         return null;
 	}
-	
+	// TODO: migrate to org.eclipse.daanse.rdb.structure.pojo.util.Converter
 	private static PhysicalTableImpl getPhysicalTable(Table table) {
 		if (table != null) {
             String name = table.getName();
