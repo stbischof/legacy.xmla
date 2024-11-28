@@ -21,7 +21,6 @@ import java.util.concurrent.Semaphore;
 import javax.sql.DataSource;
 
 import org.eclipse.daanse.db.dialect.api.Dialect;
-import org.eclipse.daanse.db.statistics.api.StatisticsProvider;
 import org.eclipse.daanse.mdx.parser.api.MdxParserProvider;
 import org.eclipse.daanse.olap.api.function.FunctionService;
 import org.eclipse.daanse.olap.api.monitor.EventBus;
@@ -30,8 +29,6 @@ import org.eclipse.daanse.olap.api.result.Scenario;
 import org.eclipse.daanse.olap.calc.api.compiler.ExpressionCompilerFactory;
 import org.eclipse.daanse.olap.core.BasicContextConfig;
 import org.eclipse.daanse.rolap.mapping.api.model.CatalogMapping;
-
-import mondrian.rolap.agg.AggregationManager;
 
 /**
  * The {@link Context} gives access to all resources and configurations that are needed
@@ -96,7 +93,7 @@ public interface Context {
 
 	ResultShepherd getResultShepherd();
 
-	AggregationManager getAggregationManager();
+//	AggregationManager getAggregationManager();
 
 	void addStatement(Statement statement);
 
