@@ -33,6 +33,7 @@ import org.eclipse.daanse.olap.api.Validator;
 import org.eclipse.daanse.olap.api.element.Member;
 import org.eclipse.daanse.olap.api.function.FunctionDefinition;
 import org.eclipse.daanse.olap.api.function.FunctionMetaData;
+import org.eclipse.daanse.olap.api.function.FunctionParameter;
 import org.eclipse.daanse.olap.api.query.component.Expression;
 import org.eclipse.daanse.olap.api.query.component.ResolvedFunCall;
 import org.eclipse.daanse.olap.api.result.Position;
@@ -44,6 +45,7 @@ import org.eclipse.daanse.olap.calc.api.todo.TupleCursor;
 import org.eclipse.daanse.olap.calc.api.todo.TupleIterable;
 import org.eclipse.daanse.olap.calc.api.todo.TupleList;
 import org.eclipse.daanse.olap.core.BasicContextConfig;
+import org.eclipse.daanse.olap.function.core.FunctionParameterR;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -490,6 +492,12 @@ void testResultLimitWithinCrossjoin_1(Context foodMartContext) {
 			      throw new UnsupportedOperationException();
 			    }
 
+
+				@Override
+				public FunctionParameterR[] parameters() {
+			      throw new UnsupportedOperationException();
+				}
+
 		};
 	}
   }
@@ -522,7 +530,6 @@ void testResultLimitWithinCrossjoin_1(Context foodMartContext) {
 
 	@Override
 	public FunctionMetaData getFunctionMetaData() {
-		// TODO Auto-generated method stub
 		return new FunctionMetaData() {
 		    @Override
 			public String signature() {
@@ -548,6 +555,11 @@ void testResultLimitWithinCrossjoin_1(Context foodMartContext) {
 				public DataType[] parameterDataTypes() {
 			      return new DataType[ 0 ];
 			    }
+
+				@Override
+				public FunctionParameter[] parameters() {
+					return new FunctionParameter[0];
+				}
 		};
 	}
   }
