@@ -29,4 +29,6 @@ public interface FunctionMetaData {
 
 	DataType[] parameterDataTypes();
 
+	FunctionParameter[] parameters();
+
 }
