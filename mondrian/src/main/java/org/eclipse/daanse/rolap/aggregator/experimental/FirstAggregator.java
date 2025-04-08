@@ -42,6 +42,18 @@ public class FirstAggregator extends AbstractAggregator {
     }
 
     @Override
+    public StringBuilder getExpression(CharSequence operand) {
+        StringBuilder buf = new StringBuilder(64);
+        buf.append("FIRST_VALUE");
+        buf.append('(');
+        buf.append(operand);
+        buf.append(") OVER (ORDER BY ");
+        buf.append(operand);
+        buf.append(')');
+        return buf;
+    }
+
+    @Override
     public boolean supportsFastAggregates(DataTypeJdbc dataType) {
         // Usually no, because we need the actual "first" item, which
         // cannot be computed by typical pre-aggregation statistics.

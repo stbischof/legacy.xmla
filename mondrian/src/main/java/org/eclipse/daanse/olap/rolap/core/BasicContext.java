@@ -51,6 +51,7 @@ import org.eclipse.daanse.rolap.aggregator.experimental.Quartile3Aggregator;
 import org.eclipse.daanse.rolap.aggregator.experimental.RangeAggregator;
 import org.eclipse.daanse.rolap.aggregator.experimental.RndAggregator;
 import org.eclipse.daanse.rolap.aggregator.experimental.StdDevAggregator;
+import org.eclipse.daanse.rolap.aggregator.experimental.TruthAggregator;
 import org.eclipse.daanse.rolap.aggregator.experimental.VarianceAggregator;
 import org.eclipse.daanse.rolap.mapping.api.CatalogMappingSupplier;
 import org.eclipse.daanse.rolap.mapping.api.model.AccessRoleMapping;
@@ -127,6 +128,7 @@ public class BasicContext extends AbstractRolapContext implements RolapContext {
             ,RangeAggregator.INSTANCE
             ,StdDevAggregator.INSTANCE
             ,VarianceAggregator.INSTANCE
+            ,TruthAggregator.INSTANCE
             );
 
     @Activate

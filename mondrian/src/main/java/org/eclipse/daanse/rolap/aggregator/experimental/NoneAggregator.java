@@ -33,8 +33,16 @@ public class NoneAggregator extends AbstractAggregator {
         return eval.evaluateCurrent(); // never calc and cache always value from db.
     }
 
-    public String getExpression(String operand) {
-        return operand;
+    @Override
+    public StringBuilder getExpression(CharSequence operand) {
+        StringBuilder buf = new StringBuilder(64);
+        buf.append("NTH_VALUE");
+        buf.append('(');
+        buf.append(operand);
+        buf.append(") OVER (ORDER BY ");
+        buf.append(operand);
+        buf.append(')');
+        return buf;
     }
 
     public boolean supportsFastAggregates(DataTypeJdbc dataType) {

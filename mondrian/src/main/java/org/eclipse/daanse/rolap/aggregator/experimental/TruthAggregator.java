@@ -20,14 +20,14 @@ import org.eclipse.daanse.olap.api.calc.Calc;
 import org.eclipse.daanse.olap.api.calc.todo.TupleList;
 import org.eclipse.daanse.rolap.aggregator.AbstractAggregator;
 
-public class IppAggregator extends AbstractAggregator {
+public class TruthAggregator extends AbstractAggregator {
 
-    public static IppAggregator INSTANCE = new IppAggregator();
+    public static TruthAggregator INSTANCE = new TruthAggregator();
 
-    private static AtomicLong i = new AtomicLong(0);
+    private AtomicLong i = new AtomicLong(0);
 
-    public IppAggregator() {
-        super("Ipp", false);
+    public TruthAggregator() {
+        super("truth", false);
     }
 
     public Object aggregate(Evaluator evaluator, TupleList members, Calc<?> calc) {
@@ -37,7 +37,7 @@ public class IppAggregator extends AbstractAggregator {
     @Override
     public StringBuilder getExpression(CharSequence operand) {
         StringBuilder buf = new StringBuilder(64);
-        buf.append(i.incrementAndGet());
+        buf.append(42);
         return buf;
     }
 

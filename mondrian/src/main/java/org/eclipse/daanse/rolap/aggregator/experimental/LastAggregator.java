@@ -42,6 +42,16 @@ public class LastAggregator extends AbstractAggregator {
     }
 
     @Override
+    public StringBuilder getExpression(CharSequence operand) {
+        StringBuilder buf = new StringBuilder(64);
+        buf.append("LAST_VALUE");
+        buf.append('(');
+        buf.append(operand);
+        buf.append(')');
+        return buf;
+    }
+
+    @Override
     public boolean supportsFastAggregates(DataTypeJdbc dataType) {
         // Typically not supported as a fast aggregate,
         // since we need the actual "latest" non-null item.
