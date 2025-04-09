@@ -42,6 +42,7 @@ import org.eclipse.daanse.rolap.aggregator.SumAggregator;
 import org.eclipse.daanse.rolap.aggregator.experimental.FirstAggregator;
 import org.eclipse.daanse.rolap.aggregator.experimental.IppAggregator;
 import org.eclipse.daanse.rolap.aggregator.experimental.LastAggregator;
+import org.eclipse.daanse.rolap.aggregator.experimental.ListAggAggregator;
 import org.eclipse.daanse.rolap.aggregator.experimental.MedianAggregator;
 import org.eclipse.daanse.rolap.aggregator.experimental.ModeAggregator;
 import org.eclipse.daanse.rolap.aggregator.experimental.MovingAverage3Aggregator;
@@ -129,6 +130,7 @@ public class BasicContext extends AbstractRolapContext implements RolapContext {
             ,StdDevAggregator.INSTANCE
             ,VarianceAggregator.INSTANCE
             ,TruthAggregator.INSTANCE
+            ,ListAggAggregator.INSTANCE
             );
 
     @Activate
