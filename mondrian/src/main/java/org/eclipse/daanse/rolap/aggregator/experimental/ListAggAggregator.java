@@ -18,12 +18,12 @@ import org.eclipse.daanse.olap.api.calc.Calc;
 import org.eclipse.daanse.olap.api.calc.todo.TupleList;
 import org.eclipse.daanse.rolap.aggregator.AbstractAggregator;
 
-public class FirstAggregator extends AbstractAggregator {
+public class ListAggAggregator extends AbstractAggregator {
 
-    public static final FirstAggregator INSTANCE = new FirstAggregator();
+    public static final ListAggAggregator INSTANCE = new ListAggAggregator();
 
-    public FirstAggregator() {
-        super("first", false);
+    public ListAggAggregator() {
+        super("LISTAGG", false);
     }
 
     @Override
@@ -44,12 +44,12 @@ public class FirstAggregator extends AbstractAggregator {
     @Override
     public StringBuilder getExpression(CharSequence operand) {
         StringBuilder buf = new StringBuilder(64);
-        buf.append("FIRST_VALUE");
-        buf.append('(');
+        buf.append("LISTAGG");
+        buf.append("( DISTINCT ");
         buf.append(operand);
-        buf.append(") OVER (ORDER BY ");
-        buf.append(operand);
-        buf.append(')');
+        buf.append(", ', ') WITHIN GROUP (ORDER BY ");
+        buf.append("\"Fact\".\"MONTH\"");
+        buf.append(")"); //LISTAGG(title, ', ') WITHIN GROUP (ORDER BY id)
         return buf;
     }
 

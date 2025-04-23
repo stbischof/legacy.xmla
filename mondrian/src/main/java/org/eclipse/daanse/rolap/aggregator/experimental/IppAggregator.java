@@ -24,7 +24,7 @@ public class IppAggregator extends AbstractAggregator {
 
     public static IppAggregator INSTANCE = new IppAggregator();
 
-    private AtomicLong i = new AtomicLong(0);
+    private static AtomicLong i = new AtomicLong(0);
 
     public IppAggregator() {
         super("Ipp", false);
@@ -34,8 +34,11 @@ public class IppAggregator extends AbstractAggregator {
         return i.incrementAndGet();
     }
 
-    public String getExpression(String operand) {
-        return "" + i.incrementAndGet();
+    @Override
+    public StringBuilder getExpression(CharSequence operand) {
+        StringBuilder buf = new StringBuilder(64);
+        buf.append(i.incrementAndGet());
+        return buf;
     }
 
     public boolean supportsFastAggregates(DataTypeJdbc dataType) {

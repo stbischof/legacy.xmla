@@ -12,35 +12,37 @@
 */
 package org.eclipse.daanse.rolap.aggregator.experimental;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.eclipse.daanse.olap.api.DataTypeJdbc;
 import org.eclipse.daanse.olap.api.Evaluator;
 import org.eclipse.daanse.olap.api.calc.Calc;
 import org.eclipse.daanse.olap.api.calc.todo.TupleList;
 import org.eclipse.daanse.rolap.aggregator.AbstractAggregator;
 
-public class NoneAggregator extends AbstractAggregator {
+public class TruthAggregator extends AbstractAggregator {
 
-    public static NoneAggregator INSTANCE = new NoneAggregator();
+    public static TruthAggregator INSTANCE = new TruthAggregator();
 
-    public NoneAggregator() {
-        super("None", false);
+    private AtomicLong i = new AtomicLong(0);
+
+    public TruthAggregator() {
+        super("truth", false);
     }
 
     public Object aggregate(Evaluator evaluator, TupleList members, Calc<?> calc) {
-
-        final Evaluator eval = evaluator.pushAggregation(members);
-        eval.setNonEmpty(false);
-        return eval.evaluateCurrent(); // never calc and cache always value from db.
+        return i.incrementAndGet();
     }
 
     @Override
     public StringBuilder getExpression(CharSequence operand) {
         StringBuilder buf = new StringBuilder(64);
-        buf.append(operand);
+        buf.append(42);
         return buf;
     }
 
     public boolean supportsFastAggregates(DataTypeJdbc dataType) {
-        return false;
+        return true;
     }
+
 }
