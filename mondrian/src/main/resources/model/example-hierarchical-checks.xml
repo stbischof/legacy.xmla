@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<olapchecks:CheckSuite xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:olapchecks="http://www.eclipse.org/daanse/olap/checks/2.0"
+    name="FoodMart Complete Hierarchical Validation"
+    description="Comprehensive hierarchical check example demonstrating all features"
+    executionMode="OLAP_API"
+    defaultSeverity="ERROR"
+    stopOnFirstFailure="false">
+
+  <connectionConfig catalogName="FoodMart" roleName=""/>
+
+  <!-- ========================================
+       EXAMPLE 1: Pattern-based cube filtering
+       ======================================== -->
+  <catalogSelectors id="foodmart-catalog" catalogName="FoodMart">
+
+    <!-- Select all cubes starting with "Sales" -->
+    <cubeSelectors id="sales-cubes" namePattern="^Sales.*" cubeType="ALL" includeVirtualCubes="true">
+
+      <!-- Check: At least 2 Sales cubes exist -->
+      <checks xsi:type="olapchecks:CountCheck"
+              id="sales-cube-count"
+              description="Should have at least 2 Sales cubes"
+              expectedCount="2"
+              operator="GREATER_OR_EQUAL"
+              severity="ERROR"/>
+
+      <!-- Check: All selected cubes exist -->
+      <checks xsi:type="olapchecks:ExistsCheck"
+              id="sales-cubes-exist"
+              shouldExist="true"
+              severity="ERROR"/>
+
+      <!-- Check: All cubes have a caption -->
+      <checks xsi:type="olapchecks:AttributeCheck"
+              id="sales-cubes-caption"
+              attributeName="caption"
+              expectedValue=".*"
+              comparisonMode="REGEX"
+              checkAllElements="true"
+              severity="WARN"/>
+
+      <!-- ========================================
+           EXAMPLE 2: Dimension type filtering
+           ======================================== -->
+      <!-- Select TIME dimensions from Sales cubes -->
+      <dimensionSelectors id="time-dimensions"
+                          dimensionType="TIME"
+                          includeTimeDimensions="true"
+                          includeMeasureDimension="false">
+
+        <!-- Check: Exactly 1 TIME dimension per cube -->
+        <checks xsi:type="olapchecks:CountCheck"
+                id="time-dim-count"
+                description="Each Sales cube should have exactly 1 TIME dimension"
+                expectedCount="1"
+                operator="EQUALS"
+                severity="ERROR"/>
+
+        <!-- Check: Dimension type attribute -->
+        <checks xsi:type="olapchecks:AttributeCheck"
+                id="time-dim-type"
+                attributeName="type"
+                expectedValue="TIME"
+                comparisonMode="EXACT"
+                checkAllElements="true"
+                severity="ERROR"/>
+
+        <!-- Check: All dimensions have description -->
+        <checks xsi:type="olapchecks:NotNullCheck"
+                id="time-dim-description"
+                attributeName="description"
+                severity="WARN"/>
+
+        <!-- ========================================
+             EXAMPLE 3: Hierarchy validation
+             ======================================== -->
+        <!-- Select all hierarchies in TIME dimensions -->
+        <hierarchySelectors id="time-hierarchies" namePattern=".*" hasAllMember="true">
+
+          <!-- Check: At least 1 hierarchy exists -->
+          <checks xsi:type="olapchecks:CountCheck"
+                  id="time-hierarchy-count"
+                  expectedCount="1"
+                  operator="GREATER_OR_EQUAL"
+                  severity="ERROR"/>
+
+          <!-- Check: Hierarchy has All member -->
+          <checks xsi:type="olapchecks:AttributeCheck"
+                  id="hierarchy-has-all"
+                  attributeName="hasAll"
+                  expectedValue="true"
+                  comparisonMode="EXACT"
+                  checkAllElements="true"
+                  severity="WARN"/>
+
+          <!-- ========================================
+               EXAMPLE 4: Level depth and properties
+               ======================================== -->
+          <!-- Select all levels -->
+          <levelSelectors id="time-levels">
+
+            <!-- Check: At least 3 levels (Year, Quarter, Month) -->
+            <checks xsi:type="olapchecks:CountCheck"
+                    id="time-level-count"
+                    description="TIME hierarchy should have at least 3 levels"
+                    expectedCount="3"
+                    operator="GREATER_OR_EQUAL"
+                    severity="ERROR"/>
+
+            <!-- Check: All levels have keyColumn defined -->
+            <checks xsi:type="olapchecks:NotNullCheck"
+                    id="level-key-column"
+                    attributeName="keyColumn"
+                    severity="ERROR"/>
+
+            <!-- Check: All levels have nameColumn -->
+            <checks xsi:type="olapchecks:NotNullCheck"
+                    id="level-name-column"
+                    attributeName="nameColumn"
+                    severity="ERROR"/>
+
+            <!-- ========================================
+                 EXAMPLE 5: Member validation
+                 ======================================== -->
+            <!-- Select Year members (depth=1) -->
+            <memberSelectors id="year-members"
+                            parentUniqueName="[Time].[Time].[All]"
+                            maxMembers="10"
+                            includeCalculatedMembers="false">
+
+              <!-- Check: Exactly 1 year (1997) -->
+              <checks xsi:type="olapchecks:CountCheck"
+                      id="year-member-count"
+                      expectedCount="1"
+                      operator="EQUALS"
+                      severity="ERROR"/>
+
+              <!-- Check: Year member exists -->
+              <checks xsi:type="olapchecks:ExistsCheck"
+                      id="year-1997-exists"
+                      shouldExist="true"
+                      severity="ERROR"/>
+
+              <!-- Check: Member has caption -->
+              <checks xsi:type="olapchecks:NotNullCheck"
+                      id="year-member-caption"
+                      attributeName="caption"
+                      severity="WARN"/>
+
+              <!-- Check: Member has description (optional) -->
+              <checks xsi:type="olapchecks:NotNullCheck"
+                      id="year-member-description"
+                      attributeName="description"
+                      severity="INFO"/>
+
+              <!-- ========================================
+                   EXAMPLE 6: Property validation
+                   ======================================== -->
+              <!-- Select all properties -->
+              <propertySelectors id="member-properties" namePattern=".*">
+
+                <!-- Check: Has properties -->
+                <checks xsi:type="olapchecks:ExistsCheck"
+                        id="properties-exist"
+                        shouldExist="true"
+                        severity="INFO"/>
+
+                <!-- Check: Property values are not null -->
+                <checks xsi:type="olapchecks:NotNullCheck"
+                        id="property-values-not-null"
+                        attributeName="value"
+                        severity="WARN"/>
+
+              </propertySelectors>
+
+            </memberSelectors>
+
+          </levelSelectors>
+
+        </hierarchySelectors>
+
+      </dimensionSelectors>
+
+      <!-- ========================================
+           EXAMPLE 7: Measure validation
+           ======================================== -->
+      <!-- Select all measures ending with "Sales" -->
+      <measureSelectors id="sales-measures"
+                        namePattern=".*Sales$"
+                        includeCalculatedMeasures="false">
+
+        <!-- Check: At least 2 Sales measures -->
+        <checks xsi:type="olapchecks:CountCheck"
+                id="sales-measure-count"
+                expectedCount="2"
+                operator="GREATER_OR_EQUAL"
+                severity="ERROR"/>
+
+        <!-- Check: All measures have formatString -->
+        <checks xsi:type="olapchecks:NotNullCheck"
+                id="measure-format-string"
+                description="All measures should have format strings"
+                attributeName="formatString"
+                severity="WARN"/>
+
+        <!-- Check: Aggregator is sum -->
+        <checks xsi:type="olapchecks:AttributeCheck"
+                id="measure-aggregator"
+                attributeName="aggregator"
+                expectedValue="sum"
+                comparisonMode="EXACT"
+                checkAllElements="false"
+                severity="INFO"/>
+
+      </measureSelectors>
+
+      <!-- Select ALL measures (including calculated) -->
+      <measureSelectors id="all-measures"
+                        namePattern=".*"
+                        includeCalculatedMeasures="true">
+
+        <!-- Check: All measures have caption -->
+        <checks xsi:type="olapchecks:NotNullCheck"
+                id="all-measures-caption"
+                attributeName="caption"
+                severity="WARN"/>
+
+      </measureSelectors>
+
+    </cubeSelectors>
+
+  </catalogSelectors>
+
+  <!-- ========================================
+       EXAMPLE 8: Role-based access testing
+       ======================================== -->
+  <catalogSelectors id="catalog-california-manager" catalogName="FoodMart" roleName="California manager">
+
+    <!-- Check: California manager sees only 1 cube -->
+    <cubeSelectors id="manager-cubes" namePattern=".*">
+      <checks xsi:type="olapchecks:CountCheck"
+              id="manager-cube-count"
+              description="California manager should see only Sales cube"
+              expectedCount="1"
+              operator="EQUALS"
+              severity="ERROR"/>
+    </cubeSelectors>
+
+    <!-- Check: Sales cube is accessible -->
+    <cubeSelectors id="manager-sales" cubeName="Sales">
+      <checks xsi:type="olapchecks:ExistsCheck"
+              id="manager-sales-exists"
+              shouldExist="true"
+              severity="ERROR"/>
+
+      <checks xsi:type="olapchecks:AccessCheck"
+              id="manager-sales-access"
+              roleName="California manager"
+              shouldBeAccessible="true"
+              severity="ERROR"/>
+    </cubeSelectors>
+
+    <!-- Check: HR cube is NOT accessible -->
+    <cubeSelectors id="manager-hr" cubeName="HR">
+      <checks xsi:type="olapchecks:ExistsCheck"
+              id="manager-hr-not-exists"
+              shouldExist="false"
+              severity="ERROR"/>
+
+      <checks xsi:type="olapchecks:AccessCheck"
+              id="manager-hr-no-access"
+              roleName="California manager"
+              shouldBeAccessible="false"
+              severity="ERROR"/>
+    </cubeSelectors>
+
+  </catalogSelectors>
+
+  <!-- ========================================
+       EXAMPLE 9: Data quality checks
+       ======================================== -->
+  <catalogSelectors id="catalog-quality-checks" catalogName="FoodMart">
+
+    <cubeSelectors id="all-cubes-quality" namePattern=".*">
+
+      <!-- Check all dimensions have descriptions -->
+      <dimensionSelectors id="all-dims-quality" namePattern=".*">
+        <checks xsi:type="olapchecks:NotNullCheck"
+                id="dim-description-quality"
+                description="All dimensions should have descriptions"
+                attributeName="description"
+                severity="INFO"/>
+      </dimensionSelectors>
+
+      <!-- Check all measures have format strings -->
+      <measureSelectors id="all-measures-quality" namePattern=".*">
+        <checks xsi:type="olapchecks:NotNullCheck"
+                id="measure-format-quality"
+                description="All measures should have format strings for consistency"
+                attributeName="formatString"
+                severity="WARN"/>
+      </measureSelectors>
+
+    </cubeSelectors>
+
+  </catalogSelectors>
+
+  <!-- ========================================
+       EXAMPLE 10: Multiple dimension types
+       ======================================== -->
+  <catalogSelectors id="catalog-dim-types" catalogName="FoodMart">
+
+    <cubeSelectors cubeName="Sales">
+
+      <!-- STANDARD dimensions -->
+      <dimensionSelectors id="standard-dims"
+                          dimensionType="STANDARD"
+                          includeTimeDimensions="false"
+                          includeMeasureDimension="false">
+
+        <checks xsi:type="olapchecks:CountCheck"
+                id="standard-dim-count"
+                description="Sales should have multiple STANDARD dimensions"
+                expectedCount="5"
+                operator="GREATER_OR_EQUAL"
+                severity="ERROR"/>
+
+        <!-- All standard dimensions should have at least 1 hierarchy -->
+        <hierarchySelectors namePattern=".*">
+          <checks xsi:type="olapchecks:CountCheck"
+                  id="standard-hierarchy-count"
+                  expectedCount="1"
+                  operator="GREATER_OR_EQUAL"
+                  severity="ERROR"/>
+        </hierarchySelectors>
+
+      </dimensionSelectors>
+
+      <!-- TIME dimensions -->
+      <dimensionSelectors id="time-dims-only" dimensionType="TIME">
+        <checks xsi:type="olapchecks:CountCheck"
+                id="time-dim-single"
+                expectedCount="1"
+                operator="EQUALS"
+                severity="ERROR"/>
+      </dimensionSelectors>
+
+    </cubeSelectors>
+
+  </catalogSelectors>
+
+  <!-- ========================================
+       EXAMPLE 11: Inverted checks (NOT logic)
+       ======================================== -->
+  <catalogSelectors id="catalog-inverted" catalogName="FoodMart">
+
+    <cubeSelectors cubeName="Sales">
+
+      <!-- Check: Sales cube should NOT have a "Test" dimension -->
+      <dimensionSelectors dimensionName="Test">
+        <checks xsi:type="olapchecks:ExistsCheck"
+                id="test-dim-should-not-exist"
+                shouldExist="false"
+                severity="ERROR"
+                invertResult="false"/>
+      </dimensionSelectors>
+
+    </cubeSelectors>
+
+  </catalogSelectors>
+
+  <!-- ========================================
+       EXAMPLE 12: Cache control
+       ======================================== -->
+  <catalogSelectors id="catalog-cache-test"
+                    catalogName="FoodMart"
+                    clearCacheBefore="true"
+                    description="Tests with fresh cache">
+
+    <cubeSelectors namePattern=".*">
+      <checks xsi:type="olapchecks:CountCheck"
+              id="cube-count-fresh-cache"
+              expectedCount="7"
+              operator="EQUALS"
+              severity="ERROR"/>
+    </cubeSelectors>
+
+  </catalogSelectors>
+
+</olapchecks:CheckSuite>
