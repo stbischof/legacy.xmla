@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmlachecks:CheckSuite xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xmlachecks="http://www.eclipse.org/daanse/xmla/checks/1.0"
+    name="Role-Based Access Tests via Authentication"
+    description="Tests different roles by using different user credentials">
+
+  <!--
+    CONCEPT: Roles via Authentication
+    ==================================
+    Roles are determined SERVER-SIDE based on the authenticated user.
+    Each connection uses different credentials (username/password) which
+    map to different roles on the server.
+
+    This example demonstrates:
+    1. Multiple named connections with different users
+    2. Checks referencing specific connections via connectionRef
+    3. Expected different results based on role/user
+  -->
+
+  <!-- Default Connection: Admin User -->
+  <connection name="admin"
+              description="Administrator with full access"
+              url="http://localhost:8080/xmla"
+              username="admin"
+              password="admin123">
+    <defaultProperties>
+      <property name="Catalog" value="FoodMart"/>
+    </defaultProperties>
+  </connection>
+
+  <!-- Additional Connections for Different Roles -->
+  <connections name="manager"
+               description="Manager user with limited cube access"
+               url="http://localhost:8080/xmla"
+               username="california_manager"
+               password="manager123">
+    <defaultProperties>
+      <property name="Catalog" value="FoodMart"/>
+    </defaultProperties>
+  </connections>
+
+  <connections name="user"
+               description="Regular user with minimal access"
+               url="http://localhost:8080/xmla"
+               username="regular_user"
+               password="user123">
+    <defaultProperties>
+      <property name="Catalog" value="FoodMart"/>
+    </defaultProperties>
+  </connections>
+
+  <connections name="guest"
+               description="Guest user with read-only access"
+               url="http://localhost:8080/xmla"
+               username="guest"
+               password="guest123">
+    <defaultProperties>
+      <property name="Catalog" value="FoodMart"/>
+    </defaultProperties>
+  </connections>
+
+  <!-- ===================================================================
+       TEST SCENARIO 1: Admin sees all cubes
+       =================================================================== -->
+
+  <checks xsi:type="xmlachecks:MDSchemaCubesCheck"
+          id="admin-all-cubes"
+          description="Admin should see all 7 cubes"
+          connectionRef="admin"
+          severity="ERROR">
+    <expectations>
+      <rowCountCheck expectedCount="7" operator="EQUALS"/>
+    </expectations>
+  </checks>
+
+  <checks xsi:type="xmlachecks:MDSchemaCubesCheck"
+          id="admin-hr-cube-visible"
+          description="Admin should see HR cube"
+          connectionRef="admin"
+          cubeName="HR">
+    <expectations>
+      <rowCountCheck expectedCount="1" operator="EQUALS"/>
+    </expectations>
+  </checks>
+
+  <!-- ===================================================================
+       TEST SCENARIO 2: Manager sees only Sales cube
+       =================================================================== -->
+
+  <checks xsi:type="xmlachecks:MDSchemaCubesCheck"
+          id="manager-limited-cubes"
+          description="California manager should see only Sales cube"
+          connectionRef="manager"
+          severity="ERROR">
+    <expectations>
+      <rowCountCheck expectedCount="1" operator="EQUALS"/>
+      <columnValueChecks>
+        <columnValueCheck columnName="CUBE_NAME"
+                          expectedValue="Sales"
+                          rowIndex="0"/>
+      </columnValueChecks>
+    </expectations>
+  </checks>
+
+  <checks xsi:type="xmlachecks:MDSchemaCubesCheck"
+          id="manager-hr-cube-not-visible"
+          description="Manager should NOT see HR cube"
+          connectionRef="manager"
+          cubeName="HR">
+    <expectations>
+      <rowCountCheck expectedCount="0" operator="EQUALS"/>
+    </expectations>
+  </checks>
+
+  <!-- ===================================================================
+       TEST SCENARIO 3: User sees limited dimensions in Sales
+       =================================================================== -->
+
+  <checks xsi:type="xmlachecks:MDSchemaCubesCheck"
+          id="user-sales-cube"
+          description="Regular user should see Sales cube"
+          connectionRef="user"
+          cubeName="Sales">
+    <expectations>
+      <rowCountCheck expectedCount="1" operator="EQUALS"/>
+    </expectations>
+  </checks>
+
+  <checks xsi:type="xmlachecks:MDSchemaDimensionsCheck"
+          id="user-limited-dimensions"
+          description="User should see only 5 dimensions (not all 8)"
+          connectionRef="user"
+          cubeName="Sales">
+    <expectations>
+      <rowCountCheck expectedCount="5" operator="LESS_OR_EQUAL"/>
+    </expectations>
+  </checks>
+
+  <!-- ===================================================================
+       TEST SCENARIO 4: Guest has read-only, no write access
+       =================================================================== -->
+
+  <checks xsi:type="xmlachecks:MDSchemaCubesCheck"
+          id="guest-can-discover"
+          description="Guest can discover cubes"
+          connectionRef="guest"
+          severity="ERROR">
+    <expectations>
+      <rowCountCheck expectedCount="1" operator="GREATER_OR_EQUAL"/>
+    </expectations>
+  </checks>
+
+  <checks xsi:type="xmlachecks:ExecuteCheck"
+          id="guest-can-query"
+          description="Guest can execute queries"
+          connectionRef="guest"
+          statement="SELECT {[Measures].[Unit Sales]} ON COLUMNS FROM [Sales]">
+    <expectations>
+      <expectNonEmptyResult>true</expectNonEmptyResult>
+      <cellValueChecks>
+        <cellValueCheck rowIndex="0"
+                        columnIndex="0"
+                        expectedValue="266773"
+                        comparisonMode="EXACT"/>
+      </cellValueChecks>
+    </expectations>
+  </checks>
+
+  <!-- ===================================================================
+       TEST SCENARIO 5: Hierarchy-Level access control
+       =================================================================== -->
+
+  <!-- Manager can see Time.Weekly hierarchy -->
+  <checks xsi:type="xmlachecks:MDSchemaHierarchiesCheck"
+          id="manager-weekly-hierarchy-visible"
+          description="Manager should see Time.Weekly hierarchy"
+          connectionRef="manager"
+          cubeName="Sales"
+          dimensionUniqueName="[Time]"
+          hierarchyUniqueName="[Time].[Weekly]">
+    <expectations>
+      <rowCountCheck expectedCount="1" operator="EQUALS"/>
+    </expectations>
+  </checks>
+
+  <!-- User cannot see Time.Weekly hierarchy -->
+  <checks xsi:type="xmlachecks:MDSchemaHierarchiesCheck"
+          id="user-weekly-hierarchy-not-visible"
+          description="User should NOT see Time.Weekly hierarchy"
+          connectionRef="user"
+          cubeName="Sales"
+          dimensionUniqueName="[Time]"
+          hierarchyUniqueName="[Time].[Weekly]">
+    <expectations>
+      <rowCountCheck expectedCount="0" operator="EQUALS"/>
+    </expectations>
+  </checks>
+
+  <!-- ===================================================================
+       TEST SCENARIO 6: Member-Level access control
+       =================================================================== -->
+
+  <!-- Admin sees all members -->
+  <checks xsi:type="xmlachecks:MDSchemaMembersCheck"
+          id="admin-all-store-members"
+          description="Admin should see all store members"
+          connectionRef="admin"
+          cubeName="Sales"
+          hierarchyUniqueName="[Store].[Store]"
+          levelUniqueName="[Store].[Store].[Store Country]">
+    <expectations>
+      <rowCountCheck expectedCount="3" operator="EQUALS"/> <!-- USA, Canada, Mexico -->
+    </expectations>
+  </checks>
+
+  <!-- Manager sees only USA stores (California region) -->
+  <checks xsi:type="xmlachecks:MDSchemaMembersCheck"
+          id="manager-limited-store-members"
+          description="Manager should see only USA stores"
+          connectionRef="manager"
+          cubeName="Sales"
+          hierarchyUniqueName="[Store].[Store]"
+          levelUniqueName="[Store].[Store].[Store Country]">
+    <expectations>
+      <rowCountCheck expectedCount="1" operator="EQUALS"/> <!-- Only USA -->
+      <columnValueChecks>
+        <columnValueCheck columnName="MEMBER_NAME"
+                          expectedValue="USA"
+                          rowIndex="0"/>
+      </columnValueChecks>
+    </expectations>
+  </checks>
+
+  <!-- ===================================================================
+       TEST SCENARIO 7: effectiveUserName for impersonation
+       =================================================================== -->
+
+  <!--
+    Note: effectiveUserName allows admin to test as another user
+    without knowing their password (requires appropriate permissions)
+  -->
+
+  <connections name="admin-as-manager"
+               description="Admin impersonating manager for testing"
+               url="http://localhost:8080/xmla"
+               username="admin"
+               password="admin123"
+               effectiveUserName="california_manager">
+    <defaultProperties>
+      <property name="Catalog" value="FoodMart"/>
+    </defaultProperties>
+  </connections>
+
+  <checks xsi:type="xmlachecks:MDSchemaCubesCheck"
+          id="admin-impersonating-manager"
+          description="Admin as manager should see only 1 cube"
+          connectionRef="admin-as-manager">
+    <expectations>
+      <rowCountCheck expectedCount="1" operator="EQUALS"/>
+    </expectations>
+  </checks>
+
+  <!-- ===================================================================
+       TEST SCENARIO 8: Compare results between roles
+       =================================================================== -->
+
+  <!-- Measure accessibility per role -->
+  <checks xsi:type="xmlachecks:MDSchemaMeasuresCheck"
+          id="admin-all-measures"
+          description="Admin sees all measures in Sales cube"
+          connectionRef="admin"
+          cubeName="Sales">
+    <expectations>
+      <rowCountCheck expectedCount="4" operator="GREATER_OR_EQUAL"/>
+    </expectations>
+  </checks>
+
+  <checks xsi:type="xmlachecks:MDSchemaMeasuresCheck"
+          id="manager-limited-measures"
+          description="Manager sees fewer measures"
+          connectionRef="manager"
+          cubeName="Sales">
+    <expectations>
+      <rowCountCheck expectedCount="4" operator="LESS_THAN"/>
+    </expectations>
+  </checks>
+
+</xmlachecks:CheckSuite>

@@ -1,0 +1,513 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmlachecks:CheckSuite xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xmlachecks="http://www.eclipse.org/daanse/xmla/checks/1.0"
+    name="Specialized XMLA Checks Example"
+    description="Demonstrates all specialized check types with typed attributes">
+
+  <!--
+    CONCEPT: Specialized Checks with Typed Attributes
+    ==================================================
+    Instead of generic DiscoverCheck + Restrictions, we have specialized
+    check types where attributes automatically become XMLA restrictions.
+
+    OLD APPROACH (generic):
+    <checks xsi:type="DiscoverCheck" requestType="MDSCHEMA_DIMENSIONS">
+      <restrictions>
+        <restriction name="CUBE_NAME" value="Sales"/>
+      </restrictions>
+    </checks>
+
+    NEW APPROACH (specialized):
+    <checks xsi:type="MDSchemaDimensionsCheck" cubeName="Sales"/>
+
+    Benefits:
+    - Type-safe attributes
+    - Auto-completion in IDE
+    - Cleaner, more readable syntax
+    - Validation at model level
+  -->
+
+  <!-- Default Connection -->
+  <connection name="default"
+              url="http://localhost:8080/xmla"
+              username="admin"
+              password="admin123">
+    <defaultProperties>
+      <property name="Catalog" value="FoodMart"/>
+    </defaultProperties>
+  </connection>
+
+  <!-- ==================================================================
+       EXAMPLE 1: DBSCHEMA Checks (Database Schema)
+       ================================================================== -->
+
+  <!-- Check available catalogs -->
+  <checks xsi:type="xmlachecks:DBSchemaCatalogsCheck"
+          id="check-catalogs"
+          description="Should have FoodMart catalog">
+    <expectations>
+      <rowCountCheck expectedCount="1" operator="GREATER_OR_EQUAL"/>
+      <columnValueChecks>
+        <columnValueCheck columnName="CATALOG_NAME"
+                          expectedValue="FoodMart"
+                          checkAllRows="false"/>
+      </columnValueChecks>
+    </expectations>
+  </checks>
+
+  <!-- Check specific catalog -->
+  <checks xsi:type="xmlachecks:DBSchemaCatalogsCheck"
+          id="check-foodmart-catalog"
+          description="FoodMart catalog should exist"
+          catalogName="FoodMart">
+    <expectations>
+      <rowCountCheck expectedCount="1" operator="EQUALS"/>
+    </expectations>
+  </checks>
+
+  <!-- ==================================================================
+       EXAMPLE 2: MDSCHEMA_CUBES Checks
+       ================================================================== -->
+
+  <!-- All cubes -->
+  <checks xsi:type="xmlachecks:MDSchemaCubesCheck"
+          id="check-all-cubes"
+          description="Should have at least 5 cubes"
+          severity="ERROR">
+    <expectations>
+      <rowCountCheck expectedCount="5" operator="GREATER_OR_EQUAL"/>
+    </expectations>
+  </checks>
+
+  <!-- Specific cube by name -->
+  <checks xsi:type="xmlachecks:MDSchemaCubesCheck"
+          id="check-sales-cube"
+          description="Sales cube should exist"
+          cubeName="Sales">
+    <expectations>
+      <rowCountCheck expectedCount="1" operator="EQUALS"/>
+      <columnValueChecks>
+        <columnValueCheck columnName="CUBE_NAME"
+                          expectedValue="Sales"
+                          rowIndex="0"/>
+        <columnValueCheck columnName="CUBE_TYPE"
+                          expectedValue="CUBE"
+                          rowIndex="0"/>
+      </columnValueChecks>
+      <columnNotNullChecks>
+        <columnNotNullCheck columnName="DESCRIPTION"/>
+      </columnNotNullChecks>
+    </expectations>
+  </checks>
+
+  <!-- Filter by cube type -->
+  <checks xsi:type="xmlachecks:MDSchemaCubesCheck"
+          id="check-regular-cubes"
+          description="Check only regular cubes (not virtual)"
+          cubeType="CUBE">
+    <expectations>
+      <rowCountCheck expectedCount="5" operator="GREATER_OR_EQUAL"/>
+    </expectations>
+  </checks>
+
+  <!-- ==================================================================
+       EXAMPLE 3: MDSCHEMA_DIMENSIONS Checks
+       ================================================================== -->
+
+  <!-- All dimensions in Sales cube -->
+  <checks xsi:type="xmlachecks:MDSchemaDimensionsCheck"
+          id="check-sales-dimensions"
+          description="Sales cube should have at least 6 dimensions"
+          cubeName="Sales">
+    <expectations>
+      <rowCountCheck expectedCount="6" operator="GREATER_OR_EQUAL"/>
+    </expectations>
+  </checks>
+
+  <!-- Specific dimension -->
+  <checks xsi:type="xmlachecks:MDSchemaDimensionsCheck"
+          id="check-time-dimension"
+          description="Time dimension should exist in Sales"
+          cubeName="Sales"
+          dimensionUniqueName="[Time]">
+    <expectations>
+      <rowCountCheck expectedCount="1" operator="EQUALS"/>
+      <columnValueChecks>
+        <columnValueCheck columnName="DIMENSION_TYPE"
+                          expectedValue="3"
+                          rowIndex="0"/>
+      </columnValueChecks>
+    </expectations>
+  </checks>
+
+  <!-- Filter by dimension type -->
+  <checks xsi:type="xmlachecks:MDSchemaDimensionsCheck"
+          id="check-time-dimensions"
+          description="Should have exactly 1 TIME dimension"
+          cubeName="Sales"
+          dimensionType="3">
+    <expectations>
+      <rowCountCheck expectedCount="1" operator="EQUALS"/>
+    </expectations>
+  </checks>
+
+  <!-- ==================================================================
+       EXAMPLE 4: MDSCHEMA_HIERARCHIES Checks
+       ================================================================== -->
+
+  <!-- All hierarchies in Time dimension -->
+  <checks xsi:type="xmlachecks:MDSchemaHierarchiesCheck"
+          id="check-time-hierarchies"
+          description="Time dimension should have hierarchies"
+          cubeName="Sales"
+          dimensionUniqueName="[Time]">
+    <expectations>
+      <rowCountCheck expectedCount="1" operator="GREATER_OR_EQUAL"/>
+    </expectations>
+  </checks>
+
+  <!-- Specific hierarchy -->
+  <checks xsi:type="xmlachecks:MDSchemaHierarchiesCheck"
+          id="check-time-weekly-hierarchy"
+          description="Time.Weekly hierarchy should exist"
+          cubeName="Sales"
+          dimensionUniqueName="[Time]"
+          hierarchyUniqueName="[Time].[Weekly]">
+    <expectations>
+      <rowCountCheck expectedCount="1" operator="EQUALS"/>
+      <columnNotNullChecks>
+        <columnNotNullCheck columnName="HIERARCHY_NAME"/>
+        <columnNotNullCheck columnName="HIERARCHY_CAPTION"/>
+      </columnNotNullChecks>
+    </expectations>
+  </checks>
+
+  <!-- ==================================================================
+       EXAMPLE 5: MDSCHEMA_LEVELS Checks
+       ================================================================== -->
+
+  <!-- All levels in Time hierarchy -->
+  <checks xsi:type="xmlachecks:MDSchemaLevelsCheck"
+          id="check-time-levels"
+          description="Time hierarchy should have at least 3 levels"
+          cubeName="Sales"
+          hierarchyUniqueName="[Time].[Time]">
+    <expectations>
+      <rowCountCheck expectedCount="3" operator="GREATER_OR_EQUAL"/>
+    </expectations>
+  </checks>
+
+  <!-- Specific level -->
+  <checks xsi:type="xmlachecks:MDSchemaLevelsCheck"
+          id="check-year-level"
+          description="Year level should exist"
+          cubeName="Sales"
+          hierarchyUniqueName="[Time].[Time]"
+          levelUniqueName="[Time].[Time].[Year]">
+    <expectations>
+      <rowCountCheck expectedCount="1" operator="EQUALS"/>
+      <columnValueChecks>
+        <columnValueCheck columnName="LEVEL_NUMBER"
+                          expectedValue="1"
+                          rowIndex="0"/>
+      </columnValueChecks>
+    </expectations>
+  </checks>
+
+  <!-- Level by number -->
+  <checks xsi:type="xmlachecks:MDSchemaLevelsCheck"
+          id="check-level-1"
+          description="First level should exist"
+          cubeName="Sales"
+          hierarchyUniqueName="[Time].[Time]"
+          levelNumber="1">
+    <expectations>
+      <rowCountCheck expectedCount="1" operator="EQUALS"/>
+    </expectations>
+  </checks>
+
+  <!-- ==================================================================
+       EXAMPLE 6: MDSCHEMA_MEASURES Checks
+       ================================================================== -->
+
+  <!-- All measures in Sales cube -->
+  <checks xsi:type="xmlachecks:MDSchemaMeasuresCheck"
+          id="check-sales-measures"
+          description="Sales cube should have measures"
+          cubeName="Sales">
+    <expectations>
+      <rowCountCheck expectedCount="1" operator="GREATER_OR_EQUAL"/>
+      <columnNotNullChecks>
+        <columnNotNullCheck columnName="MEASURE_NAME"/>
+        <columnNotNullCheck columnName="MEASURE_UNIQUE_NAME"/>
+      </columnNotNullChecks>
+    </expectations>
+  </checks>
+
+  <!-- Specific measure -->
+  <checks xsi:type="xmlachecks:MDSchemaMeasuresCheck"
+          id="check-unit-sales-measure"
+          description="Unit Sales measure should exist"
+          cubeName="Sales"
+          measureUniqueName="[Measures].[Unit Sales]">
+    <expectations>
+      <rowCountCheck expectedCount="1" operator="EQUALS"/>
+      <columnValueChecks>
+        <columnValueCheck columnName="MEASURE_NAME"
+                          expectedValue="Unit Sales"
+                          rowIndex="0"/>
+      </columnValueChecks>
+    </expectations>
+  </checks>
+
+  <!-- ==================================================================
+       EXAMPLE 7: MDSCHEMA_MEMBERS Checks
+       ================================================================== -->
+
+  <!-- Members at specific level -->
+  <checks xsi:type="xmlachecks:MDSchemaMembersCheck"
+          id="check-year-members"
+          description="Should have year members"
+          cubeName="Sales"
+          hierarchyUniqueName="[Time].[Time]"
+          levelUniqueName="[Time].[Time].[Year]">
+    <expectations>
+      <rowCountCheck expectedCount="1" operator="GREATER_OR_EQUAL"/>
+    </expectations>
+  </checks>
+
+  <!-- Specific member -->
+  <checks xsi:type="xmlachecks:MDSchemaMembersCheck"
+          id="check-1997-member"
+          description="1997 member should exist"
+          cubeName="Sales"
+          hierarchyUniqueName="[Time].[Time]"
+          memberUniqueName="[Time].[Time].[1997]">
+    <expectations>
+      <rowCountCheck expectedCount="1" operator="EQUALS"/>
+      <columnValueChecks>
+        <columnValueCheck columnName="MEMBER_NAME"
+                          expectedValue="1997"
+                          rowIndex="0"/>
+      </columnValueChecks>
+    </expectations>
+  </checks>
+
+  <!-- Members by level number -->
+  <checks xsi:type="xmlachecks:MDSchemaMembersCheck"
+          id="check-level-1-members"
+          description="Level 1 should have members"
+          cubeName="Sales"
+          hierarchyUniqueName="[Time].[Time]"
+          levelNumber="1">
+    <expectations>
+      <rowCountCheck expectedCount="1" operator="GREATER_OR_EQUAL"/>
+    </expectations>
+  </checks>
+
+  <!-- ==================================================================
+       EXAMPLE 8: MDSCHEMA_PROPERTIES Checks
+       ================================================================== -->
+
+  <!-- All properties for Time dimension -->
+  <checks xsi:type="xmlachecks:MDSchemaPropertiesCheck"
+          id="check-time-properties"
+          description="Time dimension should have properties"
+          cubeName="Sales"
+          dimensionUniqueName="[Time]">
+    <expectations>
+      <rowCountCheck expectedCount="1" operator="GREATER_OR_EQUAL"/>
+    </expectations>
+  </checks>
+
+  <!-- Specific property -->
+  <checks xsi:type="xmlachecks:MDSchemaPropertiesCheck"
+          id="check-member-caption-property"
+          description="MEMBER_CAPTION property should exist"
+          cubeName="Sales"
+          dimensionUniqueName="[Time]"
+          propertyName="MEMBER_CAPTION">
+    <expectations>
+      <rowCountCheck expectedCount="1" operator="EQUALS"/>
+    </expectations>
+  </checks>
+
+  <!-- ==================================================================
+       EXAMPLE 9: MDSCHEMA_FUNCTIONS Checks
+       ================================================================== -->
+
+  <!-- All MDX functions -->
+  <checks xsi:type="xmlachecks:MDSchemaFunctionsCheck"
+          id="check-mdx-functions"
+          description="Should have MDX functions available">
+    <expectations>
+      <rowCountCheck expectedCount="50" operator="GREATER_OR_EQUAL"/>
+    </expectations>
+  </checks>
+
+  <!-- Specific function -->
+  <checks xsi:type="xmlachecks:MDSchemaFunctionsCheck"
+          id="check-members-function"
+          description="Members function should be available"
+          functionName="Members">
+    <expectations>
+      <rowCountCheck expectedCount="1" operator="GREATER_OR_EQUAL"/>
+    </expectations>
+  </checks>
+
+  <!-- ==================================================================
+       EXAMPLE 10: DISCOVER Checks
+       ================================================================== -->
+
+  <!-- Check datasources -->
+  <checks xsi:type="xmlachecks:DiscoverDatasourcesCheck"
+          id="check-datasources"
+          description="Should have at least 1 datasource">
+    <expectations>
+      <rowCountCheck expectedCount="1" operator="GREATER_OR_EQUAL"/>
+      <columnNotNullChecks>
+        <columnNotNullCheck columnName="DataSourceName"/>
+        <columnNotNullCheck columnName="DataSourceInfo"/>
+      </columnNotNullChecks>
+    </expectations>
+  </checks>
+
+  <!-- Check XMLA properties -->
+  <checks xsi:type="xmlachecks:DiscoverPropertiesCheck"
+          id="check-xmla-properties"
+          description="XMLA properties should be available">
+    <expectations>
+      <rowCountCheck expectedCount="1" operator="GREATER_OR_EQUAL"/>
+    </expectations>
+  </checks>
+
+  <!-- Check specific property -->
+  <checks xsi:type="xmlachecks:DiscoverPropertiesCheck"
+          id="check-catalog-property"
+          description="Catalog property should be available"
+          propertyName="Catalog">
+    <expectations>
+      <rowCountCheck expectedCount="1" operator="EQUALS"/>
+    </expectations>
+  </checks>
+
+  <!-- Check schema rowsets -->
+  <checks xsi:type="xmlachecks:DiscoverSchemaRowsetsCheck"
+          id="check-schema-rowsets"
+          description="Schema rowsets should be available">
+    <expectations>
+      <rowCountCheck expectedCount="10" operator="GREATER_OR_EQUAL"/>
+    </expectations>
+  </checks>
+
+  <!-- Check keywords -->
+  <checks xsi:type="xmlachecks:DiscoverKeywordsCheck"
+          id="check-mdx-keywords"
+          description="MDX keywords should be available">
+    <expectations>
+      <rowCountCheck expectedCount="50" operator="GREATER_OR_EQUAL"/>
+    </expectations>
+  </checks>
+
+  <!-- ==================================================================
+       EXAMPLE 11: ExecuteCheck (MDX Query)
+       ================================================================== -->
+
+  <checks xsi:type="xmlachecks:ExecuteCheck"
+          id="execute-simple-query"
+          description="Simple MDX query should return results"
+          statement="SELECT {[Measures].[Unit Sales]} ON COLUMNS FROM [Sales]">
+    <expectations>
+      <expectNonEmptyResult>true</expectNonEmptyResult>
+      <expectedAxisCount>2</expectedAxisCount>
+      <axisChecks>
+        <axisCheck axisOrdinal="0" expectedPositionCount="1" operator="EQUALS"/>
+      </axisChecks>
+      <cellValueChecks>
+        <cellValueCheck rowIndex="0"
+                        columnIndex="0"
+                        expectedValue="266773"
+                        comparisonMode="EXACT"/>
+      </cellValueChecks>
+    </expectations>
+  </checks>
+
+  <!-- Query with performance check -->
+  <checks xsi:type="xmlachecks:ExecuteCheck"
+          id="execute-performance-query"
+          description="Query should complete within 5 seconds"
+          statement="SELECT {[Measures].[Unit Sales], [Measures].[Store Sales]} ON COLUMNS,
+                     {[Time].[1997].Children} ON ROWS
+                     FROM [Sales]">
+    <expectations>
+      <expectNonEmptyResult>true</expectNonEmptyResult>
+      <performanceCheck>
+        <maxExecutionTimeMs>5000</maxExecutionTimeMs>
+      </performanceCheck>
+    </expectations>
+  </checks>
+
+  <!-- ==================================================================
+       EXAMPLE 12: Advanced - Pattern Matching
+       ================================================================== -->
+
+  <!-- Check cube names match pattern -->
+  <checks xsi:type="xmlachecks:MDSchemaCubesCheck"
+          id="check-cube-name-pattern"
+          description="Cube names should match naming convention">
+    <expectations>
+      <columnPatternChecks>
+        <columnPatternCheck columnName="CUBE_NAME"
+                            pattern="^[A-Z][a-zA-Z0-9_]*$"
+                            checkAllRows="true"/>
+      </columnPatternChecks>
+    </expectations>
+  </checks>
+
+  <!-- ==================================================================
+       EXAMPLE 13: Complex Hierarchy Navigation
+       ================================================================== -->
+
+  <!-- Check complete hierarchy structure -->
+  <checks xsi:type="xmlachecks:MDSchemaHierarchiesCheck"
+          id="check-store-hierarchy"
+          description="Store hierarchy should exist"
+          cubeName="Sales"
+          dimensionUniqueName="[Store]"
+          hierarchyUniqueName="[Store].[Store]">
+    <expectations>
+      <rowCountCheck expectedCount="1" operator="EQUALS"/>
+    </expectations>
+  </checks>
+
+  <!-- Check all levels in hierarchy -->
+  <checks xsi:type="xmlachecks:MDSchemaLevelsCheck"
+          id="check-store-levels"
+          description="Store hierarchy should have 5 levels"
+          cubeName="Sales"
+          hierarchyUniqueName="[Store].[Store]">
+    <expectations>
+      <rowCountCheck expectedCount="5" operator="EQUALS"/>
+    </expectations>
+  </checks>
+
+  <!-- Check members at each level -->
+  <checks xsi:type="xmlachecks:MDSchemaMembersCheck"
+          id="check-store-country-members"
+          description="Should have USA stores"
+          cubeName="Sales"
+          hierarchyUniqueName="[Store].[Store]"
+          levelUniqueName="[Store].[Store].[Store Country]">
+    <expectations>
+      <rowCountCheck expectedCount="1" operator="GREATER_OR_EQUAL"/>
+      <columnValueChecks>
+        <columnValueCheck columnName="MEMBER_NAME"
+                          expectedValue="USA"
+                          checkAllRows="false"/>
+      </columnValueChecks>
+    </expectations>
+  </checks>
+
+</xmlachecks:CheckSuite>
