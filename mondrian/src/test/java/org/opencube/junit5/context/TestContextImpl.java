@@ -312,7 +312,7 @@ import org.eclipse.daanse.olap.function.def.vba.typename.TypeNameResolver;
 import org.eclipse.daanse.olap.function.def.vba.weekday.WeekdayResolver;
 import org.eclipse.daanse.olap.function.def.vba.weekdayname.WeekdayNameResolver;
 import org.eclipse.daanse.olap.function.def.vba.year.YearResolver;
-import  org.eclipse.daanse.olap.server.ExecutionImpl;
+import org.eclipse.daanse.olap.execution.ExecutionImpl;
 import org.eclipse.daanse.rolap.common.AbstractRolapContext;
 import org.eclipse.daanse.rolap.common.RolapCatalogCache;
 import org.eclipse.daanse.rolap.common.connection.ExternalRolapConnection;

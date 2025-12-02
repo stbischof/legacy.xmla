@@ -18,10 +18,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.opencube.junit5.TestUtil.assertQueryReturns;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.eclipse.daanse.olap.api.CatalogReader;
 import org.eclipse.daanse.olap.api.Context;
@@ -35,7 +37,9 @@ import org.eclipse.daanse.olap.calc.base.type.tuplebase.DelegatingTupleList;
 import org.eclipse.daanse.olap.calc.base.type.tuplebase.TupleCollections;
 import org.eclipse.daanse.olap.calc.base.type.tuplebase.UnaryTupleList;
 import org.eclipse.daanse.olap.common.Util;
-import  org.eclipse.daanse.olap.server.LocusImpl;
+import org.eclipse.daanse.olap.api.execution.ExecutionContext;
+import org.eclipse.daanse.olap.api.execution.ExecutionMetadata;
+import org.eclipse.daanse.olap.execution.ExecutionImpl;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.opencube.junit5.ContextSource;
 import org.opencube.junit5.dataloader.FastFoodmardDataLoader;
@@ -215,12 +219,13 @@ class TupleListTest {
             + "Row #0: \n"
             + "Row #1: \n"
             + "Row #2: 565,238.13\n");
-        LocusImpl.execute(
-            connection,
-            "testDelegatingTupleListSlice",
-            new LocusImpl.Action<Void>() {
-                @Override
-				public Void execute() {
+        ExecutionImpl execution = new ExecutionImpl(
+            ((Connection) connection).getInternalStatement(),
+            Optional.of(Duration.ofMinutes(5)));
+        ExecutionMetadata metadata = ExecutionMetadata.of("testDelegatingTupleListSlice", "testDelegatingTupleListSlice", null, 0);
+        ExecutionContext.where(
+                execution.asContext().createChild(metadata, Optional.empty()),
+                () -> {
                     // Unit test
                     final Member genderFMember = xxx(connection, "[Gender].[F]");
                     final Member storeUsaMember = xxx(connection, "[Store].[USA]");
@@ -233,8 +238,7 @@ class TupleListTest {
                     assertEquals(1, sliced.size());
                     assertEquals(1, fm.size());
                     return null;
-                }
-            });
+                });
     }
 
     private void checkProject(TupleList fm) {

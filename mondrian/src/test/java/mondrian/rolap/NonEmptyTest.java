@@ -3616,7 +3616,7 @@ class NonEmptyTest extends BatchTestCase {
     */
     // verify that exception is thrown if alerting is set to ERROR
     ((TestContextImpl)context)
-        .setAlertNativeEvaluationUnsupported(org.apache.logging.log4j.Level.ERROR.toString());
+        .setAlertNativeEvaluationUnsupported("ERROR");
     try {
       checkNotNative(context, 3, mdx );
       fail( "Expected NativeEvaluationUnsupportedException" );

@@ -26,6 +26,7 @@ import org.eclipse.daanse.olap.api.CatalogReader;
 import org.eclipse.daanse.olap.api.Context;
 import org.eclipse.daanse.olap.api.DataType;
 import org.eclipse.daanse.olap.api.Validator;
+import org.eclipse.daanse.olap.api.execution.ExecutionMetadata;
 import org.eclipse.daanse.olap.api.calc.Calc;
 import org.eclipse.daanse.olap.api.calc.compiler.ExpressionCompiler;
 import org.eclipse.daanse.olap.api.calc.todo.TupleCursor;
@@ -50,8 +51,8 @@ import org.eclipse.daanse.olap.function.core.FunctionParameterR;
 import org.eclipse.daanse.olap.function.def.crossjoin.CrossJoinFunDef;
 import org.eclipse.daanse.olap.function.def.crossjoin.CrossJoinIterCalc;
 import org.eclipse.daanse.olap.query.component.ResolvedFunCallImpl;
-import  org.eclipse.daanse.olap.server.ExecutionImpl;
-import  org.eclipse.daanse.olap.server.LocusImpl;
+import org.eclipse.daanse.olap.execution.ExecutionImpl;
+import org.eclipse.daanse.olap.api.execution.ExecutionContext;
 import org.eclipse.daanse.rolap.element.RolapCube;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -170,21 +171,20 @@ public class CrossJoinTest {
   private Integer crossJoinIterCalcIterate(
     final TupleList list1, final TupleList list2,
     final ExecutionImpl execution ) {
-    return LocusImpl.execute(
-      execution, "CrossJoinTest", new LocusImpl.Action<Integer>() {
-        @Override
-		public Integer execute() {
-          TupleIterable iterable =
-            new CrossJoinIterCalc(
-              getResolvedFunCall(), null, crossJoinFunDef.getCtag() ).makeIterable( list1, list2 );
-          TupleCursor tupleCursor = iterable.tupleCursor();
-          // total count of all iterations
-          int counter = 0;
-          while ( tupleCursor.forward() ) {
-            counter++;
-          }
-          return Integer.valueOf( counter );
+    ExecutionMetadata metadata = ExecutionMetadata.of("CrossJoinTest", "CrossJoinTest", null, 0);
+    return ExecutionContext.where(
+      execution.asContext().createChild(metadata, Optional.empty()),
+      () -> {
+        TupleIterable iterable =
+          new CrossJoinIterCalc(
+            getResolvedFunCall(), null, crossJoinFunDef.getCtag() ).makeIterable( list1, list2 );
+        TupleCursor tupleCursor = iterable.tupleCursor();
+        // total count of all iterations
+        int counter = 0;
+        while ( tupleCursor.forward() ) {
+          counter++;
         }
+        return Integer.valueOf( counter );
       } );
   }
 

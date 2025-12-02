@@ -69,8 +69,8 @@ import org.opencube.junit5.propupdator.AppandFoodMartCatalog;
 import mondrian.enums.DatabaseProduct;
 import mondrian.rolap.BatchTestCase;
 
-import  org.eclipse.daanse.olap.server.ExecutionImpl;
-import  org.eclipse.daanse.olap.server.LocusImpl;
+import org.eclipse.daanse.olap.execution.ExecutionImpl;
+import org.eclipse.daanse.olap.api.execution.ExecutionContext;
 import org.eclipse.daanse.olap.key.BitKey;
 import org.eclipse.daanse.olap.key.CellKey;
 import org.eclipse.daanse.rolap.common.RolapStar;
@@ -96,7 +96,7 @@ import mondrian.test.SqlPattern;
 class SegmentLoaderTest extends BatchTestCase {
 
     private ExecutionImpl execution;
-    private LocusImpl locus;
+    private ExecutionContext executionContext;
     private SegmentCacheManager cacheMgr;
     private Statement statement;
 
@@ -107,11 +107,11 @@ class SegmentLoaderTest extends BatchTestCase {
                 .getContext()).getAggregationManager().getCacheMgr();
         statement = ((Connection) connection).getInternalStatement();
         execution = new ExecutionImpl(statement, Optional.of(Duration.ofMillis(1000)));
-        locus = new LocusImpl(execution, null, null);
+        executionContext = execution.asContext();
         cacheMgr = (SegmentCacheManager) ((AbstractBasicContext)execution.getDaanseStatement().getDaanseConnection()
             .getContext()).getAggregationManager().getCacheMgr();
 
-        LocusImpl.push(locus);
+        // Note: ExecutionContext.push() removed. Tests should wrap operations in ExecutionContext.where() if needed.
     }
 
 
@@ -124,7 +124,7 @@ class SegmentLoaderTest extends BatchTestCase {
     @AfterEach
     protected void AfterEach() throws Exception {
         SystemWideProperties.instance().populateInitial();
-        LocusImpl.pop(locus);
+        // Note: LocusImpl.pop() removed
         try {
             statement.cancel();
         } catch (Exception e) {
@@ -137,7 +137,7 @@ class SegmentLoaderTest extends BatchTestCase {
         }
         statement = null;
         execution = null;
-        locus = null;
+        executionContext = null;
         cacheMgr = null;
     }
 
@@ -1204,7 +1204,7 @@ class SegmentLoaderTest extends BatchTestCase {
                 null,
                 cellRequestCount,
                 0,
-                SegmentLoaderTest.this.locus,
+                SegmentLoaderTest.this.executionContext,
                 0,
                 0,
                 null);

@@ -12,11 +12,13 @@ package mondrian.spi.impl;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Optional;
 
 import org.eclipse.daanse.jdbc.db.dialect.api.Dialect;
 import org.eclipse.daanse.olap.api.Context;
-import  org.eclipse.daanse.olap.server.ExecutionImpl;
-import  org.eclipse.daanse.olap.server.LocusImpl;
+import org.eclipse.daanse.olap.api.execution.ExecutionContext;
+import org.eclipse.daanse.olap.api.execution.ExecutionMetadata;
+import org.eclipse.daanse.olap.execution.ExecutionImpl;
 import org.eclipse.daanse.rolap.common.RolapUtil;
 import org.eclipse.daanse.rolap.common.SqlStatement;
 
@@ -39,15 +41,17 @@ public class SqlStatisticsProvider implements StatisticsProvider {
         StringBuilder buf = new StringBuilder("select count(*) from ");
         context.getDialect().quoteIdentifier(buf, catalog, schema, table);
         final String sql = buf.toString();
+        ExecutionMetadata metadata = ExecutionMetadata.of(
+            "SqlStatisticsProvider.getTableCardinality",
+            "Reading row count from table " + Arrays.asList(catalog, schema, table),
+            null,
+            0
+        );
         SqlStatement stmt =
             RolapUtil.executeQuery(
                 context,
                 sql,
-                new LocusImpl(
-                    execution,
-                    "SqlStatisticsProvider.getTableCardinality",
-                    "Reading row count from table "
-                    + Arrays.asList(catalog, schema, table)));
+                execution.asContext().createChild(metadata, Optional.empty()));
         try {
             ResultSet resultSet = stmt.getResultSet();
             if (resultSet.next()) {
@@ -81,14 +85,17 @@ public class SqlStatisticsProvider implements StatisticsProvider {
             dialect.quoteIdentifier(buf, "init");
         }
         final String countSql = buf.toString();
+        ExecutionMetadata metadata = ExecutionMetadata.of(
+            "SqlStatisticsProvider.getQueryCardinality",
+            new StringBuilder("Reading row count from query [").append(sql).append("]").toString(),
+            null,
+            0
+        );
         SqlStatement stmt =
             RolapUtil.executeQuery(
                 context,
                 countSql,
-                new LocusImpl(
-                    execution,
-                    "SqlStatisticsProvider.getQueryCardinality",
-                    new StringBuilder("Reading row count from query [").append(sql).append("]").toString()));
+                execution.asContext().createChild(metadata, Optional.empty()));
         try {
             ResultSet resultSet = stmt.getResultSet();
             if (resultSet.next()) {
@@ -118,15 +125,17 @@ public class SqlStatisticsProvider implements StatisticsProvider {
         if (sql == null) {
             return -1;
         }
+        ExecutionMetadata metadata = ExecutionMetadata.of(
+            "SqlStatisticsProvider.getColumnCardinality",
+            "Reading cardinality for column " + Arrays.asList(catalog, schema, table, column),
+            null,
+            0
+        );
         SqlStatement stmt =
             RolapUtil.executeQuery(
                 context,
                 sql,
-                new LocusImpl(
-                    execution,
-                    "SqlStatisticsProvider.getColumnCardinality",
-                    "Reading cardinality for column "
-                    + Arrays.asList(catalog, schema, table, column)));
+                execution.asContext().createChild(metadata, Optional.empty()));
         try {
             ResultSet resultSet = stmt.getResultSet();
             if (resultSet.next()) {

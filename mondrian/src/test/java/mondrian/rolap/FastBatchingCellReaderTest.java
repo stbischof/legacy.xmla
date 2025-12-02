@@ -49,13 +49,12 @@ import org.eclipse.daanse.olap.api.CacheCommand;
 import org.eclipse.daanse.olap.api.ConfigConstants;
 import org.eclipse.daanse.olap.api.Context;
 import org.eclipse.daanse.olap.api.DataTypeJdbc;
-import org.eclipse.daanse.olap.api.Locus;
 import org.eclipse.daanse.olap.api.Statement;
 import org.eclipse.daanse.olap.api.connection.Connection;
 import org.eclipse.daanse.olap.common.SystemWideProperties;
 import org.eclipse.daanse.olap.core.AbstractBasicContext;
-import  org.eclipse.daanse.olap.server.ExecutionImpl;
-import  org.eclipse.daanse.olap.server.LocusImpl;
+import org.eclipse.daanse.olap.execution.ExecutionImpl;
+import org.eclipse.daanse.olap.api.execution.ExecutionContext;
 import  org.eclipse.daanse.olap.util.Bug;
 import org.eclipse.daanse.rolap.aggregator.MaxAggregator;
 import org.eclipse.daanse.rolap.aggregator.MinAggregator;
@@ -106,7 +105,7 @@ import mondrian.test.SqlPattern;
  */
 class FastBatchingCellReaderTest extends BatchTestCase{
 
-  private Locus locus;
+  private ExecutionContext executionContext;
   private ExecutionImpl e;
   private AggregationManager aggMgr;
   private RolapCube salesCube;
@@ -120,13 +119,13 @@ class FastBatchingCellReaderTest extends BatchTestCase{
   @AfterEach
   public void afterEach() {
     SystemWideProperties.instance().populateInitial();
-    LocusImpl.pop( locus );
+    // Note: ExecutionContext.pop() removed
     // cleanup
     connection.close();
     connection = null;
     e = null;
     aggMgr = null;
-    locus = null;
+    executionContext = null;
     salesCube = null;
   }
 
@@ -137,8 +136,8 @@ class FastBatchingCellReaderTest extends BatchTestCase{
     e = new ExecutionImpl( statement, Optional.empty() );
     AbstractBasicContext<?> abc = (AbstractBasicContext) e.getDaanseStatement().getDaanseConnection().getContext();
     aggMgr = (AggregationManager)abc.getAggregationManager();
-    locus = new LocusImpl( e, "FastBatchingCellReaderTest", null );
-    LocusImpl.push( locus );
+    executionContext = e.asContext();
+    // Note: ExecutionContext.push() removed. Tests should wrap operations in ExecutionContext.where() if needed.
     salesCube = (RolapCube) connection.getCatalogReader().withLocus().getCubes().get(0);
   }
 
@@ -147,7 +146,7 @@ class FastBatchingCellReaderTest extends BatchTestCase{
     if ( useGroupingSets != null ) {
       dialect = dialectWithGroupingSets( dialect, useGroupingSets );
     }
-    return new BatchLoader( LocusImpl.peek(), aggMgr.getCacheMgr(), dialect, cube );
+    return new BatchLoader( ExecutionContext.current(), aggMgr.getCacheMgr(), dialect, cube );
   }
 
   private Dialect dialectWithGroupingSets( final Dialect dialect, final boolean supportsGroupingSets ) {
@@ -932,7 +931,7 @@ class FastBatchingCellReaderTest extends BatchTestCase{
     AbstractBasicContext<?> abc = (AbstractBasicContext) context;
     ((SegmentCacheManager)(abc.getAggregationManager().getCacheMgr())).execute(
         new CacheCommand<Void>() {
-          private final Locus locus = LocusImpl.peek();
+          private final ExecutionContext executionContext = ExecutionContext.current();
 
           @Override
 		public Void call() throws Exception {
@@ -941,8 +940,8 @@ class FastBatchingCellReaderTest extends BatchTestCase{
           }
 
           @Override
-		public Locus getLocus() {
-            return locus;
+		public ExecutionContext getExecutionContext() {
+            return executionContext;
           }
         } );
 

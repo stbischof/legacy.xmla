@@ -31,11 +31,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.eclipse.daanse.olap.api.CatalogReader;
 import org.eclipse.daanse.olap.api.ConfigConstants;
 import org.eclipse.daanse.olap.api.Context;
-import org.eclipse.daanse.olap.api.Execution;
+import org.eclipse.daanse.olap.api.execution.Execution;
+import org.eclipse.daanse.olap.api.execution.ExecutionMetadata;
 import org.eclipse.daanse.olap.api.calc.todo.TupleList;
 import org.eclipse.daanse.olap.api.connection.Connection;
 import org.eclipse.daanse.olap.api.connection.ConnectionProps;
@@ -50,8 +52,8 @@ import org.eclipse.daanse.olap.common.Util;
 import org.eclipse.daanse.olap.function.def.aggregate.AggregateCalc;
 import org.eclipse.daanse.olap.function.def.crossjoin.CrossJoinFunDef;
 import org.eclipse.daanse.olap.query.component.IdImpl;
-import  org.eclipse.daanse.olap.server.ExecutionImpl;
-import  org.eclipse.daanse.olap.server.LocusImpl;
+import org.eclipse.daanse.olap.execution.ExecutionImpl;
+import org.eclipse.daanse.olap.api.execution.ExecutionContext;
 import org.eclipse.daanse.rolap.element.RolapCube;
 import org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier;
 import org.junit.jupiter.api.AfterEach;
@@ -1984,15 +1986,12 @@ class AggregationOnDistinctCountMeasuresTest {
     }
 
     private TupleList optimizeChildren(final TupleList memberList) {
-        return LocusImpl.execute(
-            ExecutionImpl.NONE,
-            "AggregationOnDistinctCountMeasuresTest",
-            new LocusImpl.Action<TupleList>() {
-                @Override
-				public TupleList execute() {
-                    return AggregateCalc.optimizeChildren(
-                        memberList, catalogReader, salesCube);
-                }
+        ExecutionMetadata metadata = ExecutionMetadata.of("AggregationOnDistinctCountMeasuresTest", "AggregationOnDistinctCountMeasuresTest", null, 0);
+        return ExecutionContext.where(
+            ExecutionImpl.NONE.asContext().createChild(metadata, Optional.empty()),
+            () -> {
+                return AggregateCalc.optimizeChildren(
+                    memberList, catalogReader, salesCube);
             }
         );
     }
@@ -2000,16 +1999,12 @@ class AggregationOnDistinctCountMeasuresTest {
     private TupleList mutableCrossJoin(
         final TupleList list1, final TupleList list2)
     {
-        return LocusImpl.execute(
-            ExecutionImpl.NONE,
-            "AggregationOnDistinctCountMeasuresTest",
-            new LocusImpl.Action<TupleList>() {
-                @Override
-				public TupleList execute()
-                {
-                    return CrossJoinFunDef.mutableCrossJoin(
-                        list1, list2);
-                }
+        ExecutionMetadata metadata = ExecutionMetadata.of("AggregationOnDistinctCountMeasuresTest", "AggregationOnDistinctCountMeasuresTest", null, 0);
+        return ExecutionContext.where(
+            ExecutionImpl.NONE.asContext().createChild(metadata, Optional.empty()),
+            () -> {
+                return CrossJoinFunDef.mutableCrossJoin(
+                    list1, list2);
             }
         );
     }

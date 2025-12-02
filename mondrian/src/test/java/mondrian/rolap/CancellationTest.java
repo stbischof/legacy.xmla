@@ -36,10 +36,11 @@ import org.opencube.junit5.dataloader.FastFoodmardDataLoader;
 import org.opencube.junit5.propupdator.AppandFoodMartCatalog;
 
 import mondrian.olap.fun.CrossJoinTest;
-import  org.eclipse.daanse.olap.server.ExecutionImpl;
-import  org.eclipse.daanse.olap.server.LocusImpl;
+import org.eclipse.daanse.olap.execution.ExecutionImpl;
+import org.eclipse.daanse.olap.api.execution.ExecutionContext;
 import org.eclipse.daanse.rolap.element.RolapCube;
 import org.eclipse.daanse.rolap.common.RolapResult;
+import org.eclipse.daanse.olap.api.execution.ExecutionMetadata;
 
 import java.util.Optional;
 
@@ -127,13 +128,11 @@ class CancellationTest {
     private TupleList mutableCrossJoin(
         final TupleList list1, final TupleList list2, final ExecutionImpl execution)
         {
-            return LocusImpl.execute(
-                execution, "CancellationTest",
-                new LocusImpl.Action<TupleList>() {
-                    @Override
-					public TupleList execute() {
-                        return CrossJoinFunDef.mutableCrossJoin(list1, list2);
-                    }
+            ExecutionMetadata metadata = ExecutionMetadata.of("CancellationTest", "CancellationTest", null, 0);
+            return ExecutionContext.where(
+                execution.asContext().createChild(metadata, Optional.empty()),
+                () -> {
+                    return CrossJoinFunDef.mutableCrossJoin(list1, list2);
                 });
         }
 

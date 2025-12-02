@@ -30,14 +30,15 @@ import java.util.function.Function;
 
 import org.eclipse.daanse.jdbc.db.dialect.api.Dialect;
 import org.eclipse.daanse.olap.api.CacheControl;
+import org.eclipse.daanse.olap.api.execution.ExecutionMetadata;
 import org.eclipse.daanse.olap.api.ConfigConstants;
 import org.eclipse.daanse.olap.api.Context;
-import org.eclipse.daanse.olap.api.Locus;
 import org.eclipse.daanse.olap.api.Quoting;
 import org.eclipse.daanse.olap.api.calc.ResultStyle;
 import org.eclipse.daanse.olap.api.connection.Connection;
 import org.eclipse.daanse.olap.api.element.Cube;
 import org.eclipse.daanse.olap.api.element.Member;
+import org.eclipse.daanse.olap.api.execution.ExecutionContext;
 import org.eclipse.daanse.olap.api.query.component.Query;
 import org.eclipse.daanse.olap.api.result.Axis;
 import org.eclipse.daanse.olap.api.result.Result;
@@ -46,8 +47,7 @@ import org.eclipse.daanse.olap.common.Util;
 import org.eclipse.daanse.olap.core.AbstractBasicContext;
 import org.eclipse.daanse.olap.key.BitKey;
 import org.eclipse.daanse.olap.query.component.IdImpl;
-import  org.eclipse.daanse.olap.server.ExecutionImpl;
-import  org.eclipse.daanse.olap.server.LocusImpl;
+import org.eclipse.daanse.olap.execution.ExecutionImpl;
 import  org.eclipse.daanse.olap.util.Pair;
 import org.eclipse.daanse.rolap.common.BatchLoader;
 import org.eclipse.daanse.rolap.common.FastBatchingCellReader;
@@ -222,34 +222,34 @@ public class BatchTestCase{
         final String cubeName,
         final String measure)
     {
-        return LocusImpl.execute(
-            connection,
-            "BatchTestCase.getGroupingSet",
-            new LocusImpl.Action<GroupingSet>() {
-                @Override
-				public GroupingSet execute() {
-                    final RolapCube cube = getCube(connection, cubeName);
-                    AbstractBasicContext<?> abc = (AbstractBasicContext) connection.getContext();
-                    final BatchLoader fbcr =
-                        new BatchLoader(
-                            LocusImpl.peek(),
-                            ((AggregationManager)abc.getAggregationManager()).getCacheMgr(),
-                            cube.getStar().getSqlQueryDialect(),
-                            cube);
-                    BatchLoader.Batch batch =
-                        createBatch(connection,
-                            fbcr,
-                            tableNames, fieldNames,
-                            fieldValues, cubeName,
-                            measure);
-                    GroupingSetsCollector collector =
-                        new GroupingSetsCollector(true);
-                    final List<Future<Map<Segment, SegmentWithData>>>
-                        segmentFutures =
-                            new ArrayList<>();
-                    batch.loadAggregation(collector, segmentFutures);
-                    return collector.getGroupingSets().get(0);
-                }
+        ExecutionImpl execution = new ExecutionImpl(
+            ((Connection) connection).getInternalStatement(),
+            Optional.of(Duration.ofMinutes(5)));
+        ExecutionMetadata metadata = ExecutionMetadata.of("BatchTestCase.getGroupingSet", "BatchTestCase.getGroupingSet", null, 0);
+        return ExecutionContext.where(
+            execution.asContext().createChild(metadata, Optional.empty()),
+            () -> {
+                final RolapCube cube = getCube(connection, cubeName);
+                AbstractBasicContext<?> abc = (AbstractBasicContext) connection.getContext();
+                final BatchLoader fbcr =
+                    new BatchLoader(
+                        ExecutionContext.current(),
+                        ((AggregationManager)abc.getAggregationManager()).getCacheMgr(),
+                        cube.getStar().getSqlQueryDialect(),
+                        cube);
+                BatchLoader.Batch batch =
+                    createBatch(connection,
+                        fbcr,
+                        tableNames, fieldNames,
+                        fieldValues, cubeName,
+                        measure);
+                GroupingSetsCollector collector =
+                    new GroupingSetsCollector(true);
+                final List<Future<Map<Segment, SegmentWithData>>>
+                    segmentFutures =
+                        new ArrayList<>();
+                batch.loadAggregation(collector, segmentFutures);
+                return collector.getGroupingSets().get(0);
             });
     }
 
@@ -345,11 +345,9 @@ public class BatchTestCase{
                     .getContext();
             final AggregationManager aggMgr =
                 (AggregationManager)abc.getAggregationManager();
-            final Locus locus =
-                new LocusImpl(
-                    execution,
-                    "BatchTestCase",
-                    "BatchTestCase");
+            ExecutionMetadata metadata = ExecutionMetadata.of("BatchTestCase", "BatchTestCase", null, 0);
+            final ExecutionContext executionContext =
+                execution.asContext().createChild(metadata, Optional.empty());
             try {
                 FastBatchingCellReader fbcr =
                     new FastBatchingCellReader(
@@ -357,10 +355,11 @@ public class BatchTestCase{
                 for (CellRequest request : requests) {
                     fbcr.recordCellRequest(request);
                 }
-                // The FBCR will presume there is a current Locus in the stack,
-                // so let's create a mock one.
-                LocusImpl.push(locus);
-                fbcr.loadAggregations();
+                // The FBCR will presume there is a current ExecutionContext,
+                // so let's set it up.
+                ExecutionContext.where(executionContext, () -> {
+                    fbcr.loadAggregations();
+                });
                 bomb = null;
             } catch (Bomb e) {
                 bomb = e;
@@ -373,7 +372,6 @@ public class BatchTestCase{
                 }
             } finally {
                 RolapUtil.setHook(null);
-                LocusImpl.pop(locus);
             }
             if (!negative && bomb == null) {
                 fail("expected query [" + sql + "] did not occur");

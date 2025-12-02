@@ -81,7 +81,7 @@ import org.eclipse.daanse.olap.common.StandardProperty;
 import org.eclipse.daanse.olap.common.SystemWideProperties;
 import org.eclipse.daanse.olap.common.Util;
 import org.eclipse.daanse.olap.query.component.IdImpl;
-import  org.eclipse.daanse.olap.server.ExecutionImpl;
+import org.eclipse.daanse.olap.execution.ExecutionImpl;
 import org.eclipse.daanse.olap.spi.StatisticsProvider;
 import  org.eclipse.daanse.olap.util.Bug;
 import org.eclipse.daanse.rolap.api.RolapContext;

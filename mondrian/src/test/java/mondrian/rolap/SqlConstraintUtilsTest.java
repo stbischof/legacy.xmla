@@ -62,7 +62,7 @@ import org.eclipse.daanse.olap.api.query.component.QueryAxis;
 import org.eclipse.daanse.olap.api.type.TupleType;
 import org.eclipse.daanse.olap.calc.base.type.tuplebase.AbstractTupleCursor;
 import org.eclipse.daanse.olap.query.component.ResolvedFunCallImpl;
-import  org.eclipse.daanse.olap.server.ExecutionImpl;
+import org.eclipse.daanse.olap.execution.ExecutionImpl;
 import org.eclipse.daanse.rolap.common.RolapEvaluator;
 import org.eclipse.daanse.rolap.common.RolapEvaluatorRoot;
 import org.eclipse.daanse.rolap.common.RolapStar;
