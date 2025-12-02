@@ -27,8 +27,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
 import org.eclipse.daanse.olap.common.Util;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;
@@ -98,18 +96,24 @@ class XmlUtility {
     public static void save(Writer writer, Document document)
         throws IOException
     {
-        OutputFormat outputFormat = new OutputFormat(document);
-
-        outputFormat.setIndenting(true);
-
-        outputFormat.setLineWidth(Integer.MAX_VALUE);
-
-        outputFormat.setLineSeparator(Util.NL);
-
         try {
-            XMLSerializer serializer = new XMLSerializer(writer, outputFormat);
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
 
-            serializer.serialize(document);
+            // Configure output format
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+
+            // Use the system line separator
+            transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+
+            // Transform DOM to Writer
+            DOMSource source = new DOMSource(document);
+            StreamResult result = new StreamResult(writer);
+            transformer.transform(source, result);
+
+        } catch (TransformerException e) {
+            throw new IOException("Error serializing XML document", e);
         } finally {
             if (writer != null) {
                 writer.close();

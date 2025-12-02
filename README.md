@@ -1,5 +1,2 @@
-# Welcome to daanse
+# Daanse Rolap Ci Test
 
-Data Analysis Services:
-
-## Online Analytical Processing (OLAP) server

@@ -14,6 +14,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.opencube.junit5.TestUtil.assertQueryReturns;
 
+import java.time.Duration;
+import java.util.Optional;
+
 import org.eclipse.daanse.olap.api.connection.Connection;
 import org.eclipse.daanse.olap.api.Context;
 import org.eclipse.daanse.olap.api.result.Result;
@@ -32,7 +35,9 @@ import org.opencube.junit5.propupdator.AppandFoodMartCatalog;
 import mondrian.enums.DatabaseProduct;
 import mondrian.rolap.BatchTestCase;
 
-import  org.eclipse.daanse.olap.server.LocusImpl;
+import org.eclipse.daanse.olap.api.execution.ExecutionContext;
+import org.eclipse.daanse.olap.api.execution.ExecutionMetadata;
+import org.eclipse.daanse.olap.execution.ExecutionImpl;
 
 import mondrian.test.SqlPattern;
 
@@ -1778,15 +1783,15 @@ class NativizeSetFunDefTest extends BatchTestCase {
         final String query,
         final String expectedQuery)
     {
+        ExecutionImpl execution = new ExecutionImpl(
+            ((org.eclipse.daanse.olap.api.connection.Connection) connection).getInternalStatement(),
+            Optional.of(Duration.ofMinutes(5)));
+        ExecutionMetadata metadata = ExecutionMetadata.of(NativizeSetFunDefTest.class.getName(), NativizeSetFunDefTest.class.getName(), null, 0);
         String actualOutput =
-            LocusImpl.execute(
-                connection,
-                NativizeSetFunDefTest.class.getName(),
-                new LocusImpl.Action<String>() {
-                    @Override
-					public String execute() {
-                        return connection.parseQuery(query).toString();
-                    }
+            ExecutionContext.where(
+                execution.asContext().createChild(metadata, Optional.empty()),
+                () -> {
+                    return connection.parseQuery(query).toString();
                 }
             );
         if (!Util.NL.equals("\n")) {

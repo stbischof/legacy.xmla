@@ -47,8 +47,8 @@ import java.util.Set;
 import org.eclipse.daanse.jdbc.db.dialect.api.Dialect;
 import org.eclipse.daanse.olap.api.ConfigConstants;
 import org.eclipse.daanse.olap.api.Context;
-import org.eclipse.daanse.olap.api.Locus;
 import org.eclipse.daanse.olap.api.Statement;
+import org.eclipse.daanse.olap.api.execution.ExecutionMetadata;
 import org.eclipse.daanse.olap.api.connection.Connection;
 import org.eclipse.daanse.olap.api.element.Cube;
 import org.eclipse.daanse.olap.api.element.Member;
@@ -56,8 +56,8 @@ import org.eclipse.daanse.olap.api.result.Result;
 import org.eclipse.daanse.olap.common.SystemWideProperties;
 import org.eclipse.daanse.olap.common.Util;
 import org.eclipse.daanse.olap.core.AbstractBasicContext;
-import  org.eclipse.daanse.olap.server.ExecutionImpl;
-import  org.eclipse.daanse.olap.server.LocusImpl;
+import org.eclipse.daanse.olap.execution.ExecutionImpl;
+import org.eclipse.daanse.olap.api.execution.ExecutionContext;
 import org.eclipse.daanse.rolap.api.RolapContext;
 import org.eclipse.daanse.rolap.common.FastBatchingCellReader;
 import org.eclipse.daanse.rolap.common.RolapStar;
@@ -92,7 +92,7 @@ class TestAggregationManager extends BatchTestCase {
             DatabaseProduct.ACCESS,
             DatabaseProduct.MYSQL);
 
-    private Locus locus;
+    private ExecutionContext executionContext;
     private ExecutionImpl execution;
     private AggregationManager aggMgr;
 
@@ -106,10 +106,10 @@ class TestAggregationManager extends BatchTestCase {
     @AfterEach
     void afterEach() {
         SystemWideProperties.instance().populateInitial();
-        LocusImpl.pop(locus);
+        // Note: ExecutionContext.pop() removed.
 
         // allow gc
-        locus = null;
+        executionContext = null;
         execution = null;
         aggMgr = null;
     }
@@ -123,8 +123,9 @@ class TestAggregationManager extends BatchTestCase {
             (AggregationManager)((AbstractBasicContext)execution.getDaanseStatement()
                 .getDaanseConnection()
                 .getContext()).getAggregationManager();
-        locus = new LocusImpl(execution, "TestAggregationManager", null);
-        LocusImpl.push(locus);
+        ExecutionMetadata metadata = ExecutionMetadata.of("TestAggregationManager", "TestAggregationManager", null, 0);
+        executionContext = execution.asContext().createChild(metadata, Optional.empty());
+        // Note: ExecutionContext.push() removed. Wrap operations in ExecutionContext.where() if needed.
     }
 
     @ParameterizedTest

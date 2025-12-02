@@ -3,6 +3,4 @@ Import-Package: \
 
 DynamicImport-Package: *
 
-Export-Package: \
-	mondrian.*
-	
+Export-Package: mondrian.*

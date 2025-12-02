@@ -50,7 +50,6 @@ import org.eclipse.daanse.olap.api.CacheControl.MemberEditCommand;
 import org.eclipse.daanse.olap.api.connection.Connection;
 import org.eclipse.daanse.olap.api.Context;
 import org.eclipse.daanse.olap.api.IAggregationManager;
-import org.eclipse.daanse.olap.api.Locus;
 import org.eclipse.daanse.olap.api.CatalogReader;
 import org.eclipse.daanse.olap.api.Statement;
 import org.eclipse.daanse.olap.api.element.Cube;
@@ -75,8 +74,8 @@ import org.opencube.junit5.TestUtil;
 import org.opencube.junit5.dataloader.FastFoodmardDataLoader;
 import org.opencube.junit5.propupdator.AppandFoodMartCatalog;
 import org.slf4j.Logger;
-import  org.eclipse.daanse.olap.server.ExecutionImpl;
-import  org.eclipse.daanse.olap.server.LocusImpl;
+import org.eclipse.daanse.olap.execution.ExecutionImpl;
+import org.eclipse.daanse.olap.api.execution.ExecutionContext;
 import org.eclipse.daanse.rolap.common.MemberCache;
 import org.eclipse.daanse.rolap.common.MemberReader;
 import org.eclipse.daanse.rolap.element.RolapBaseCubeMeasure;
@@ -86,6 +85,7 @@ import org.eclipse.daanse.rolap.element.RolapMember;
 import org.eclipse.daanse.rolap.common.RolapUtil;
 import org.eclipse.daanse.rolap.common.SmartMemberReader;
 import org.eclipse.daanse.rolap.common.agg.AggregationManager;
+import org.eclipse.daanse.olap.api.execution.ExecutionMetadata;
 
 import mondrian.test.DiffRepository;
 
@@ -102,7 +102,7 @@ import mondrian.test.DiffRepository;
  * @since Jan 2008
  */
 class MemberCacheControlTest {
-    private Locus locus;
+    private ExecutionContext executionContext;
 
     // TODO: add multi-thread tests.
     // TODO: test set properties negative: refer to invalid property
@@ -122,8 +122,8 @@ class MemberCacheControlTest {
     public void afterEach() {
         SystemWideProperties.instance().populateInitial();
 //        RolapCatalogCache.instance().clear();
-        LocusImpl.pop(locus);
-        locus = null;
+        // Note: ExecutionContext.pop() removed.
+        executionContext = null;
     }
 
     // ~ Utility methods ------------------------------------------------------
@@ -135,9 +135,10 @@ class MemberCacheControlTest {
         final Connection conn = (Connection) context.getConnectionWithDefaultRole();
         final Statement statement = conn.getInternalStatement();
         final ExecutionImpl execution = new ExecutionImpl(statement, Optional.empty());
-        //locus = new Locus(execution, getName(), null);
-        locus = new LocusImpl(execution, "MemberCacheControlTest", null);
-        LocusImpl.push(locus);
+        //executionContext = new Locus(execution, getName(), null);
+        ExecutionMetadata metadata = ExecutionMetadata.of("MemberCacheControlTest", "MemberCacheControlTest", null, 0);
+        executionContext = execution.asContext().createChild(metadata, Optional.empty());
+        // Note: ExecutionContext.push() removed. Wrap operations in ExecutionContext.where() if needed.
         /*
         ((BaseTestContext)context).update(SchemaUpdater.createSubstitutingCube(
             "Sales",

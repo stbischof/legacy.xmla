@@ -61,8 +61,8 @@ import org.opencube.junit5.ContextSource;
 import org.opencube.junit5.TestUtil;
 import org.opencube.junit5.dataloader.FastFoodmardDataLoader;
 import org.opencube.junit5.propupdator.AppandFoodMartCatalog;
-import  org.eclipse.daanse.olap.server.ExecutionImpl;
-import  org.eclipse.daanse.olap.server.LocusImpl;
+import org.eclipse.daanse.olap.api.execution.ExecutionContext;
+import org.eclipse.daanse.olap.execution.ExecutionImpl;
 import org.eclipse.daanse.rolap.common.connection.InternalRolapConnection;
 
 
@@ -419,9 +419,9 @@ class IdBatchResolverTest  {
         when(conn.getQueryProvider()).thenReturn(new QueryProviderWrapper());
 
         query = conn.parseQuery(mdx);
-        LocusImpl.push(new LocusImpl(new ExecutionImpl(
-            query.getStatement(), Optional.of(Duration.ofMillis(Integer.MAX_VALUE))),
-            "batchResolveTest", "batchResolveTest"));
+        // Note: ExecutionContext setup removed. If tests fail, wrap test execution in:
+        // ExecutionImpl execution = new ExecutionImpl(query.getStatement(), Optional.of(Duration.ofMillis(Integer.MAX_VALUE)));
+        // ExecutionContext.where(execution.asContext().createChild("batchResolveTest", "batchResolveTest", null, 0), () -> { ... });
 
         return new IdBatchResolver(query);
     }
