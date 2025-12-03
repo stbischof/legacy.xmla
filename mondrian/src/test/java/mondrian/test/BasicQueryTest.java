@@ -5857,7 +5857,7 @@ public class BasicQueryTest {
     */
     String expectedResultInBugCube =
         "" + "Axis #0:\n" + "{}\n" + "Axis #1:\n" + "{[Measures].[Sales]}\n" + "Axis #2:\n"
-            + "{[Product - Bug].[Product - Bug].[Drink]}\n" + "{[Product - Bug].[Product - Bug].[Food]}\n" + "{[Product - Bug].[Non-Consumable]}\n"
+            + "{[Product - Bug].[Product - Bug].[Drink]}\n" + "{[Product - Bug].[Product - Bug].[Food]}\n" + "{[Product - Bug].[Product - Bug].[Non-Consumable]}\n"
             + "Row #0: 48,836.21\n" + "Row #1: 409,035.59\n" + "Row #2: 107,366.33\n";
 
     String expectedResultInNoBugCube =
