@@ -1702,7 +1702,7 @@ import mondrian.rolap.SchemaModifiersEmf;
             + "{}\n"
             + "Axis #1:\n"
             + "{[Measures].[Foo]}\n"
-            + "Row #0: #ERR: org.eclipse.daanse.olap.fun.MondrianEvaluationException: wrtong typed, was: 123.0\n");
+            + "Row #0: #ERR: org.eclipse.daanse.olap.fun.DaanseEvaluationException: wrtong typed, was: 123.0\n");
 
         // unrelated to Mondrian852 we were occasionally seeing differences
         // in number of digits of the casted value based on whether the
