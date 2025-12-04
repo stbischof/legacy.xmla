@@ -362,7 +362,7 @@ class MemberCacheControlTest {
         } catch (IllegalArgumentException e) {
             assertEquals(
                 "Member cache control operations are not allowed unless "
-                + "property mondrian.rolap.EnableRolapCubeMemberCache is "
+                + "property daanse.rolap.EnableRolapCubeMemberCache is "
                 + "false",
                 e.getMessage());
         }
@@ -482,7 +482,11 @@ class MemberCacheControlTest {
             cc.filter(hqMember.getLevel(), memberSet);
         command =
             cc.createSetPropertyCommand(filteredMemberSet, propertyValues);
-        cc.execute(command);
+        final MemberEditCommand c = command; 
+        ExecutionContext.where(executionContext, () -> {
+        	cc.execute(c);
+        });
+
 
         // Repeat same query; verify properties were changed.
         // Changing properties does not affect measures, so results unchanged.
@@ -601,21 +605,23 @@ class MemberCacheControlTest {
         AbstractBasicContext<?> abc = (AbstractBasicContext) conn.getContext();
         final IAggregationManager aggMgr =
           abc.getAggregationManager();
+        ExecutionContext.where(executionContext, () -> {
         assertEquals(
             Double.valueOf("74748"),
             ((AggregationManager)aggMgr).getCellFromAllCaches(
                 AggregationManager.makeRequest(cacheRegionMembers), conn));
-
+        });
         // Now tell the cache that [CA].[Berkeley] is new
         final MemberEditCommand command =
             cc.createAddCommand(berkeleyMember);
         cc.execute(command);
 
         // test that cells have been removed
-        assertNull(
+        ExecutionContext.where(executionContext, () -> {
+            assertNull(
                 ((AggregationManager)aggMgr).getCellFromAllCaches(
                 AggregationManager.makeRequest(cacheRegionMembers), conn));
-
+    	});
         assertAxisReturns(conn, "Sales",
             "[Retail].[Retail].[CA].Children",
             "[Retail].[Retail].[CA].[Alameda]\n"
@@ -761,10 +767,12 @@ class MemberCacheControlTest {
         AbstractBasicContext<?> abc = (AbstractBasicContext) conn.getContext();
         final IAggregationManager aggMgr =
             abc.getAggregationManager();
-        assertEquals(
-            Double.valueOf("2117"),
-            ((AggregationManager)aggMgr).getCellFromAllCaches(
-                AggregationManager.makeRequest(cacheRegionMembers), conn));
+        ExecutionContext.where(executionContext, () -> {
+            assertEquals(
+                    Double.valueOf("2117"),
+                    ((AggregationManager)aggMgr).getCellFromAllCaches(
+                    AggregationManager.makeRequest(cacheRegionMembers), conn));
+        });
 
         // Now tell the cache that [CA].[San Francisco] has been removed.
         final MemberEditCommand command =
@@ -777,10 +785,11 @@ class MemberCacheControlTest {
             memberCache.getChildrenFromCache(caMember, null).size());
 
         // test that cells have been removed
+        ExecutionContext.where(executionContext, () -> {
         assertNull(
             ((AggregationManager)aggMgr).getCellFromAllCaches(
                 AggregationManager.makeRequest(cacheRegionMembers), conn));
-
+        });
         // The list of children should be updated.
         assertAxisReturns(conn, "Sales",
             "[Retail].[Retail].[CA].Children",
