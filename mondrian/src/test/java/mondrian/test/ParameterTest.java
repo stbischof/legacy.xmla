@@ -30,22 +30,27 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 import org.eclipse.daanse.olap.api.CatalogReader;
 import org.eclipse.daanse.olap.api.Context;
 import org.eclipse.daanse.olap.api.Parameter;
+import org.eclipse.daanse.olap.api.Statement;
 import org.eclipse.daanse.olap.api.connection.Connection;
 import org.eclipse.daanse.olap.api.element.Member;
+import org.eclipse.daanse.olap.api.execution.ExecutionContext;
 import org.eclipse.daanse.olap.api.query.component.Query;
 import org.eclipse.daanse.olap.api.result.Result;
 import org.eclipse.daanse.olap.common.SystemProperty;
 import org.eclipse.daanse.olap.common.SystemWideProperties;
 import org.eclipse.daanse.olap.common.Util;
+import org.eclipse.daanse.olap.execution.ExecutionImpl;
 import org.eclipse.daanse.olap.query.component.IdImpl;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
@@ -1124,12 +1129,16 @@ class ParameterTest {
     void testParamSet(Context<?> context) {
         Connection connection = context.getConnectionWithDefaultRole();
         try {
-            String mdx =
+            final String mdx =
                 "select [Measures].[Unit Sales] on 0,\n"
                 + " Parameter(\"Foo\", [Time].[Time], {}, \"Foo\") on 1\n"
                 + "from [Sales]";
             Query query = connection.parseQuery(mdx);
             CatalogReader sr = query.getCatalogReader(false);
+            Statement statement = connection.getInternalStatement();
+            ExecutionImpl execution = new ExecutionImpl(statement, Optional.of(Duration.ofMillis(1000)));
+            ExecutionContext.where(execution.asContext(), () -> {
+
             Member m1 =
                 sr.getMemberByUniqueName(
                     IdImpl.toList("Time", "Time", "1997", "Q2", "5"), true);
@@ -1143,12 +1152,12 @@ class ParameterTest {
             query.resolve();
             p.setValue(list);
             assertEquals(list, p.getValue());
-            mdx = query.toString();
+            String qmdx = query.toString();
             assertEqualsVerbose(
                 "select {[Measures].[Unit Sales]} ON COLUMNS,\n"
                 + "  Parameter(\"Foo\", [Time].[Time], {[Time].[Time].[1997].[Q2].[5], [Time].[Time].[1997].[Q3]}, \"Foo\") ON ROWS\n"
                 + "from [Sales]\n",
-                mdx);
+                qmdx);
 
             final Result result = connection.execute(query);
             assertEqualsVerbose(
@@ -1162,6 +1171,7 @@ class ParameterTest {
                 + "Row #0: 21,081\n"
                 + "Row #1: 65,848\n",
                 TestUtil.toString(result));
+            });
         } finally {
             connection.close();
         }
