@@ -15960,7 +15960,7 @@ class SchemaTest {
             fail("expected error");
         } catch (OlapRuntimeException e) {
             assertEquals(
-                "Left side of join must not be a join; mondrian only supports right-deep joins.",
+                "Left side of join must not be a join; daanse only supports right-deep joins.",
                 e.getMessage());
         }
     }
