@@ -460,27 +460,30 @@ class SegmentLoaderTest extends BatchTestCase {
         SortedSet<Comparable>[] axisValueSet =
             loader.getDistinctValueWorkspace(axisCount);
         boolean[] axisContainsNull = new boolean[axisCount];
+        ExecutionContext.where(executionContext, () -> {
+		    try {
+			    SegmentLoader.RowList list = loader.processData(
+                    stmt,
+                    axisContainsNull,
+                    axisValueSet,
+                    new GroupingSetsList(groupingSets));
+	            int totalNoOfRows = 12;
+	            int lengthOfRowWithBitKey = 6;
+	            assertEquals(totalNoOfRows, list.size());
+	            assertEquals(lengthOfRowWithBitKey, list.getTypes().size());
+	            list.first();
+	            list.next();
+	            assertEquals(BitKey.Factory.makeBitKey(0), list.getObject(5));
 
-        SegmentLoader.RowList list =
-            loader.processData(
-                stmt,
-                axisContainsNull,
-                axisValueSet,
-                new GroupingSetsList(groupingSets));
-        int totalNoOfRows = 12;
-        int lengthOfRowWithBitKey = 6;
-        assertEquals(totalNoOfRows, list.size());
-        assertEquals(lengthOfRowWithBitKey, list.getTypes().size());
-        list.first();
-        list.next();
-        assertEquals(BitKey.Factory.makeBitKey(0), list.getObject(5));
-
-        BitKey bitKeyForSummaryRow = BitKey.Factory.makeBitKey(0);
-        bitKeyForSummaryRow.set(0);
-        list.next();
-        list.next();
-        assertEquals(bitKeyForSummaryRow, list.getObject(5));
-
+	            BitKey bitKeyForSummaryRow = BitKey.Factory.makeBitKey(0);
+	            bitKeyForSummaryRow.set(0);
+	            list.next();
+	            list.next();
+	            assertEquals(bitKeyForSummaryRow, list.getObject(5));
+		    } catch (SQLException e) {
+			    new RuntimeException(e.getMessage(), e);
+		    }
+        });
         SortedSet<Comparable> yearAxis = axisValueSet[0];
         assertEquals(1, yearAxis.size());
         SortedSet<Comparable> productFamilyAxis = axisValueSet[1];
@@ -542,12 +545,17 @@ class SegmentLoaderTest extends BatchTestCase {
         boolean[] axisContainsNull = new boolean[axisCount];
         List<GroupingSet> groupingSets = new ArrayList<>();
         groupingSets.add(groupingSetsInfo);
-
-        loader.processData(
-            stmt,
-            axisContainsNull,
-            axisValueSet,
-            new GroupingSetsList(groupingSets));
+        ExecutionContext.where(executionContext, () -> {
+            try {
+			    loader.processData(
+			        stmt,
+			        axisContainsNull,
+			        axisValueSet,
+			        new GroupingSetsList(groupingSets));
+		    } catch (SQLException e) {
+			    new RuntimeException(e.getMessage(), e);
+		    }
+        });
 
         assertFalse(axisContainsNull[0]);
         assertFalse(axisContainsNull[1]);
@@ -596,13 +604,17 @@ class SegmentLoaderTest extends BatchTestCase {
         boolean[] axisContainsNull = new boolean[axisCount];
         List<GroupingSet> groupingSets = new ArrayList<>();
         groupingSets.add(groupingSetsInfo);
-
-        loader.processData(
-                stmt,
-                axisContainsNull,
-                axisValueSet,
-                new GroupingSetsList(groupingSets));
-
+        ExecutionContext.where(executionContext, () -> {
+        	try {
+        		loader.processData(
+        				stmt,
+        				axisContainsNull,
+        				axisValueSet,
+        				new GroupingSetsList(groupingSets));
+        	} catch (SQLException e) {
+        		new RuntimeException(e.getMessage(), e);
+        	}
+        });
         Object[] values = axisValueSet[0].toArray();
         assertEquals( binaryData0, values[1] );
         assertEquals( binaryData1, values[0] );
@@ -643,17 +655,22 @@ class SegmentLoaderTest extends BatchTestCase {
 
         SortedSet<Comparable>[] axisValueSet =
             loader.getDistinctValueWorkspace(4);
-        SegmentLoader.RowList list =
-            loader.processData(
-                stmt,
-                new boolean[4],
-                axisValueSet,
-                new GroupingSetsList(groupingSets));
-        int totalNoOfRows = 3;
-        assertEquals(totalNoOfRows, list.size());
-        int lengthOfRowWithoutBitKey = 5;
-        assertEquals(lengthOfRowWithoutBitKey, list.getTypes().size());
-
+        ExecutionContext.where(executionContext, () -> {
+        	SegmentLoader.RowList list;
+        	try {
+        		list = loader.processData(
+        				stmt,
+        				new boolean[4],
+        				axisValueSet,
+        				new GroupingSetsList(groupingSets));
+        		int totalNoOfRows = 3;
+        		assertEquals(totalNoOfRows, list.size());
+        		int lengthOfRowWithoutBitKey = 5;
+        		assertEquals(lengthOfRowWithoutBitKey, list.getTypes().size());
+        	} catch (SQLException e) {
+        		new RuntimeException(e.getMessage(), e);
+        	}
+        });
         SortedSet<Comparable> yearAxis = axisValueSet[0];
         assertEquals(1, yearAxis.size());
         SortedSet<Comparable> productFamilyAxis = axisValueSet[1];

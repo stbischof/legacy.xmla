@@ -140,7 +140,9 @@ class TestAggregationManager extends BatchTestCase {
         Object value = aggMgr.getCellFromCache(request);
         assertNull(value); // before load, the cell is not found
         fbcr.recordCellRequest(request);
-        fbcr.loadAggregations();
+        ExecutionContext.where(executionContext, () -> {
+            fbcr.loadAggregations();
+        });
         value = aggMgr.getCellFromCache(request); // after load, cell found
         assertTrue(value instanceof Number);
         assertEquals(131558, ((Number) value).intValue());
@@ -159,7 +161,9 @@ class TestAggregationManager extends BatchTestCase {
         Object value = aggMgr.getCellFromCache(request);
         assertNull(value); // before load, the cell is not found
         fbcr.recordCellRequest(request);
-        fbcr.loadAggregations();
+        ExecutionContext.where(executionContext, () -> {
+            fbcr.loadAggregations();
+        });
         value = aggMgr.getCellFromCache(request); // after load, cell found
         assertTrue(value instanceof Number);
         assertEquals(2755, ((Number) value).intValue());
@@ -203,10 +207,12 @@ class TestAggregationManager extends BatchTestCase {
         Object value = aggMgr.getCellFromCache(request1);
         assertNull(value); // before load, the cell is not found
 
-        fbcr.recordCellRequest(request1);
-        fbcr.recordCellRequest(request2);
-        fbcr.recordCellRequest(request3);
-        fbcr.loadAggregations();
+        ExecutionContext.where(executionContext, () -> {
+            fbcr.recordCellRequest(request1);
+            fbcr.recordCellRequest(request2);
+            fbcr.recordCellRequest(request3);
+            fbcr.loadAggregations();
+        });
 
         value = aggMgr.getCellFromCache(request1); // after load, found
         assertTrue(value instanceof Number);

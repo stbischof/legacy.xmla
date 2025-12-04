@@ -689,13 +689,13 @@ class NativeFilterMatchingTest extends BatchTestCase {
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             mdx,
             "Axis #0:\n"
-            + "{[Product].[Drink].[Alcoholic Beverages].[Beer and Wine].[Beer].[Good].[Good Imported Beer]}\n"
-            + "{[Product].[Drink].[Alcoholic Beverages].[Beer and Wine].[Beer].[Good].[Good Light Beer]}\n"
-            + "{[Product].[Drink].[Alcoholic Beverages].[Beer and Wine].[Beer].[Pearl].[Pearl Imported Beer]}\n"
+            + "{[Product].[Product].[Drink].[Alcoholic Beverages].[Beer and Wine].[Beer].[Good].[Good Imported Beer]}\n"
+            + "{[Product].[Product].[Drink].[Alcoholic Beverages].[Beer and Wine].[Beer].[Good].[Good Light Beer]}\n"
+            + "{[Product].[Product].[Drink].[Alcoholic Beverages].[Beer and Wine].[Beer].[Pearl].[Pearl Imported Beer]}\n"
             + "Axis #1:\n"
-            + "{[Measures].[avgQtrs], [Gender].[All Gender]}\n"
-            + "{[Measures].[avgQtrs], [Gender].[F]}\n"
-            + "{[Measures].[avgQtrs], [Gender].[M]}\n"
+            + "{[Measures].[avgQtrs], [Gender].[Gender].[All Gender]}\n"
+            + "{[Measures].[avgQtrs], [Gender].[Gender].[F]}\n"
+            + "{[Measures].[avgQtrs], [Gender].[Gender].[M]}\n"
             + "Row #0: 111\n"
             + "Row #0: \n"
             + "Row #0: \n");
