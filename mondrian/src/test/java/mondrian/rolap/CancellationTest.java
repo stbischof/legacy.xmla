@@ -111,6 +111,7 @@ class CancellationTest {
 
         ExecutionImpl execution =
             spy(new ExecutionImpl(genders.getQuery().getStatement(), Optional.empty()));
+        execution.asContext().setExecution(execution);
         TupleList mutableCrossJoinResult =
             mutableCrossJoin(productMembers, genderMembers, execution);
 
