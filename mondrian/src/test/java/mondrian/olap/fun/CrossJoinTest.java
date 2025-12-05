@@ -146,6 +146,7 @@ public class CrossJoinTest {
     // Test execution to track cancellation/timeout calls
     ExecutionImpl execution =
       spy( new ExecutionImpl( genders.getQuery().getStatement(), Optional.empty() ) );
+    execution.asContext().setExecution(execution);
     // check no execution of checkCancelOrTimeout has been yet
     verify( execution, times( 0 ) ).checkCancelOrTimeout();
     Integer crossJoinIterCalc =
