@@ -49,108 +49,106 @@ import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.transport.DockerHttpClient;
 import com.github.dockerjava.zerodep.ZerodepDockerHttpClient;
 
-public abstract class AbstractDockerBasesDatabaseProvider implements DatabaseProvider{
+public abstract class AbstractDockerBasesDatabaseProvider implements DatabaseProvider {
 
-	private static final String THIS_IS_MONDRIAN_INSTANCE = "thisIsDaanseInstance";
-	private DockerClient dc;
+    private static final String THIS_IS_MONDRIAN_INSTANCE = "thisIsDaanseInstance";
+    private DockerClient dc;
     protected int port;
 
 
-	 protected Optional<String> findContainerForReuse(String param) {
-	        Map<String,String>lblFilter=new HashMap<>();
-	        lblFilter.put(THIS_IS_MONDRIAN_INSTANCE,param );
-	        Optional<String>  id=  dc.listContainersCmd()
-	            .withLabelFilter(lblFilter)
-	            .withLimit(1)
-	            .withStatusFilter(Arrays.asList("running"))
-	            .exec()
-	            .stream()
-	            .filter(Objects::nonNull)
-	            .map(Container::getId)
-	            .findAny();
-	         return id;
-	    }
+    protected Optional<String> findContainerForReuse(String param) {
+        Map<String, String> lblFilter = new HashMap<>();
+        lblFilter.put(THIS_IS_MONDRIAN_INSTANCE, param);
+        Optional<String> id = dc.listContainersCmd()
+            .withLabelFilter(lblFilter)
+            .withLimit(1)
+            .withStatusFilter(Arrays.asList("running"))
+            .exec()
+            .stream()
+            .filter(Objects::nonNull)
+            .map(Container::getId)
+            .findAny();
+        return id;
+    }
 
-	  @Override
-	public  Entry<DataSource,Dialect> activate() {
+    @Override
+    public Entry<DataSource, Dialect> activate() {
 
-            port = freePort();
+        port = freePort();
 
-			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder().build();
+        DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder().build();
 
-			DockerHttpClient client = new ZerodepDockerHttpClient.Builder().dockerHost(config.getDockerHost())
-					.sslConfig(config.getSSLConfig()).maxConnections(100)
-					.connectionTimeout(java.time.Duration.ofSeconds(30)).responseTimeout(java.time.Duration.ofSeconds(45))
-					.build();
-			dc = DockerClientImpl.getInstance(config, client);
+        DockerHttpClient client = new ZerodepDockerHttpClient.Builder().dockerHost(config.getDockerHost())
+            .sslConfig(config.getSSLConfig()).maxConnections(100)
+            .connectionTimeout(java.time.Duration.ofSeconds(30)).responseTimeout(java.time.Duration.ofSeconds(45))
+            .build();
+        dc = DockerClientImpl.getInstance(config, client);
 
-        findContainerForReuse("1").ifPresent(id->dc.removeContainerCmd(id).withRemoveVolumes(true).withForce(true).exec());
+        findContainerForReuse("1").ifPresent(id -> dc.removeContainerCmd(id).withRemoveVolumes(true).withForce(true).exec());
 
-		if(!findContainerForReuse("1").isPresent()) {
-
-
-	//		findContainerForReuse("1").ifPresent(id->dc.stopContainerCmd(id).exec());
-
-			System.out.println(12);
-
-			try {
-				dc.pullImageCmd(image()).exec(new PullImageResultCallback()).awaitCompletion(5*60, TimeUnit.SECONDS);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-				throw new RuntimeException(e);
-			}
+        if (!findContainerForReuse("1").isPresent()) {
 
 
+            //		findContainerForReuse("1").ifPresent(id->dc.stopContainerCmd(id).exec());
+
+            System.out.println(12);
+
+            try {
+                dc.pullImageCmd(image()).exec(new PullImageResultCallback()).awaitCompletion(5 * 60, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
 
 
-			HostConfig hostConfig = HostConfig.newHostConfig()//
+            HostConfig hostConfig = HostConfig.newHostConfig()//
 //					.withAutoRemove(true)
-					.withShmSize(1024l*1024l*1024l*4l)
-					.withNanoCPUs(16l)
-					.withPortBindings(portBinding());
+                .withShmSize(1024l * 1024l * 1024l * 4l)
+                .withNanoCPUs(16l)
+                .withPortBindings(portBinding());
 
-			HashMap<String, String> lbl=new HashMap<>();
-			lbl.put(THIS_IS_MONDRIAN_INSTANCE, "1");
+            HashMap<String, String> lbl = new HashMap<>();
+            lbl.put(THIS_IS_MONDRIAN_INSTANCE, "1");
 
-			CreateContainerResponse containerResponse = dc.createContainerCmd("mysql-t").withImage(image())//
-					.withEnv(env())//
-					.withHostConfig(hostConfig)
-					.withLabels(lbl)
-                    .withCmd("--max_connections=10000")
-					.exec();
+            CreateContainerResponse containerResponse = dc.createContainerCmd("mysql-t").withImage(image())//
+                .withEnv(env())//
+                .withHostConfig(hostConfig)
+                .withLabels(lbl)
+                .withCmd("--max_connections=10000")
+                .exec();
 
-			String	containerId = containerResponse.getId();
-
-
-			dc.startContainerCmd(containerId).exec();
-		}
+            String containerId = containerResponse.getId();
 
 
-			return createDataSource();
+            dc.startContainerCmd(containerId).exec();
+        }
 
-		}
 
-    protected abstract  Entry<DataSource,Dialect> createDataSource();
+        return createDataSource();
 
-	protected abstract List<String> env();
+    }
 
-	protected abstract String image();
+    protected abstract Entry<DataSource, Dialect> createDataSource();
 
-	protected abstract PortBinding portBinding();
+    protected abstract List<String> env();
 
-		@Override
-		public void close() {
-			try {
-		//		findContainerForReuse("1").ifPresent(id->dc.stopContainerCmd(id).exec());
+    protected abstract String image();
 
-		//		findContainerForReuse("1").ifPresent(id->dc.removeContainerCmd(id).withRemoveVolumes(true).exec());
+    protected abstract PortBinding portBinding();
 
-				dc.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+    @Override
+    public void close() {
+        try {
+            //		findContainerForReuse("1").ifPresent(id->dc.stopContainerCmd(id).exec());
 
-		}
+            //		findContainerForReuse("1").ifPresent(id->dc.removeContainerCmd(id).withRemoveVolumes(true).exec());
+
+            dc.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
 
     protected int freePort() {
         try (ServerSocket serverSocket = new ServerSocket(0)) {

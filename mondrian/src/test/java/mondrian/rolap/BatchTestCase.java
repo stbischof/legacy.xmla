@@ -48,7 +48,7 @@ import org.eclipse.daanse.olap.core.AbstractBasicContext;
 import org.eclipse.daanse.olap.key.BitKey;
 import org.eclipse.daanse.olap.query.component.IdImpl;
 import org.eclipse.daanse.olap.execution.ExecutionImpl;
-import  org.eclipse.daanse.olap.util.Pair;
+import org.eclipse.daanse.olap.util.Pair;
 import org.eclipse.daanse.rolap.common.BatchLoader;
 import org.eclipse.daanse.rolap.common.FastBatchingCellReader;
 import org.eclipse.daanse.rolap.common.GroupingSetsCollector;
@@ -87,9 +87,9 @@ import mondrian.test.SqlPattern;
  * To support all <code>Batch</code> related tests.
  *
  * @author Thiyagu
-  * @since 06-Jun-2007
+ * @since 06-Jun-2007
  */
-public class BatchTestCase{
+public class BatchTestCase {
 
 
     protected final String tableTime = "time_by_day";
@@ -104,7 +104,7 @@ public class BatchTestCase{
     };
     protected final String[] fieldValueProductDepartment = {
         "Alcoholic Beverages", "Baked Goods", "Baking Goods",
-         "Beverages", "Breakfast Foods", "Canned Foods",
+        "Beverages", "Breakfast Foods", "Canned Foods",
         "Canned Products", "Carousel", "Checkout", "Dairy",
         "Deli", "Eggs", "Frozen Foods", "Health and Hygiene",
         "Household", "Meat", "Packaged Foods", "Periodicals",
@@ -120,8 +120,7 @@ public class BatchTestCase{
         Connection connection,
         BatchLoader fbcr,
         String[] tableNames, String[] fieldNames, String[][] fieldValues,
-        String cubeName, String measure)
-    {
+        String cubeName, String measure) {
         List<String> values = new ArrayList<>();
         for (int i = 0; i < tableNames.length; i++) {
             values.add(fieldValues[i][0]);
@@ -141,8 +140,7 @@ public class BatchTestCase{
         Connection connection,
         BatchLoader fbcr,
         String[] tableNames, String[] fieldNames, String[][] fieldValues,
-        String cubeName, String measure, CellRequestConstraint constraint)
-    {
+        String cubeName, String measure, CellRequestConstraint constraint) {
         List<String> values = new ArrayList<>();
         for (int i = 0; i < tableNames.length; i++) {
             values.add(fieldValues[i][0]);
@@ -159,15 +157,14 @@ public class BatchTestCase{
     }
 
     private void addRequests(Connection connection,
-        BatchLoader.Batch batch,
-        String cubeName,
-        String measure,
-        String[] tableNames,
-        String[] fieldNames,
-        String[][] fieldValues,
-        List<String> selectedValues,
-        int currPos)
-    {
+                             BatchLoader.Batch batch,
+                             String cubeName,
+                             String measure,
+                             String[] tableNames,
+                             String[] fieldNames,
+                             String[][] fieldValues,
+                             List<String> selectedValues,
+                             int currPos) {
         if (currPos < fieldNames.length) {
             for (int j = 0; j < fieldValues[currPos].length; j++) {
                 selectedValues.add(fieldValues[currPos][j]);
@@ -194,8 +191,7 @@ public class BatchTestCase{
         String[][] fieldValues,
         List<String> selectedValues,
         int currPos,
-        CellRequestConstraint constraint)
-    {
+        CellRequestConstraint constraint) {
         if (currPos < fieldNames.length) {
             for (int j = 0; j < fieldValues[currPos].length; j++) {
                 selectedValues.add(fieldValues[currPos][j]);
@@ -220,8 +216,7 @@ public class BatchTestCase{
         final String[] fieldNames,
         final String[][] fieldValues,
         final String cubeName,
-        final String measure)
-    {
+        final String measure) {
         ExecutionImpl execution = new ExecutionImpl(
             ((Connection) connection).getInternalStatement(),
             Optional.of(Duration.ofMinutes(5)));
@@ -234,7 +229,7 @@ public class BatchTestCase{
                 final BatchLoader fbcr =
                     new BatchLoader(
                         ExecutionContext.current(),
-                        ((AggregationManager)abc.getAggregationManager()).getCacheMgr(),
+                        ((AggregationManager) abc.getAggregationManager()).getCacheMgr(),
                         cube.getStar().getSqlQueryDialect(),
                         cube);
                 BatchLoader.Batch batch =
@@ -247,7 +242,7 @@ public class BatchTestCase{
                     new GroupingSetsCollector(true);
                 final List<Future<Map<Segment, SegmentWithData>>>
                     segmentFutures =
-                        new ArrayList<>();
+                    new ArrayList<>();
                 batch.loadAggregation(collector, segmentFutures);
                 return collector.getGroupingSets().get(0);
             });
@@ -268,9 +263,8 @@ public class BatchTestCase{
      * @param patterns Set of patterns
      */
     protected void assertRequestSql(Connection connection,
-        CellRequest[] requests,
-        SqlPattern[] patterns)
-    {
+                                    CellRequest[] requests,
+                                    SqlPattern[] patterns) {
         assertRequestSql(connection, requests, patterns, false);
     }
 
@@ -288,14 +282,13 @@ public class BatchTestCase{
      * @param requests Sequence of cell requests
      * @param patterns Set of patterns
      * @param negative Set to false in order to 'expect' a query or
-     * true to 'forbid' a query.
+     *                 true to 'forbid' a query.
      */
     protected void assertRequestSql(
         Connection connection,
         CellRequest[] requests,
         SqlPattern[] patterns,
-        boolean negative)
-    {
+        boolean negative) {
         final RolapStar star = requests[0].getMeasure().getStar();
         final String cubeName = requests[0].getMeasure().getCubeName();
         final RolapCube cube = lookupCube(connection, cubeName);
@@ -321,14 +314,14 @@ public class BatchTestCase{
             String sql = sqlPattern.getSql();
             String trigger = sqlPattern.getTriggerSql();
             switch (d) {
-            case ORACLE:
-                sql = sql.replaceAll(" =as= ", " ");
-                trigger = trigger.replaceAll(" =as= ", " ");
-                break;
-            case TERADATA:
-                sql = sql.replaceAll(" =as= ", " as ");
-                trigger = trigger.replaceAll(" =as= ", " as ");
-                break;
+                case ORACLE:
+                    sql = sql.replaceAll(" =as= ", " ");
+                    trigger = trigger.replaceAll(" =as= ", " ");
+                    break;
+                case TERADATA:
+                    sql = sql.replaceAll(" =as= ", " as ");
+                    trigger = trigger.replaceAll(" =as= ", " as ");
+                    break;
             }
 
             // Create a dummy DataSource which will throw a 'bomb' if it is
@@ -341,10 +334,10 @@ public class BatchTestCase{
                     ((Connection) connection).getInternalStatement(),
                     Optional.of(Duration.ofMillis(1000)));
             AbstractBasicContext<?> abc = (AbstractBasicContext) execution.getDaanseStatement()
-                    .getDaanseConnection()
-                    .getContext();
+                .getDaanseConnection()
+                .getContext();
             final AggregationManager aggMgr =
-                (AggregationManager)abc.getAggregationManager();
+                (AggregationManager) abc.getAggregationManager();
             ExecutionMetadata metadata = ExecutionMetadata.of("BatchTestCase", "BatchTestCase", null, 0);
             final ExecutionContext executionContext =
                 execution.asContext().createChild(metadata, Optional.empty());
@@ -392,8 +385,8 @@ public class BatchTestCase{
             if (warnDialect.equals(d.toString())) {
                 System.out.println(
                     "[No expected SQL statements found for dialect \""
-                    + sqlDialect.toString()
-                    + "\" and test not run]");
+                        + sqlDialect.toString()
+                        + "\" and test not run]");
             }
         }
     }
@@ -413,14 +406,13 @@ public class BatchTestCase{
      * being generated.
      *
      * @param connection Connection
-     * @param mdxQuery MDX query
-     * @param patterns Set of patterns for expected SQL statements
+     * @param mdxQuery   MDX query
+     * @param patterns   Set of patterns for expected SQL statements
      */
     protected void assertQuerySql(
         Connection connection,
         String mdxQuery,
-        SqlPattern[] patterns)
-    {
+        SqlPattern[] patterns) {
         assertQuerySqlOrNot(
             connection, mdxQuery, patterns, false, false, true);
     }
@@ -433,27 +425,25 @@ public class BatchTestCase{
      * @param patterns Set of patterns for expected SQL statements
      */
     protected void assertNoQuerySql(Connection connection,
-        String mdxQuery,
-        SqlPattern[] patterns)
-    {
+                                    String mdxQuery,
+                                    SqlPattern[] patterns) {
         assertQuerySqlOrNot(
-                connection, mdxQuery, patterns, true, false, true);
+            connection, mdxQuery, patterns, true, false, true);
     }
 
     /**
      * Checks that a given MDX query results in a particular SQL statement
      * being generated.
      *
-     * @param mdxQuery MDX query
-     * @param patterns Set of patterns, one for each dialect.
+     * @param mdxQuery   MDX query
+     * @param patterns   Set of patterns, one for each dialect.
      * @param clearCache whether to clear cache before running the query
      */
     protected void assertQuerySql(
         Connection connection,
         String mdxQuery,
         SqlPattern[] patterns,
-        boolean clearCache)
-    {
+        boolean clearCache) {
         assertQuerySqlOrNot(
             connection, mdxQuery, patterns, false, false, clearCache);
     }
@@ -467,14 +457,14 @@ public class BatchTestCase{
      * MDX query multiple times, and expects to see each SQL statement appear.
      * If there are no patterns in this dialect, the test trivially succeeds.
      *
-     * @param connection Connection
-     * @param mdxQuery MDX query
-     * @param patterns Set of patterns
-     * @param negative false to assert if SQL is generated;
-     *                 true to assert if SQL is NOT generated
+     * @param connection        Connection
+     * @param mdxQuery          MDX query
+     * @param patterns          Set of patterns
+     * @param negative          false to assert if SQL is generated;
+     *                          true to assert if SQL is NOT generated
      * @param bypassSchemaCache whether to grab a new connection and bypass the
-     *        schema cache before parsing the MDX query
-     * @param clearCache whether to clear cache before executing the MDX query
+     *                          schema cache before parsing the MDX query
+     * @param clearCache        whether to clear cache before executing the MDX query
      */
     protected void assertQuerySqlOrNot(
         Connection connection,
@@ -482,8 +472,7 @@ public class BatchTestCase{
         SqlPattern[] patterns,
         boolean negative,
         boolean bypassSchemaCache,
-        boolean clearCache)
-    {
+        boolean clearCache) {
 
         // Run the test once for each pattern in this dialect.
         // (We could optimize and run it once, collecting multiple queries, and
@@ -520,7 +509,7 @@ public class BatchTestCase{
                 }
                 final Query query = connection.parseQuery(mdxQuery);
                 if (clearCache) {
-                    clearCache(connection, (RolapCube)query.getCube());
+                    clearCache(connection, (RolapCube) query.getCube());
                 }
                 final Result result = connection.execute(query);
 //                discard(result);
@@ -564,8 +553,8 @@ public class BatchTestCase{
             if (warnDialect.equals(d.toString())) {
                 System.out.println(
                     "[No expected SQL statements found for dialect \""
-                    + dialect.toString()
-                    + "\" and test not run]");
+                        + dialect.toString()
+                        + "\" and test not run]");
             }
         }
     }
@@ -581,33 +570,33 @@ public class BatchTestCase{
     protected String dialectize(DatabaseProduct d, String sql) {
         sql = sql.replaceAll("\r\n", "\n");
         switch (d) {
-        case ORACLE:
-            return sql.replaceAll(" =as= ", " ");
-        case GREENPLUM:
-        case POSTGRES:
-        case TERADATA:
-            return sql.replaceAll(" =as= ", " as ");
-        case DERBY:
-            return sql.replaceAll("`", "\"");
-        case ACCESS:
-            return sql.replaceAll(
-                "ISNULL\\(([^)]*)\\)",
-                "Iif($1 IS NULL, 1, 0)");
-        default:
-            return sql;
+            case ORACLE:
+                return sql.replaceAll(" =as= ", " ");
+            case GREENPLUM:
+            case POSTGRES:
+            case TERADATA:
+                return sql.replaceAll(" =as= ", " as ");
+            case DERBY:
+                return sql.replaceAll("`", "\"");
+            case ACCESS:
+                return sql.replaceAll(
+                    "ISNULL\\(([^)]*)\\)",
+                    "Iif($1 IS NULL, 1, 0)");
+            default:
+                return sql;
         }
     }
 
-    private void clearCache(Connection connection,  RolapCube cube) {
+    private void clearCache(Connection connection, RolapCube cube) {
         // Clear the cache for the Sales cube, so the query runs as if
         // for the first time. (TODO: Cleaner way to do this.)
         final Cube salesCube =
-                connection.getCatalog().lookupCube("Sales").orElse(null);
+            connection.getCatalog().lookupCube("Sales").orElse(null);
         if (salesCube != null) {
             RolapHierarchy hierarchy =
-                    (RolapHierarchy) salesCube.lookupHierarchy(
-                            new IdImpl.NameSegmentImpl("Store", Quoting.UNQUOTED),
-                            false);
+                (RolapHierarchy) salesCube.lookupHierarchy(
+                    new IdImpl.NameSegmentImpl("Store", Quoting.UNQUOTED),
+                    false);
             if (hierarchy != null) {
                 SmartMemberReader memberReader =
                     (SmartMemberReader) hierarchy.getMemberReader();
@@ -629,8 +618,7 @@ public class BatchTestCase{
     private void waitForFlush(
         final CacheControl cacheControl,
         final CacheControl.CellRegion measuresRegion,
-        final String cubeName)
-    {
+        final String cubeName) {
         int i = 100;
         while (true) {
             try {
@@ -646,7 +634,7 @@ public class BatchTestCase{
             if (i > 6400) {
                 fail(
                     "Cache didn't flush in sufficient time\nCache Was: \n"
-                    + cacheState);
+                        + cacheState);
                 break;
             }
         }
@@ -654,16 +642,14 @@ public class BatchTestCase{
 
     private String getCacheState(
         final CacheControl cacheControl,
-        final CacheControl.CellRegion measuresRegion)
-    {
+        final CacheControl.CellRegion measuresRegion) {
         StringWriter out = new StringWriter();
         cacheControl.printCacheState(new PrintWriter(out), measuresRegion);
         return out.toString();
     }
 
     private boolean regionIsEmpty(
-        final String cacheState, final String cubeName)
-    {
+        final String cacheState, final String cubeName) {
         return !cacheState.contains("Cube:[" + cubeName + "]");
     }
 
@@ -674,18 +660,16 @@ public class BatchTestCase{
     }
 
     protected CellRequest createRequest(Connection connection,
-        final String cube, final String measure,
-        final String table, final String column, final String value)
-    {
+                                        final String cube, final String measure,
+                                        final String table, final String column, final String value) {
         return createRequest(connection,
             cube, measure,
             new String[]{table}, new String[]{column}, new String[]{value});
     }
 
     protected CellRequest createRequest(Connection connection,
-        final String cube, final String measureName,
-        final String[] tables, final String[] columns, final String[] values)
-    {
+                                        final String cube, final String measureName,
+                                        final String[] tables, final String[] columns, final String[] values) {
         RolapStar.Measure starMeasure = getMeasure(connection, cube, measureName);
         CellRequest request = new CellRequest(starMeasure, false, false);
         final RolapStar star = starMeasure.getStar();
@@ -705,10 +689,9 @@ public class BatchTestCase{
     }
 
     protected CellRequest createRequest(Connection connection,
-        final String cube, final String measure,
-        final String table, final String column, final String value,
-        CellRequestConstraint aggConstraint)
-    {
+                                        final String cube, final String measure,
+                                        final String table, final String column, final String value,
+                                        CellRequestConstraint aggConstraint) {
         return createRequest(connection,
             cube, measure,
             new String[]{table}, new String[]{column}, new String[]{value},
@@ -716,10 +699,9 @@ public class BatchTestCase{
     }
 
     protected CellRequest createRequest(Connection connection,
-        final String cube, final String measureName,
-        final String[] tables, final String[] columns, final String[] values,
-        CellRequestConstraint aggConstraint)
-    {
+                                        final String cube, final String measureName,
+                                        final String[] tables, final String[] columns, final String[] values,
+                                        CellRequestConstraint aggConstraint) {
         RolapStar.Measure starMeasure = getMeasure(connection, cube, measureName);
 
         CellRequest request =
@@ -732,7 +714,7 @@ public class BatchTestCase{
         return request;
     }
 
-    protected void updateSchemaIfNeed(Context<?> context, String currentTestCaseName){
+    protected void updateSchemaIfNeed(Context<?> context, String currentTestCaseName) {
         Optional<Function<Catalog, CatalogMappingSupplier>> oModifier = getModifier(currentTestCaseName);
         if (oModifier.isPresent()) {
             withSchemaEmf(context, oModifier.get());
@@ -744,12 +726,11 @@ public class BatchTestCase{
     }
 
     static CellRequestConstraint makeConstraintYearQuarterMonth(
-        List<String[]> values)
-    {
+        List<String[]> values) {
         String[] aggConstraintTables =
-            new String[] { "time_by_day", "time_by_day", "time_by_day" };
+            new String[]{"time_by_day", "time_by_day", "time_by_day"};
         String[] aggConstraintColumns =
-            new String[] { "the_year", "quarter", "month_of_year" };
+            new String[]{"the_year", "quarter", "month_of_year"};
         List<String[]> aggConstraintValues = new ArrayList<>();
 
         for (String[] value : values) {
@@ -762,12 +743,11 @@ public class BatchTestCase{
     }
 
     static CellRequestConstraint makeConstraintCountryState(
-        List<String[]> values)
-    {
+        List<String[]> values) {
         String[] aggConstraintTables =
-            new String[] { "store", "store"};
+            new String[]{"store", "store"};
         String[] aggConstraintColumns =
-            new String[] { "store_country", "store_state"};
+            new String[]{"store_country", "store_state"};
         List<String[]> aggConstraintValues = new ArrayList<>();
 
         for (String[] value : values) {
@@ -780,12 +760,11 @@ public class BatchTestCase{
     }
 
     static CellRequestConstraint makeConstraintProductFamilyDepartment(
-        List<String[]> values)
-    {
+        List<String[]> values) {
         String[] aggConstraintTables =
-            new String[] { "product_class", "product_class"};
+            new String[]{"product_class", "product_class"};
         String[] aggConstraintColumns =
-            new String[] { "product_family", "product_department"};
+            new String[]{"product_family", "product_department"};
         List<String[]> aggConstraintValues = new ArrayList<>();
 
         for (String[] value : values) {
@@ -838,10 +817,9 @@ public class BatchTestCase{
      * @param expectedResult Expected result string
      */
     protected void checkNotNative(Context<?> context,
-        int rowCount,
-        String mdx,
-        String expectedResult)
-    {
+                                  int rowCount,
+                                  String mdx,
+                                  String expectedResult) {
         context.getConnectionWithDefaultRole().getCacheControl(null).flushSchemaCache();
         //Connection con =
         //    getTestContext().withSchemaPool(false).getConnection();
@@ -850,16 +828,16 @@ public class BatchTestCase{
         reg.setListener(
             new Listener() {
                 @Override
-				public void foundEvaluator(NativeEvent e) {
+                public void foundEvaluator(NativeEvent e) {
                     fail("should not be executed native");
                 }
 
                 @Override
-				public void foundInCache(TupleEvent e) {
+                public void foundInCache(TupleEvent e) {
                 }
 
                 @Override
-				public void executingSql(TupleEvent e) {
+                public void executingSql(TupleEvent e) {
                 }
             });
 
@@ -874,7 +852,7 @@ public class BatchTestCase{
                     nonNativeResult,
                     false,
                     "Non Native implementation returned different result than "
-                    + "expected; MDX=" + mdx);
+                        + "expected; MDX=" + mdx);
             }
         }
     }
@@ -899,8 +877,7 @@ public class BatchTestCase{
      * @param mdx         Query
      */
     protected void checkNative(Context<?> context,
-        int resultLimit, int rowCount, String mdx)
-    {
+                               int resultLimit, int rowCount, String mdx) {
         checkNative(context, resultLimit, rowCount, mdx, null, false);
     }
 
@@ -931,8 +908,7 @@ public class BatchTestCase{
         int rowCount,
         String mdx,
         String expectedResult,
-        boolean freshConnection)
-    {
+        boolean freshConnection) {
         // Don't run the test if we're testing expression dependencies.
         // Expression dependencies cause spurious interval calls to
         // 'level.getMembers()' which create false negatives in this test.
@@ -963,8 +939,7 @@ public class BatchTestCase{
             if (!listener.isExecuteSql()) {
                 fail("cache is empty: expected SQL query to be executed");
             }
-            if (SystemWideProperties.instance().EnableRolapCubeMemberCache)
-            {
+            if (SystemWideProperties.instance().EnableRolapCubeMemberCache) {
                 // run once more to make sure that the result comes from cache
                 // now
                 listener.setExecuteSql(false);
@@ -997,13 +972,13 @@ public class BatchTestCase{
                     nativeResult,
                     false,
                     "Native implementation returned different result than "
-                    + "expected; MDX=" + mdx);
+                        + "expected; MDX=" + mdx);
                 assertEqualsVerbose(
                     expectedResult,
                     interpretedResult,
                     false,
                     "Interpreter implementation returned different result than "
-                    + "expected; MDX=" + mdx);
+                        + "expected; MDX=" + mdx);
             }
 
             if (!nativeResult.equals(interpretedResult)) {
@@ -1012,7 +987,7 @@ public class BatchTestCase{
                     nativeResult,
                     false,
                     "Native implementation returned different result than "
-                    + "interpreter; MDX=" + mdx);
+                        + "interpreter; MDX=" + mdx);
             }
         } finally {
             Connection con = context.getConnectionWithDefaultRole();
@@ -1028,7 +1003,7 @@ public class BatchTestCase{
     }
 
     public Result executeQuery(String mdx, Connection connection) {
-    	Query query = connection.parseQuery(mdx);
+        Query query = connection.parseQuery(mdx);
         query.setResultStyle(ResultStyle.LIST);
         return connection.execute(query);
     }
@@ -1043,25 +1018,26 @@ public class BatchTestCase{
     public static void checkNotNative(Context<?> context, String mdx, Result expectedResult) {
         BatchTestCase test = new BatchTestCase();
         test.checkNotNative(context,
-                getRowCount(expectedResult),
-                mdx,
-                TestUtil.toString(expectedResult));
+            getRowCount(expectedResult),
+            mdx,
+            TestUtil.toString(expectedResult));
     }
 
     public static void checkNative(Context<?> context, String mdx, Result expectedResult) {
         BatchTestCase test = new BatchTestCase();
         test.checkNative(context,
-                0,
-                getRowCount(expectedResult),
-                mdx,
-                TestUtil.toString(expectedResult),
-                true);
+            0,
+            getRowCount(expectedResult),
+            mdx,
+            TestUtil.toString(expectedResult),
+            true);
     }
+
     /**
      * Convenience method for debugging; please do not delete.
      */
     public void assertNative(Context<?> context, String mdx) {
-        new BatchTestCase().checkNative(context,0, 0, mdx, null, true);
+        new BatchTestCase().checkNative(context, 0, 0, mdx, null, true);
     }
 
     /**
@@ -1092,8 +1068,7 @@ public class BatchTestCase{
         final Connection con;
 
         public TestCase(
-            Connection con, int resultLimit, int rowCount, String query)
-        {
+            Connection con, int resultLimit, int rowCount, String query) {
             this.con = con;
             this.resultLimit = resultLimit;
             this.rowCount = rowCount;
@@ -1169,7 +1144,7 @@ public class BatchTestCase{
         }
 
         @Override
-		public void onExecuteQuery(String sql) {
+        public void onExecuteQuery(String sql) {
             if (matchTrigger(sql)) {
                 throw new Bomb(sql);
             }
@@ -1188,8 +1163,7 @@ public class BatchTestCase{
         CellRequestConstraint(
             String[] tables,
             String[] columns,
-            List<String[]> valueList)
-        {
+            List<String[]> valueList) {
             this.tables = tables;
             this.columns = columns;
             this.valueList = valueList;
@@ -1267,17 +1241,17 @@ public class BatchTestCase{
         }
 
         @Override
-		public void foundEvaluator(NativeEvent e) {
+        public void foundEvaluator(NativeEvent e) {
             this.foundEvaluator = true;
         }
 
         @Override
-		public void foundInCache(TupleEvent e) {
+        public void foundInCache(TupleEvent e) {
             this.foundInCache = true;
         }
 
         @Override
-		public void executingSql(TupleEvent e) {
+        public void executingSql(TupleEvent e) {
             this.executeSql = true;
         }
     }

@@ -74,269 +74,267 @@ import org.opencube.junit5.propupdator.AppandFoodMartCatalog;
 
 public class CrossJoinTest {
 
-  private static final String SELECT_GENDER_MEMBERS =
-    "select Gender.members on 0 from sales";
+    private static final String SELECT_GENDER_MEMBERS =
+        "select Gender.members on 0 from sales";
 
-  private static final String SALES_CUBE = "Sales";
+    private static final String SALES_CUBE = "Sales";
 
-  private ExecutionImpl excMock = mock( ExecutionImpl.class );
+    private ExecutionImpl excMock = mock(ExecutionImpl.class);
 
-  static List<List<Member>> m3 = Arrays.asList(
-    Arrays.<Member>asList( new TestMember( "k" ), new TestMember( "l" ) ),
-    Arrays.<Member>asList( new TestMember( "m" ), new TestMember( "n" ) ) );
+    static List<List<Member>> m3 = Arrays.asList(
+        Arrays.<Member>asList(new TestMember("k"), new TestMember("l")),
+        Arrays.<Member>asList(new TestMember("m"), new TestMember("n")));
 
-  static List<List<Member>> m4 = Arrays.asList(
-    Arrays.<Member>asList( new TestMember( "U" ), new TestMember( "V" ) ),
-    Arrays.<Member>asList( new TestMember( "W" ), new TestMember( "X" ) ),
-    Arrays.<Member>asList( new TestMember( "Y" ), new TestMember( "Z" ) ) );
+    static List<List<Member>> m4 = Arrays.asList(
+        Arrays.<Member>asList(new TestMember("U"), new TestMember("V")),
+        Arrays.<Member>asList(new TestMember("W"), new TestMember("X")),
+        Arrays.<Member>asList(new TestMember("Y"), new TestMember("Z")));
 
-  static final Comparator<List<Member>> memberComparator =
-    new Comparator<>() {
-      @Override
-	public int compare( List<Member> ma1, List<Member> ma2 ) {
-        for ( int i = 0; i < ma1.size(); i++ ) {
-          int c = ma1.get( i ).compareTo( ma2.get( i ) );
-          if ( c < 0 ) {
-            return c;
-          } else if ( c > 0 ) {
-            return c;
-          }
+    static final Comparator<List<Member>> memberComparator =
+        new Comparator<>() {
+            @Override
+            public int compare(List<Member> ma1, List<Member> ma2) {
+                for (int i = 0; i < ma1.size(); i++) {
+                    int c = ma1.get(i).compareTo(ma2.get(i));
+                    if (c < 0) {
+                        return c;
+                    } else if (c > 0) {
+                        return c;
+                    }
+                }
+                return 0;
+            }
+        };
+
+    private CrossJoinFunDef crossJoinFunDef;
+
+    @BeforeEach
+    protected void beforeEach() throws Exception {
+        crossJoinFunDef = new CrossJoinFunDef(new NullFunDef().getFunctionMetaData());
+    }
+
+    @AfterEach
+    protected void afterEach() throws Exception {
+        SystemWideProperties.instance().populateInitial();
+    }
+
+    ////////////////////////////////////////////////////////////////////////
+    // Iterable
+    ////////////////////////////////////////////////////////////////////////
+
+
+    // The test to verify that cancellation/timeout is checked
+    // in CrossJoinFunDef$CrossJoinIterCalc$1$1.forward()
+    @ParameterizedTest
+    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
+    void testCrossJoinIterCalc_IterationCancellationOnForward(Context<?> foodMartContext) {
+        ((TestContextImpl) foodMartContext).setCheckCancelOrTimeoutInterval(1);
+        // Get product members as TupleList
+        Connection con = foodMartContext.getConnectionWithDefaultRole();
+        RolapCube salesCube =
+            (RolapCube) TestUtil.cubeByName(con, SALES_CUBE);
+        CatalogReader salesCubeCatalogReader =
+            salesCube.getCatalogReader(con.getRole())
+                .withLocus();
+        TupleList productMembers =
+            TestUtil.productMembersPotScrubbersPotsAndPans(salesCubeCatalogReader);
+        // Get genders members as TupleList
+        Result genders = TestUtil.executeQuery(con, SELECT_GENDER_MEMBERS);
+        TupleList genderMembers = getGenderMembers(genders);
+
+        // Test execution to track cancellation/timeout calls
+        ExecutionImpl execution =
+            spy(new ExecutionImpl(genders.getQuery().getStatement(), Optional.empty()));
+        execution.asContext().setExecution(execution);
+        // check no execution of checkCancelOrTimeout has been yet
+        verify(execution, times(0)).checkCancelOrTimeout();
+        Integer crossJoinIterCalc =
+            crossJoinIterCalcIterate(productMembers, genderMembers, execution);
+
+        // checkCancelOrTimeout should be called once for the left tuple
+        //from CrossJoinIterCalc$1$1.forward() since phase
+        // interval is 1
+        verify(execution, times(productMembers.size())).checkCancelOrTimeout();
+        assertEquals(
+            productMembers.size() * genderMembers.size(),
+            crossJoinIterCalc.intValue());
+    }
+
+    private static TupleList getGenderMembers(Result genders) {
+        TupleList genderMembers = new UnaryTupleList();
+        for (Position pos : genders.getAxes()[0].getPositions()) {
+            genderMembers.add(pos);
         }
-        return 0;
-      }
-    };
-
-  private CrossJoinFunDef crossJoinFunDef;
-
-  @BeforeEach
-  protected void beforeEach() throws Exception {
-    crossJoinFunDef = new CrossJoinFunDef( new NullFunDef().getFunctionMetaData() );
-  }
-
-  @AfterEach
-  protected void afterEach() throws Exception {
-	  SystemWideProperties.instance().populateInitial();
-  }
-
-  ////////////////////////////////////////////////////////////////////////
-  // Iterable
-  ////////////////////////////////////////////////////////////////////////
-
-
-
-  // The test to verify that cancellation/timeout is checked
-  // in CrossJoinFunDef$CrossJoinIterCalc$1$1.forward()
-	@ParameterizedTest
-	@ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class )
-  void testCrossJoinIterCalc_IterationCancellationOnForward(Context<?> foodMartContext) {
-   ((TestContextImpl)foodMartContext).setCheckCancelOrTimeoutInterval(1);
-    // Get product members as TupleList
-   Connection con= foodMartContext.getConnectionWithDefaultRole();
-    RolapCube salesCube =
-      (RolapCube) TestUtil.cubeByName( con, SALES_CUBE );
-    CatalogReader salesCubeCatalogReader =
-      salesCube.getCatalogReader( con.getRole() )
-        .withLocus();
-    TupleList productMembers =
-    		TestUtil.productMembersPotScrubbersPotsAndPans( salesCubeCatalogReader );
-    // Get genders members as TupleList
-    Result genders = TestUtil.executeQuery(con, SELECT_GENDER_MEMBERS );
-    TupleList genderMembers = getGenderMembers( genders );
-
-    // Test execution to track cancellation/timeout calls
-    ExecutionImpl execution =
-      spy( new ExecutionImpl( genders.getQuery().getStatement(), Optional.empty() ) );
-    execution.asContext().setExecution(execution);
-    // check no execution of checkCancelOrTimeout has been yet
-    verify( execution, times( 0 ) ).checkCancelOrTimeout();
-    Integer crossJoinIterCalc =
-      crossJoinIterCalcIterate( productMembers, genderMembers, execution );
-
-    // checkCancelOrTimeout should be called once for the left tuple
-    //from CrossJoinIterCalc$1$1.forward() since phase
-    // interval is 1
-    verify( execution, times( productMembers.size() ) ).checkCancelOrTimeout();
-    assertEquals(
-      productMembers.size() * genderMembers.size(),
-      crossJoinIterCalc.intValue() );
-  }
-
-  private static TupleList getGenderMembers( Result genders ) {
-    TupleList genderMembers = new UnaryTupleList();
-    for ( Position pos : genders.getAxes()[ 0 ].getPositions() ) {
-      genderMembers.add( pos );
+        return genderMembers;
     }
-    return genderMembers;
-  }
 
-  private Integer crossJoinIterCalcIterate(
-    final TupleList list1, final TupleList list2,
-    final ExecutionImpl execution ) {
-    ExecutionMetadata metadata = ExecutionMetadata.of("CrossJoinTest", "CrossJoinTest", null, 0);
-    return ExecutionContext.where(
-      execution.asContext().createChild(metadata, Optional.empty()),
-      () -> {
-        TupleIterable iterable =
-          new CrossJoinIterCalc(
-            getResolvedFunCall(), null, crossJoinFunDef.getCtag() ).makeIterable( list1, list2 );
-        TupleCursor tupleCursor = iterable.tupleCursor();
-        // total count of all iterations
-        int counter = 0;
-        while ( tupleCursor.forward() ) {
-          counter++;
+    private Integer crossJoinIterCalcIterate(
+        final TupleList list1, final TupleList list2,
+        final ExecutionImpl execution) {
+        ExecutionMetadata metadata = ExecutionMetadata.of("CrossJoinTest", "CrossJoinTest", null, 0);
+        return ExecutionContext.where(
+            execution.asContext().createChild(metadata, Optional.empty()),
+            () -> {
+                TupleIterable iterable =
+                    new CrossJoinIterCalc(
+                        getResolvedFunCall(), null, crossJoinFunDef.getCtag()).makeIterable(list1, list2);
+                TupleCursor tupleCursor = iterable.tupleCursor();
+                // total count of all iterations
+                int counter = 0;
+                while (tupleCursor.forward()) {
+                    counter++;
+                }
+                return Integer.valueOf(counter);
+            });
+    }
+
+
+    @ParameterizedTest
+    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
+    void testResultLimitWithinCrossjoin_1(Context<?> foodMartContext) {
+    }
+
+
+    @ParameterizedTest
+    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
+    void testResultLimitWithinCrossjoin(Context<?> foodMartContext) {
+        Connection connection = foodMartContext.getConnectionWithDefaultRole();
+        SystemWideProperties.instance().ResultLimit = 1000;
+        TestUtil.assertAxisThrows(connection, "Hierarchize(Crossjoin(Union({[Gender].CurrentMember}, [Gender].Children), "
+                + "Union({[Product].CurrentMember}, [Product].[Brand Name].Members)))",
+            "result (1,539) exceeded limit (1,000)", "Sales");
+    }
+
+
+    protected ResolvedFunCallImpl getResolvedFunCall() {
+        FunctionDefinition funDef = new TestFunDef();
+        Expression[] args = new Expression[0];
+        Type returnType =
+            new SetType(
+                new TupleType(
+                    new Type[]{
+                        new MemberType(null, null, null, null),
+                        new MemberType(null, null, null, null)}));
+        return new ResolvedFunCallImpl(funDef, args, returnType);
+    }
+
+    ////////////////////////////////////////////////////////////////////////
+    // Helper classes
+    ////////////////////////////////////////////////////////////////////////
+    public static class TestFunDef implements FunctionDefinition {
+        TestFunDef() {
         }
-        return Integer.valueOf( counter );
-      } );
-  }
 
 
-	@ParameterizedTest
-	@ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class )
-void testResultLimitWithinCrossjoin_1(Context<?> foodMartContext) {
-	}
+        @Override
+        public Expression createCall(Validator validator, Expression[] args) {
+            throw new UnsupportedOperationException();
+        }
 
+        @Override
+        public String getSignature() {
+            throw new UnsupportedOperationException();
+        }
 
-	@ParameterizedTest
-	@ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class )
-  void testResultLimitWithinCrossjoin(Context<?> foodMartContext) {
-   Connection connection= foodMartContext.getConnectionWithDefaultRole();
-   SystemWideProperties.instance().ResultLimit = 1000;
-    TestUtil.assertAxisThrows(connection, "Hierarchize(Crossjoin(Union({[Gender].CurrentMember}, [Gender].Children), "
-        + "Union({[Product].CurrentMember}, [Product].[Brand Name].Members)))",
-      "result (1,539) exceeded limit (1,000)","Sales" );
-  }
+        @Override
+        public void unparse(Expression[] args, PrintWriter pw) {
+            throw new UnsupportedOperationException();
+        }
 
+        @Override
+        public Calc compileCall(ResolvedFunCall call, ExpressionCompiler compiler) {
+            throw new UnsupportedOperationException();
+        }
 
-  protected ResolvedFunCallImpl getResolvedFunCall() {
-    FunctionDefinition funDef = new TestFunDef();
-    Expression[] args = new Expression[ 0 ];
-    Type returnType =
-      new SetType(
-        new TupleType(
-          new Type[] {
-            new MemberType( null, null, null, null ),
-            new MemberType( null, null, null, null ) } ) );
-    return new ResolvedFunCallImpl( funDef, args, returnType );
-  }
+        @Override
+        public FunctionMetaData getFunctionMetaData() {
+            return new FunctionMetaData() {
 
-  ////////////////////////////////////////////////////////////////////////
-  // Helper classes
-  ////////////////////////////////////////////////////////////////////////
-  public static class TestFunDef implements FunctionDefinition {
-    TestFunDef() {
-    }
+                @Override
+                public OperationAtom operationAtom() {
 
+                    return new FunctionOperationAtom("SomeName");
+                }
 
-    @Override
-	public Expression createCall( Validator validator, Expression[] args ) {
-      throw new UnsupportedOperationException();
-    }
+                @Override
+                public String description() {
+                    throw new UnsupportedOperationException();
+                }
 
-    @Override
-	public String getSignature() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-	public void unparse( Expression[] args, PrintWriter pw ) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-	public Calc compileCall( ResolvedFunCall call, ExpressionCompiler compiler ) {
-      throw new UnsupportedOperationException();
-    }
-
-	@Override
-	public FunctionMetaData getFunctionMetaData() {
-		return new FunctionMetaData() {
-
-			@Override
-			public OperationAtom operationAtom() {
-
-				return new FunctionOperationAtom("SomeName");
-			}
-
-			    @Override
-				public String description() {
-			      throw new UnsupportedOperationException();
-			    }
-
-			    @Override
-				public DataType returnCategory() {
-			      throw new UnsupportedOperationException();
-			    }
-
-			    @Override
-				public DataType[] parameterDataTypes() {
-			      throw new UnsupportedOperationException();
-			    }
-
-
-				@Override
-				public FunctionParameterR[] parameters() {
-			      throw new UnsupportedOperationException();
-				}
-
-		};
-	}
-  }
-
-  public static class NullFunDef implements FunctionDefinition {
-    public NullFunDef() {
-    }
-
-
-
-    @Override
-	public Expression createCall( Validator validator, Expression[] args ) {
-      return null;
-    }
-
-    @Override
-	public String getSignature() {
-      return "";
-    }
-
-    @Override
-	public void unparse( Expression[] args, PrintWriter pw ) {
-      //
-    }
-
-    @Override
-	public Calc<?> compileCall( ResolvedFunCall call, ExpressionCompiler compiler ) {
-      return null;
-    }
-
-	@Override
-	public FunctionMetaData getFunctionMetaData() {
-        return new FunctionMetaData() {
-
-            @Override
-            public OperationAtom operationAtom() {
-                return new FunctionOperationAtom("");
-            }
-
-            @Override
-            public String description() {
-                return "";
-            }
-
-            @Override
-            public DataType returnCategory() {
-                  return DataType.UNKNOWN;
-            }
+                @Override
+                public DataType returnCategory() {
+                    throw new UnsupportedOperationException();
+                }
 
                 @Override
                 public DataType[] parameterDataTypes() {
-                    return new DataType[ 0 ];
+                    throw new UnsupportedOperationException();
+                }
+
+
+                @Override
+                public FunctionParameterR[] parameters() {
+                    throw new UnsupportedOperationException();
+                }
+
+            };
+        }
+    }
+
+    public static class NullFunDef implements FunctionDefinition {
+        public NullFunDef() {
+        }
+
+
+        @Override
+        public Expression createCall(Validator validator, Expression[] args) {
+            return null;
+        }
+
+        @Override
+        public String getSignature() {
+            return "";
+        }
+
+        @Override
+        public void unparse(Expression[] args, PrintWriter pw) {
+            //
+        }
+
+        @Override
+        public Calc<?> compileCall(ResolvedFunCall call, ExpressionCompiler compiler) {
+            return null;
+        }
+
+        @Override
+        public FunctionMetaData getFunctionMetaData() {
+            return new FunctionMetaData() {
+
+                @Override
+                public OperationAtom operationAtom() {
+                    return new FunctionOperationAtom("");
+                }
+
+                @Override
+                public String description() {
+                    return "";
+                }
+
+                @Override
+                public DataType returnCategory() {
+                    return DataType.UNKNOWN;
+                }
+
+                @Override
+                public DataType[] parameterDataTypes() {
+                    return new DataType[0];
                 }
 
                 @Override
                 public FunctionParameter[] parameters() {
                     return new FunctionParameter[0];
                 }
-       };
-	}
-  }
+            };
+        }
+    }
 }

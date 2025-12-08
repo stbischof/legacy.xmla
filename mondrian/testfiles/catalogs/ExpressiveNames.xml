@@ -59,7 +59,7 @@
     <DimensionUsage name="Dimension2" source="Dimension1" foreignKey="D2"/>
     <DimensionUsage name="Dimension3"  source="Dimension3" foreignKey="D3"/>
     <Measure aggregator="sum" name="Measure1" column="M1"/>
- </Cube>
+  </Cube>
 
 </Schema>
 

@@ -64,9 +64,9 @@ class CancellationTest {
     void testNonEmptyListCancellation(Context<?> context) throws OlapRuntimeException {
         // tests that cancellation/timeout is checked in
         // CrossJoinFunDef.nonEmptyList
-        ((TestContextImpl)context).setCheckCancelOrTimeoutInterval(1);
+        ((TestContextImpl) context).setCheckCancelOrTimeoutInterval(1);
         CrossJoinFunDefTester crossJoinFunDef =
-                new CrossJoinFunDefTester(new CrossJoinTest.NullFunDef().getFunctionMetaData());
+            new CrossJoinFunDefTester(new CrossJoinTest.NullFunDef().getFunctionMetaData());
         Result result =
             executeQuery(context.getConnectionWithDefaultRole(), "select store.[store name].members on 0 from sales");
         Evaluator eval = ((RolapResult) result).getEvaluator(new int[]{0});
@@ -87,14 +87,14 @@ class CancellationTest {
     void testMutableCrossJoinCancellation(Context<?> context) throws OlapRuntimeException {
         // tests that cancellation/timeout is checked in
         // CrossJoinFunDef.mutableCrossJoin
-        ((TestContextImpl)context).setCheckCancelOrTimeoutInterval(1);
+        ((TestContextImpl) context).setCheckCancelOrTimeoutInterval(1);
         Connection connection = context.getConnectionWithDefaultRole();
         RolapCube salesCube = (RolapCube) cubeByName(
-             connection,
+            connection,
             "Sales");
         CatalogReader salesCubeCatalogReader =
             salesCube.getCatalogReader(
-                    connection.getRole()).withLocus();
+                connection.getRole()).withLocus();
 
         TupleList productMembers =
             productMembersPotScrubbersPotsAndPans(salesCubeCatalogReader);
@@ -127,15 +127,14 @@ class CancellationTest {
     }
 
     private TupleList mutableCrossJoin(
-        final TupleList list1, final TupleList list2, final ExecutionImpl execution)
-        {
-            ExecutionMetadata metadata = ExecutionMetadata.of("CancellationTest", "CancellationTest", null, 0);
-            return ExecutionContext.where(
-                execution.asContext().createChild(metadata, Optional.empty()),
-                () -> {
-                    return CrossJoinFunDef.mutableCrossJoin(list1, list2);
-                });
-        }
+        final TupleList list1, final TupleList list2, final ExecutionImpl execution) {
+        ExecutionMetadata metadata = ExecutionMetadata.of("CancellationTest", "CancellationTest", null, 0);
+        return ExecutionContext.where(
+            execution.asContext().createChild(metadata, Optional.empty()),
+            () -> {
+                return CrossJoinFunDef.mutableCrossJoin(list1, list2);
+            });
+    }
 
     class CrossJoinFunDefTester extends CrossJoinFunDef {
         public CrossJoinFunDefTester(FunctionMetaData functionMetaData) {
@@ -143,7 +142,7 @@ class CancellationTest {
         }
 
         //@Override
-		//public TupleList nonEmptyList(
+        //public TupleList nonEmptyList(
         //    Evaluator evaluator,
         //    TupleList list,
         //    ResolvedFunCall call)

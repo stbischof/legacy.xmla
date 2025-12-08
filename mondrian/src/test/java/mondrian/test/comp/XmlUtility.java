@@ -47,8 +47,7 @@ class XmlUtility {
         boolean validate,
         boolean ignoreIgnorableWhitespace,
         boolean usingSchema,
-        ErrorHandler handler)
-    {
+        ErrorHandler handler) {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
         try {
@@ -83,8 +82,7 @@ class XmlUtility {
     }
 
     public static Document getDocument(File file)
-        throws IOException, SAXException
-    {
+        throws IOException, SAXException {
         DocumentBuilder builder = createDomParser(
             true, true, true, new UtilityErrorHandler());
 
@@ -94,8 +92,7 @@ class XmlUtility {
     }
 
     public static void save(Writer writer, Document document)
-        throws IOException
-    {
+        throws IOException {
         try {
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
 
@@ -135,15 +132,13 @@ class XmlUtility {
             if (ch == '&'
                 && enc.charAt(idx + 1) == 'l'
                 && enc.charAt(idx + 2) == 't'
-                && enc.charAt(idx + 3) == ';')
-            {
+                && enc.charAt(idx + 3) == ';') {
                 result.append('<');
                 idx += 3;
             } else if (ch == '&'
-                       && enc.charAt(idx + 1) == 'g'
-                       && enc.charAt(idx + 2) == 't'
-                       && enc.charAt(idx + 3) == ';')
-            {
+                && enc.charAt(idx + 1) == 'g'
+                && enc.charAt(idx + 2) == 't'
+                && enc.charAt(idx + 3) == ';') {
                 result.append('>');
                 idx += 3;
             } else {
@@ -159,17 +154,17 @@ class XmlUtility {
         for (int i = 0; i < childNodeList.getLength(); i++) {
             Node node = childNodeList.item(i);
             switch (node.getNodeType()) {
-            case Node.TEXT_NODE:
-            case Node.CDATA_SECTION_NODE:
-                final String text = ((CharacterData) node).getData();
-                if (WhitespacePattern.matcher(text).matches()) {
-                    element.removeChild(node);
-                    --i;
-                }
-                break;
-            case Node.ELEMENT_NODE:
-                stripWhitespace((Element) node);
-                break;
+                case Node.TEXT_NODE:
+                case Node.CDATA_SECTION_NODE:
+                    final String text = ((CharacterData) node).getData();
+                    if (WhitespacePattern.matcher(text).matches()) {
+                        element.removeChild(node);
+                        --i;
+                    }
+                    break;
+                case Node.ELEMENT_NODE:
+                    stripWhitespace((Element) node);
+                    break;
             }
         }
     }
@@ -183,7 +178,7 @@ class XmlUtility {
             t.setOutputProperty(OutputKeys.INDENT, "yes");
             t.transform(new DOMSource(xmlRoot), new StreamResult(sw));
         } catch (TransformerException e) {
-            new RuntimeException("nodeToString Transformer Exception",  e);
+            new RuntimeException("nodeToString Transformer Exception", e);
         }
         return sw.toString();
     }
@@ -191,19 +186,19 @@ class XmlUtility {
 
     public static class UtilityErrorHandler implements ErrorHandler {
         @Override
-		public void error(SAXParseException exc) {
+        public void error(SAXParseException exc) {
             System.err.println("Error parsing file: " + exc);
             //exc.printStackTrace(System.err);
         }
 
         @Override
-		public void fatalError(SAXParseException exc) {
+        public void fatalError(SAXParseException exc) {
             System.err.println("Fatal error parsing file: " + exc);
 //            exc.printStackTrace(System.err);
         }
 
         @Override
-		public void warning(SAXParseException exc) {
+        public void warning(SAXParseException exc) {
             System.err.println("SAX parsing exception: " + exc);
 //            exc.printStackTrace(System.err);
         }

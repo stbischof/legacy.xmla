@@ -49,7 +49,7 @@
 ## TableName: geography7641
 ## ColumnNames: cust_loc_id,state_cd,city_nm,zip_cd
 ## ColumnTypes: INTEGER,VARCHAR(20),VARCHAR(20),VARCHAR(20)
-## NosOfRows: 8 
+## NosOfRows: 8
 1,New York,New York,1000
 2,New York,New York,1001
 3,New York,Albany,1010

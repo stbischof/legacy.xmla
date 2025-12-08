@@ -10,7 +10,7 @@
 2,10,4
 2,11,2
 2,12,2
-# aggregate over prod_id 
+# aggregate over prod_id
 ## TableName: agg_lp_xxx_cheques
 ## ColumnNames: store_id,amount_AVG,FACT_COUNT
 ## ColumnTypes: INTEGER,DECIMAL(10,2),INTEGER
