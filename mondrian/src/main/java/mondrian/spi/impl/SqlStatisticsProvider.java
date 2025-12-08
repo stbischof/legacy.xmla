@@ -1,11 +1,11 @@
 /*
-* This software is subject to the terms of the Eclipse Public License v1.0
-* Agreement, available at the following URL:
-* http://www.eclipse.org/legal/epl-v10.html.
-* You must accept the terms of that agreement to use this software.
-*
-* Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
-*/
+ * This software is subject to the terms of the Eclipse Public License v1.0
+ * Agreement, available at the following URL:
+ * http://www.eclipse.org/legal/epl-v10.html.
+ * You must accept the terms of that agreement to use this software.
+ *
+ * Copyright (c) 2002-2017 Hitachi Vantara..  All rights reserved.
+ */
 
 package mondrian.spi.impl;
 
@@ -31,13 +31,12 @@ import org.eclipse.daanse.olap.spi.StatisticsProvider;
 public class SqlStatisticsProvider implements StatisticsProvider {
 
     @Override
-	public long getTableCardinality(
+    public long getTableCardinality(
         Context context,
         String catalog,
         String schema,
         String table,
-        ExecutionImpl execution)
-    {
+        ExecutionImpl execution) {
         StringBuilder buf = new StringBuilder("select count(*) from ");
         context.getDialect().quoteIdentifier(buf, catalog, schema, table);
         final String sql = buf.toString();
@@ -67,12 +66,11 @@ public class SqlStatisticsProvider implements StatisticsProvider {
     }
 
     @Override
-	public long getQueryCardinality(
+    public long getQueryCardinality(
         Context context,
         String sql,
-        ExecutionImpl execution)
-    {
-        Dialect dialect=context.getDialect();
+        ExecutionImpl execution) {
+        Dialect dialect = context.getDialect();
         final StringBuilder buf = new StringBuilder();
         buf.append(
             "select count(*) from (").append(sql).append(")");
@@ -111,14 +109,13 @@ public class SqlStatisticsProvider implements StatisticsProvider {
     }
 
     @Override
-	public long getColumnCardinality(
+    public long getColumnCardinality(
         Context context,
         String catalog,
         String schema,
         String table,
         String column,
-        ExecutionImpl execution)
-    {
+        ExecutionImpl execution) {
         final String sql =
             generateColumnCardinalitySql(
                 context.getDialect(), schema, table, column);
@@ -154,8 +151,7 @@ public class SqlStatisticsProvider implements StatisticsProvider {
         Dialect dialect,
         String schema,
         String table,
-        String column)
-    {
+        String column) {
         final StringBuilder buf = new StringBuilder();
         StringBuilder exprString = dialect.quoteIdentifier(column);
         if (dialect.allowsCountDistinct()) {

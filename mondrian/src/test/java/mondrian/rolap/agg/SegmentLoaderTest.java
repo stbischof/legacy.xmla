@@ -108,12 +108,11 @@ class SegmentLoaderTest extends BatchTestCase {
         statement = ((Connection) connection).getInternalStatement();
         execution = new ExecutionImpl(statement, Optional.of(Duration.ofMillis(1000)));
         executionContext = execution.asContext();
-        cacheMgr = (SegmentCacheManager) ((AbstractBasicContext)execution.getDaanseStatement().getDaanseConnection()
+        cacheMgr = (SegmentCacheManager) ((AbstractBasicContext) execution.getDaanseStatement().getDaanseConnection()
             .getContext()).getAggregationManager().getCacheMgr();
 
         // Note: ExecutionContext.push() removed. Tests should wrap operations in ExecutionContext.where() if needed.
     }
-
 
 
     @BeforeEach
@@ -143,15 +142,15 @@ class SegmentLoaderTest extends BatchTestCase {
 
     @Disabled //TODO need investigate
     @ParameterizedTest
-    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class )
+    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testRollup(Context<?> context) {
         prepareContext(context);
-        for (boolean rollup : new Boolean[] {true, false}) {
+        for (boolean rollup : new Boolean[]{true, false}) {
             PrintWriter pw = new PrintWriter(System.out);
             context.getConnectionWithDefaultRole().getCacheControl(pw).flushSchemaCache();
             pw.flush();
-            ((TestContextImpl)context).setDisableCaching(false);
-            ((TestContextImpl)context).setEnableInMemoryRollup(rollup);
+            ((TestContextImpl) context).setDisableCaching(false);
+            ((TestContextImpl) context).setEnableInMemoryRollup(rollup);
             final String queryOracle =
                 "select \"time_by_day\".\"the_year\" as \"c0\", sum(\"sales_fact_1997\".\"unit_sales\") as \"m0\" from \"sales_fact_1997\" \"sales_fact_1997\", \"time_by_day\" \"time_by_day\" where \"sales_fact_1997\".\"time_id\" = \"time_by_day\".\"time_id\" group by \"time_by_day\".\"the_year\"";
             final String queryMySQL =
@@ -161,7 +160,7 @@ class SegmentLoaderTest extends BatchTestCase {
             assertQuerySqlOrNot(
                 context.getConnectionWithDefaultRole(),
                 "select {[Time].[Time].[Year].Members} on columns from [Sales]",
-                new SqlPattern[] {
+                new SqlPattern[]{
                     new SqlPattern(
                         DatabaseProduct.ORACLE,
                         queryOracle,
@@ -180,7 +179,7 @@ class SegmentLoaderTest extends BatchTestCase {
 
     @Disabled //has not been fixed during creating Daanse project
     @ParameterizedTest
-    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class )
+    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testLoadWithMockResultsForLoadingSummaryAndDetailedSegments(Context<?> context) throws ExecutionException, InterruptedException {
         prepareContext(context);
         GroupingSet groupableSetsInfo = getGroupingSetRollupOnGender(context.getConnectionWithDefaultRole());
@@ -192,12 +191,10 @@ class SegmentLoaderTest extends BatchTestCase {
         groupingSets.add(groupableSetsInfo);
         SegmentLoader loader = new SegmentLoader(cacheMgr) {
             @Override
-            public
-			SqlStatement createExecuteSql(
+            public SqlStatement createExecuteSql(
                 int cellRequestCount,
                 final GroupingSetsList groupingSetsList,
-                List<StarPredicate> compoundPredicateList, boolean useAggregates)
-            {
+                List<StarPredicate> compoundPredicateList, boolean useAggregates) {
                 return new MockSqlStatement(
                     cellRequestCount,
                     groupingSetsList,
@@ -236,7 +233,7 @@ class SegmentLoaderTest extends BatchTestCase {
         Object o =
             Proxy.newProxyInstance(
                 this.getClass().getClassLoader(),
-                new Class[] {ResultSet.class, ResultSetMetaData.class},
+                new Class[]{ResultSet.class, ResultSetMetaData.class},
                 handler);
         handler.resultSetMetaData = (ResultSetMetaData) o;
         return (ResultSet) o;
@@ -264,7 +261,7 @@ class SegmentLoaderTest extends BatchTestCase {
      */
     @Disabled //has not been fixed during creating Daanse project
     @ParameterizedTest
-    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class )
+    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testLoadWithWithNullInRollupColumn(Context<?> context) throws ExecutionException, InterruptedException {
         prepareContext(context);
         GroupingSet groupableSetsInfo = getGroupingSetRollupOnGender(context.getConnectionWithDefaultRole());
@@ -276,12 +273,10 @@ class SegmentLoaderTest extends BatchTestCase {
         groupingSets.add(groupableSetsInfo);
         SegmentLoader loader = new SegmentLoader(cacheMgr) {
             @Override
-            public
-			SqlStatement createExecuteSql(
+            public SqlStatement createExecuteSql(
                 int cellRequestCount,
                 GroupingSetsList groupingSetsList,
-                List<StarPredicate> compoundPredicateList, boolean useAggregates)
-            {
+                List<StarPredicate> compoundPredicateList, boolean useAggregates) {
                 return new MockSqlStatement(
                     cellRequestCount,
                     groupingSetsList,
@@ -300,9 +295,9 @@ class SegmentLoaderTest extends BatchTestCase {
 
     @Disabled //has not been fixed during creating Daanse project
     @ParameterizedTest
-    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class )
+    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     public void
-        testLoadWithMockResultsForLoadingSummaryAndDetailedSegmentsUsingSparse(Context<?> context) throws ExecutionException, InterruptedException {
+    testLoadWithMockResultsForLoadingSummaryAndDetailedSegmentsUsingSparse(Context<?> context) throws ExecutionException, InterruptedException {
         prepareContext(context);
         GroupingSet groupableSetsInfo = getGroupingSetRollupOnGender(context.getConnectionWithDefaultRole());
 
@@ -313,12 +308,10 @@ class SegmentLoaderTest extends BatchTestCase {
         groupingSets.add(groupableSetsInfo);
         SegmentLoader loader = new SegmentLoader(cacheMgr) {
             @Override
-            public
-			SqlStatement createExecuteSql(
+            public SqlStatement createExecuteSql(
                 int cellRequestCount,
                 GroupingSetsList groupingSetsList,
-                List<StarPredicate> compoundPredicateList, boolean useAggregates)
-            {
+                List<StarPredicate> compoundPredicateList, boolean useAggregates) {
                 return new MockSqlStatement(
                     cellRequestCount,
                     groupingSetsList,
@@ -326,9 +319,9 @@ class SegmentLoaderTest extends BatchTestCase {
             }
 
             @Override
-			public boolean useSparse(boolean sparse, int n, RowList rows,
-                              int sparseSegmentCountThreshold,
-                              double sparseSegmentDensityThreshold) {
+            public boolean useSparse(boolean sparse, int n, RowList rows,
+                                     int sparseSegmentCountThreshold,
+                                     double sparseSegmentDensityThreshold) {
                 return true;
             }
         };
@@ -361,8 +354,7 @@ class SegmentLoaderTest extends BatchTestCase {
     private SegmentWithData getFor(
         List<Future<Map<Segment, SegmentWithData>>> mapFutures,
         Segment segment)
-        throws ExecutionException, InterruptedException
-    {
+        throws ExecutionException, InterruptedException {
         for (Future<Map<Segment, SegmentWithData>> mapFuture : mapFutures) {
             final Map<Segment, SegmentWithData> map = mapFuture.get();
             if (map.containsKey(segment)) {
@@ -388,9 +380,9 @@ class SegmentLoaderTest extends BatchTestCase {
 
     @Disabled //has not been fixed during creating Daanse project
     @ParameterizedTest
-    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class )
+    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testLoadWithMockResultsForLoadingOnlyDetailedSegments(Context<?> context) throws ExecutionException,
-            InterruptedException {
+        InterruptedException {
         prepareContext(context);
         GroupingSet groupingSetsInfo = getDefaultGroupingSet(context.getConnectionWithDefaultRole());
         ArrayList<GroupingSet> groupingSets =
@@ -398,12 +390,10 @@ class SegmentLoaderTest extends BatchTestCase {
         groupingSets.add(groupingSetsInfo);
         SegmentLoader loader = new SegmentLoader(cacheMgr) {
             @Override
-            public
-			SqlStatement createExecuteSql(
+            public SqlStatement createExecuteSql(
                 int cellRequestCount,
                 GroupingSetsList groupingSetsList,
-                List<StarPredicate> compoundPredicateList, boolean useAggregates)
-            {
+                List<StarPredicate> compoundPredicateList, boolean useAggregates) {
                 return new MockSqlStatement(
                     cellRequestCount,
                     groupingSetsList,
@@ -428,9 +418,9 @@ class SegmentLoaderTest extends BatchTestCase {
     }
 
     @ParameterizedTest
-    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class )
+    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     public void
-        testProcessDataForGettingGroupingSetsBitKeysAndLoadingAxisValueSet(Context<?> context) throws SQLException {
+    testProcessDataForGettingGroupingSetsBitKeysAndLoadingAxisValueSet(Context<?> context) throws SQLException {
         prepareContext(context);
         GroupingSet groupableSetsInfo = getGroupingSetRollupOnGender(context.getConnectionWithDefaultRole());
 
@@ -447,12 +437,10 @@ class SegmentLoaderTest extends BatchTestCase {
                 getData(true));
         SegmentLoader loader = new SegmentLoader(cacheMgr) {
             @Override
-            public
-            SqlStatement createExecuteSql(
+            public SqlStatement createExecuteSql(
                 int cellRequestCount,
                 GroupingSetsList groupingSetsList,
-                List<StarPredicate> compoundPredicateList, boolean useAggregates)
-            {
+                List<StarPredicate> compoundPredicateList, boolean useAggregates) {
                 return stmt;
             }
         };
@@ -461,28 +449,28 @@ class SegmentLoaderTest extends BatchTestCase {
             loader.getDistinctValueWorkspace(axisCount);
         boolean[] axisContainsNull = new boolean[axisCount];
         ExecutionContext.where(executionContext, () -> {
-		    try {
-			    SegmentLoader.RowList list = loader.processData(
+            try {
+                SegmentLoader.RowList list = loader.processData(
                     stmt,
                     axisContainsNull,
                     axisValueSet,
                     new GroupingSetsList(groupingSets));
-	            int totalNoOfRows = 12;
-	            int lengthOfRowWithBitKey = 6;
-	            assertEquals(totalNoOfRows, list.size());
-	            assertEquals(lengthOfRowWithBitKey, list.getTypes().size());
-	            list.first();
-	            list.next();
-	            assertEquals(BitKey.Factory.makeBitKey(0), list.getObject(5));
+                int totalNoOfRows = 12;
+                int lengthOfRowWithBitKey = 6;
+                assertEquals(totalNoOfRows, list.size());
+                assertEquals(lengthOfRowWithBitKey, list.getTypes().size());
+                list.first();
+                list.next();
+                assertEquals(BitKey.Factory.makeBitKey(0), list.getObject(5));
 
-	            BitKey bitKeyForSummaryRow = BitKey.Factory.makeBitKey(0);
-	            bitKeyForSummaryRow.set(0);
-	            list.next();
-	            list.next();
-	            assertEquals(bitKeyForSummaryRow, list.getObject(5));
-		    } catch (SQLException e) {
-			    new RuntimeException(e.getMessage(), e);
-		    }
+                BitKey bitKeyForSummaryRow = BitKey.Factory.makeBitKey(0);
+                bitKeyForSummaryRow.set(0);
+                list.next();
+                list.next();
+                assertEquals(bitKeyForSummaryRow, list.getObject(5));
+            } catch (SQLException e) {
+                new RuntimeException(e.getMessage(), e);
+            }
         });
         SortedSet<Comparable> yearAxis = axisValueSet[0];
         assertEquals(1, yearAxis.size());
@@ -514,10 +502,9 @@ class SegmentLoaderTest extends BatchTestCase {
     }
 
     @ParameterizedTest
-    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class )
+    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testProcessDataForSettingNullAxis(Context<?> context)
-        throws SQLException
-    {
+        throws SQLException {
         prepareContext(context);
         GroupingSet groupingSetsInfo = getDefaultGroupingSet(context.getConnectionWithDefaultRole());
 
@@ -529,13 +516,11 @@ class SegmentLoaderTest extends BatchTestCase {
                 trim(5, getDataWithNullInAxisColumn(false)));
         SegmentLoader loader = new SegmentLoader(cacheMgr) {
             @Override
-            public
-            SqlStatement createExecuteSql(
+            public SqlStatement createExecuteSql(
                 int cellRequestCount,
                 GroupingSetsList groupingSetsList,
                 List<StarPredicate> compoundPredicateList,
-                boolean useAggregates)
-            {
+                boolean useAggregates) {
                 return stmt;
             }
         };
@@ -547,14 +532,14 @@ class SegmentLoaderTest extends BatchTestCase {
         groupingSets.add(groupingSetsInfo);
         ExecutionContext.where(executionContext, () -> {
             try {
-			    loader.processData(
-			        stmt,
-			        axisContainsNull,
-			        axisValueSet,
-			        new GroupingSetsList(groupingSets));
-		    } catch (SQLException e) {
-			    new RuntimeException(e.getMessage(), e);
-		    }
+                loader.processData(
+                    stmt,
+                    axisContainsNull,
+                    axisValueSet,
+                    new GroupingSetsList(groupingSets));
+            } catch (SQLException e) {
+                new RuntimeException(e.getMessage(), e);
+            }
         });
 
         assertFalse(axisContainsNull[0]);
@@ -565,10 +550,9 @@ class SegmentLoaderTest extends BatchTestCase {
 
     // PDI-16150
     @ParameterizedTest
-    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class )
+    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testProcessBinaryData(Context<?> context)
-            throws SQLException
-    {
+        throws SQLException {
         prepareContext(context);
         GroupingSet groupingSetsInfo = getDefaultGroupingSet(context.getConnectionWithDefaultRole());
 
@@ -581,51 +565,48 @@ class SegmentLoaderTest extends BatchTestCase {
 
 
         final SqlStatement stmt =
-                new MockSqlStatement(
-                        0,
-                        new GroupingSetsList(
-                                Collections.singletonList(groupingSetsInfo)),
-                        trim(5, data));
+            new MockSqlStatement(
+                0,
+                new GroupingSetsList(
+                    Collections.singletonList(groupingSetsInfo)),
+                trim(5, data));
         SegmentLoader loader = new SegmentLoader(cacheMgr) {
             @Override
-            public
-            SqlStatement createExecuteSql(
-                    int cellRequestCount,
-                    GroupingSetsList groupingSetsList,
-                    List<StarPredicate> compoundPredicateList,
-                    boolean useAggregates)
-            {
+            public SqlStatement createExecuteSql(
+                int cellRequestCount,
+                GroupingSetsList groupingSetsList,
+                List<StarPredicate> compoundPredicateList,
+                boolean useAggregates) {
                 return stmt;
             }
         };
         int axisCount = 2;
         SortedSet<Comparable>[] axisValueSet =
-                loader.getDistinctValueWorkspace(axisCount);
+            loader.getDistinctValueWorkspace(axisCount);
         boolean[] axisContainsNull = new boolean[axisCount];
         List<GroupingSet> groupingSets = new ArrayList<>();
         groupingSets.add(groupingSetsInfo);
         ExecutionContext.where(executionContext, () -> {
-        	try {
-        		loader.processData(
-        				stmt,
-        				axisContainsNull,
-        				axisValueSet,
-        				new GroupingSetsList(groupingSets));
-        	} catch (SQLException e) {
-        		new RuntimeException(e.getMessage(), e);
-        	}
+            try {
+                loader.processData(
+                    stmt,
+                    axisContainsNull,
+                    axisValueSet,
+                    new GroupingSetsList(groupingSets));
+            } catch (SQLException e) {
+                new RuntimeException(e.getMessage(), e);
+            }
         });
         Object[] values = axisValueSet[0].toArray();
-        assertEquals( binaryData0, values[1] );
-        assertEquals( binaryData1, values[0] );
+        assertEquals(binaryData0, values[1]);
+        assertEquals(binaryData1, values[0]);
 
     }
 
     @ParameterizedTest
-    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class )
+    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testProcessDataForNonGroupingSetsScenario(Context<?> context)
-        throws SQLException
-    {
+        throws SQLException {
         prepareContext(context);
         GroupingSet groupingSetsInfo = getDefaultGroupingSet(context.getConnectionWithDefaultRole());
         final List<Object[]> data = new ArrayList<>();
@@ -640,13 +621,11 @@ class SegmentLoaderTest extends BatchTestCase {
                 data);
         SegmentLoader loader = new SegmentLoader(cacheMgr) {
             @Override
-            public
-            SqlStatement createExecuteSql(
+            public SqlStatement createExecuteSql(
                 int cellRequestCount,
                 GroupingSetsList groupingSetsList,
                 List<StarPredicate> compoundPredicateList,
-                boolean useAggregates)
-            {
+                boolean useAggregates) {
                 return stmt;
             }
         };
@@ -656,20 +635,20 @@ class SegmentLoaderTest extends BatchTestCase {
         SortedSet<Comparable>[] axisValueSet =
             loader.getDistinctValueWorkspace(4);
         ExecutionContext.where(executionContext, () -> {
-        	SegmentLoader.RowList list;
-        	try {
-        		list = loader.processData(
-        				stmt,
-        				new boolean[4],
-        				axisValueSet,
-        				new GroupingSetsList(groupingSets));
-        		int totalNoOfRows = 3;
-        		assertEquals(totalNoOfRows, list.size());
-        		int lengthOfRowWithoutBitKey = 5;
-        		assertEquals(lengthOfRowWithoutBitKey, list.getTypes().size());
-        	} catch (SQLException e) {
-        		new RuntimeException(e.getMessage(), e);
-        	}
+            SegmentLoader.RowList list;
+            try {
+                list = loader.processData(
+                    stmt,
+                    new boolean[4],
+                    axisValueSet,
+                    new GroupingSetsList(groupingSets));
+                int totalNoOfRows = 3;
+                assertEquals(totalNoOfRows, list.size());
+                int lengthOfRowWithoutBitKey = 5;
+                assertEquals(lengthOfRowWithoutBitKey, list.getTypes().size());
+            } catch (SQLException e) {
+                new RuntimeException(e.getMessage(), e);
+            }
         });
         SortedSet<Comparable> yearAxis = axisValueSet[0];
         assertEquals(1, yearAxis.size());
@@ -760,7 +739,7 @@ class SegmentLoaderTest extends BatchTestCase {
 
     @Disabled //has not been fixed during creating Daanse project
     @ParameterizedTest
-    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class )
+    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testGetGroupingBitKey(Context<?> context) throws SQLException {
         prepareContext(context);
         Object[] data = {
@@ -783,7 +762,7 @@ class SegmentLoaderTest extends BatchTestCase {
             key,
             new SegmentLoader(cacheMgr).getRollupBitKey(4, rowList, 5));
 
-        data = new Object[] {
+        data = new Object[]{
             "1997", null, "Deli", null, "12037", 0, 1, 0, 1
         };
         rowList = toResultSet(Collections.singletonList(data));
@@ -796,7 +775,7 @@ class SegmentLoaderTest extends BatchTestCase {
     }
 
     @ParameterizedTest
-    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class )
+    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testGroupingSetsUtilForMissingGroupingBitKeys(Context<?> context) {
         prepareContext(context);
         List<GroupingSet> groupingSets = new ArrayList<>();
@@ -827,8 +806,8 @@ class SegmentLoaderTest extends BatchTestCase {
         assertEquals(key, bitKeysList.get(1));
 
         List<BitKey> list = new GroupingSetsList(
-                new ArrayList<GroupingSet>())
-                .getRollupColumnsBitKeyList();
+            new ArrayList<GroupingSet>())
+            .getRollupColumnsBitKeyList();
         assertTrue(list.size() == 1 && list.get(0).equals(BitKey.EMPTY));
     }
 
@@ -841,7 +820,7 @@ class SegmentLoaderTest extends BatchTestCase {
     }
 
     @ParameterizedTest
-    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class )
+    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testGroupingSetsUtilSetsDetailForRollupColumns(Context<?> context) {
         prepareContext(context);
         RolapStar.Measure measure = getMeasure(context.getConnectionWithDefaultRole(), cubeNameSales, measureUnitSales);
@@ -885,7 +864,7 @@ class SegmentLoaderTest extends BatchTestCase {
 
         assertTrue(
             new GroupingSetsList(new ArrayList<GroupingSet>())
-            .getRollupColumns().isEmpty());
+                .getRollupColumns().isEmpty());
     }
 
     private GroupingSet getGroupingSetRollupOnGenderAndProductDepartment(Connection connection) {
@@ -898,8 +877,7 @@ class SegmentLoaderTest extends BatchTestCase {
     }
 
     private GroupingSet
-        getGroupingSetRollupOnProductFamilyAndProductDepartment(Connection connection)
-    {
+    getGroupingSetRollupOnProductFamilyAndProductDepartment(Connection connection) {
         return getGroupingSet(connection,
             new String[]{tableCustomer, tableTime},
             new String[]{fieldGender, fieldYear},
@@ -909,8 +887,7 @@ class SegmentLoaderTest extends BatchTestCase {
     }
 
     private GroupingSet
-        getGroupingSetRollupOnGenderAndProductDepartmentAndYear(Connection connection)
-    {
+    getGroupingSetRollupOnGenderAndProductDepartmentAndYear(Connection connection) {
         return getGroupingSet(connection,
             new String[]{tableProductClass},
             new String[]{fieldProductFamily},
@@ -930,7 +907,7 @@ class SegmentLoaderTest extends BatchTestCase {
     }
 
     @ParameterizedTest
-    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class )
+    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testGroupingSetsUtilSetsForDetailForRollupColumns(Context<?> context) {
         prepareContext(context);
         RolapStar.Measure measure = getMeasure(context.getConnectionWithDefaultRole(), cubeNameSales, measureUnitSales);
@@ -974,11 +951,11 @@ class SegmentLoaderTest extends BatchTestCase {
 
         assertTrue(
             new GroupingSetsList(new ArrayList<GroupingSet>())
-            .getRollupColumns().isEmpty());
+                .getRollupColumns().isEmpty());
     }
 
     @ParameterizedTest
-    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class )
+    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testGroupingSetsUtilSetsForGroupingFunctionIndex(Context<?> context) {
         prepareContext(context);
         List<GroupingSet> groupingSets = new ArrayList<>();
@@ -1006,7 +983,7 @@ class SegmentLoaderTest extends BatchTestCase {
     }
 
     @ParameterizedTest
-    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class )
+    @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testGetGroupingColumnsList(Context<?> context) {
         prepareContext(context);
         GroupingSet groupingSetsInfo = getDefaultGroupingSet(context.getConnectionWithDefaultRole());
@@ -1108,8 +1085,7 @@ class SegmentLoaderTest extends BatchTestCase {
     }
 
     private List<Object[]> getDataWithNullInRollupColumn(
-        boolean incSummaryData)
-    {
+        boolean incSummaryData) {
         List<Object[]> data = new ArrayList<>();
         data.add(new Object[]{"1997", "Food", "Deli", "F", "5990", 0});
         data.add(new Object[]{"1997", "Food", "Deli", "M", "6047", 0});
@@ -1121,8 +1097,7 @@ class SegmentLoaderTest extends BatchTestCase {
     }
 
     private List<Object[]> getDataWithNullInAxisColumn(
-        boolean incSummaryData)
-    {
+        boolean incSummaryData) {
         List<Object[]> data = new ArrayList<>();
         data.add(new Object[]{"1997", "Food", "Deli", "F", "5990", 0});
         data.add(new Object[]{"1997", "Food", "Deli", "M", "6047", 0});
@@ -1135,8 +1110,7 @@ class SegmentLoaderTest extends BatchTestCase {
     }
 
     public static class MyDelegatingInvocationHandler
-        extends DelegatingInvocationHandler
-    {
+        extends DelegatingInvocationHandler {
         int row;
         public boolean wasNull;
         ResultSetMetaData resultSetMetaData;
@@ -1148,7 +1122,7 @@ class SegmentLoaderTest extends BatchTestCase {
         }
 
         @Override
-		protected Object getTarget() {
+        protected Object getTarget() {
             return null;
         }
 
@@ -1211,8 +1185,7 @@ class SegmentLoaderTest extends BatchTestCase {
         public MockSqlStatement(
             int cellRequestCount,
             GroupingSetsList groupingSetsList,
-            List<Object[]> data)
-        {
+            List<Object[]> data) {
             super(
                 //groupingSetsList.getStar().getDataSource(),
                 //TODO Commented by reason context implementation

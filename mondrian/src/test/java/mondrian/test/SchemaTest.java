@@ -55,7 +55,7 @@ import org.eclipse.daanse.olap.api.result.Result;
 import org.eclipse.daanse.olap.common.StandardProperty;
 import org.eclipse.daanse.olap.common.SystemWideProperties;
 import org.eclipse.daanse.olap.common.Util;
-import  org.eclipse.daanse.olap.util.Bug;
+import org.eclipse.daanse.olap.util.Bug;
 import org.eclipse.daanse.rolap.api.RolapContext;
 import org.eclipse.daanse.rolap.common.aggmatcher.AggTableManager;
 import org.eclipse.daanse.rolap.mapping.model.AccessCatalogGrant;
@@ -133,7 +133,6 @@ import org.slf4j.LoggerFactory;
 /**
  * Unit tests for various schema features.
  *
- *
  * @author jhyde
  * @since August 7, 2006
  */
@@ -145,7 +144,7 @@ class SchemaTest {
     }
 
     private static final String CUBES_AB =
-            "<Cube name=\"CubeA\" defaultMeasure=\"Unit Sales\">\n"
+        "<Cube name=\"CubeA\" defaultMeasure=\"Unit Sales\">\n"
             + " <Table name=\"sales_fact_1997\" alias=\"TableAlias\">\n"
             + "   <!-- count=32 -->\n"
             + "   <SQL dialect=\"mysql\">\n"
@@ -169,19 +168,17 @@ class SchemaTest {
             + "</Cube>";
 
 
-
     /**
      * Asserts that a list of exceptions (probably from
      * {@link Catalog#getWarnings()}) contains the expected
      * exception.
      *
      * @param exceptionList List of exceptions
-     * @param expected Expected message
+     * @param expected      Expected message
      */
     private void assertContains(
         List<Exception> exceptionList,
-        String expected)
-    {
+        String expected) {
         StringBuilder buf = new StringBuilder();
         for (Exception exception : exceptionList) {
             if (exception.getMessage().matches(expected)) {
@@ -262,7 +259,7 @@ class SchemaTest {
                 EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
                 this.catalog = (CatalogImpl) copier.get(catalog);
                 Optional<org.eclipse.daanse.rolap.mapping.model.Cube> oCube = this.catalog.getCubes().stream()
-                        .filter(c -> "Sales".equals(c.getName())).findAny();
+                    .filter(c -> "Sales".equals(c.getName())).findAny();
                 if (oCube.isPresent()) {
                     CubeImpl cube = (CubeImpl) oCube.get();
                     CalculatedMemberProperty cmProperty1 = RolapMappingFactory.eINSTANCE.createCalculatedMemberProperty();
@@ -307,12 +304,12 @@ class SchemaTest {
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select {[Measures].[QuantumProfit]} on 0, {(Gender.foo)} on 1 from sales",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Measures].[QuantumProfit]}\n"
-            + "Axis #2:\n"
-            + "{[Gender].[Gender].[foo]}\n"
-            + "Row #0: $7.52\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Measures].[QuantumProfit]}\n"
+                + "Axis #2:\n"
+                + "{[Gender].[Gender].[foo]}\n"
+                + "Row #0: $7.52\n");
     }
 
 
@@ -364,7 +361,7 @@ class SchemaTest {
                 EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
                 this.catalog = (CatalogImpl) copier.get(catalog);
                 Optional<org.eclipse.daanse.rolap.mapping.model.Cube> oCube = this.catalog.getCubes().stream()
-                        .filter(c -> "Sales".equals(c.getName())).findAny();
+                    .filter(c -> "Sales".equals(c.getName())).findAny();
                 if (oCube.isPresent()) {
                     org.eclipse.daanse.rolap.mapping.model.PhysicalCube cube = (PhysicalCube) oCube.get();
                     // Create level using RolapMappingFactory
@@ -425,10 +422,10 @@ class SchemaTest {
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select {[Gender with default]} on columns from [Sales]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Gender with default].[Gender with default].[M]}\n"
-            + "Row #0: 135,215\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Gender with default].[Gender with default].[M]}\n"
+                + "Row #0: 135,215\n");
     }
 
 
@@ -501,11 +498,12 @@ class SchemaTest {
         // EMF version of TestDefaultMemberNameModifier
         class TestDefaultMemberNameModifierEmf implements CatalogMappingSupplier {
             private CatalogImpl catalog;
+
             public TestDefaultMemberNameModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
                 EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
                 this.catalog = (CatalogImpl) copier.get(catalog);
                 Optional<org.eclipse.daanse.rolap.mapping.model.Cube> oCube = this.catalog.getCubes().stream()
-                        .filter(c -> "Sales".equals(c.getName())).findAny();
+                    .filter(c -> "Sales".equals(c.getName())).findAny();
                 if (oCube.isPresent()) {
                     org.eclipse.daanse.rolap.mapping.model.PhysicalCube cube = (PhysicalCube) oCube.get();
                     // Create left table query using RolapMappingFactory
@@ -580,7 +578,8 @@ class SchemaTest {
             public org.eclipse.daanse.rolap.mapping.model.Catalog get() {
                 return catalog;
             }
-        };
+        }
+        ;
         /*
         ((BaseTestContext)context).update(SchemaUpdater.createSubstitutingCube(
             "Sales",
@@ -603,10 +602,10 @@ class SchemaTest {
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select {[Product with no all]} on columns from [Sales]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Product with no all].[Product with no all].[Nuts]}\n"
-            + "Row #0: 4,400\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Product with no all].[Product with no all].[Nuts]}\n"
+                + "Row #0: 4,400\n");
     }
 
 
@@ -654,11 +653,12 @@ class SchemaTest {
         // EMF version of TestHierarchyAbbreviatedDefaultMemberModifier
         class TestHierarchyAbbreviatedDefaultMemberModifierEmf implements CatalogMappingSupplier {
             private CatalogImpl catalog;
+
             public TestHierarchyAbbreviatedDefaultMemberModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
                 EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
                 this.catalog = (CatalogImpl) copier.get(catalog);
                 Optional<org.eclipse.daanse.rolap.mapping.model.Cube> oCube = this.catalog.getCubes().stream()
-                        .filter(c -> "Sales".equals(c.getName())).findAny();
+                    .filter(c -> "Sales".equals(c.getName())).findAny();
                 if (oCube.isPresent()) {
                     org.eclipse.daanse.rolap.mapping.model.PhysicalCube cube = (PhysicalCube) oCube.get();
                     // Create level using RolapMappingFactory
@@ -719,12 +719,12 @@ class SchemaTest {
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select {[Gender with default]} on columns from [Sales]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            // Note that the 'all' member is named according to the rule
-            // '[<hierarchy>].[All <hierarchy>s]'.
-            + "{[Gender with default].[Gender with default].[F]}\n"
-            + "Row #0: 131,558\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                // Note that the 'all' member is named according to the rule
+                // '[<hierarchy>].[All <hierarchy>s]'.
+                + "{[Gender with default].[Gender with default].[F]}\n"
+                + "Row #0: 131,558\n");
     }
 
 
@@ -765,11 +765,12 @@ class SchemaTest {
         // EMF version of TestHierarchyNoLevelsFailsModifier
         class TestHierarchyNoLevelsFailsModifierEmf implements CatalogMappingSupplier {
             private CatalogImpl catalog;
+
             public TestHierarchyNoLevelsFailsModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
                 EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
                 this.catalog = (CatalogImpl) copier.get(catalog);
                 Optional<org.eclipse.daanse.rolap.mapping.model.Cube> oCube = this.catalog.getCubes().stream()
-                        .filter(c -> "Sales".equals(c.getName())).findAny();
+                    .filter(c -> "Sales".equals(c.getName())).findAny();
                 if (oCube.isPresent()) {
                     org.eclipse.daanse.rolap.mapping.model.PhysicalCube cube = (PhysicalCube) oCube.get();
                     // Create TableQuery using RolapMappingFactory
@@ -874,11 +875,12 @@ class SchemaTest {
         // EMF version of TestHierarchyNonUniqueLevelsFailsModifier
         class TestHierarchyNonUniqueLevelsFailsModifierEmf implements CatalogMappingSupplier {
             private CatalogImpl catalog;
+
             public TestHierarchyNonUniqueLevelsFailsModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
                 EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
                 this.catalog = (CatalogImpl) copier.get(catalog);
                 Optional<org.eclipse.daanse.rolap.mapping.model.Cube> oCube = this.catalog.getCubes().stream()
-                        .filter(c -> "Sales".equals(c.getName())).findAny();
+                    .filter(c -> "Sales".equals(c.getName())).findAny();
                 if (oCube.isPresent()) {
                     org.eclipse.daanse.rolap.mapping.model.PhysicalCube cube = (PhysicalCube) oCube.get();
                     // Create first level with name "Gender" using RolapMappingFactory
@@ -976,11 +978,12 @@ class SchemaTest {
         // EMF version of TestCountMeasureModifier
         class TestCountMeasureModifierEmf implements CatalogMappingSupplier {
             private CatalogImpl catalog;
+
             public TestCountMeasureModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
                 EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
                 this.catalog = (CatalogImpl) copier.get(catalog);
                 Optional<org.eclipse.daanse.rolap.mapping.model.Cube> oCube = this.catalog.getCubes().stream()
-                        .filter(c -> "Sales".equals(c.getName())).findAny();
+                    .filter(c -> "Sales".equals(c.getName())).findAny();
                 if (oCube.isPresent()) {
                     org.eclipse.daanse.rolap.mapping.model.PhysicalCube cube = (PhysicalCube) oCube.get();
                     // Create count measure using RolapMappingFactory
@@ -1011,23 +1014,23 @@ class SchemaTest {
         withSchemaEmf(context, TestCountMeasureModifierEmf::new);
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select {[Measures].[Fact Count], [Measures].[Unit Sales]} on 0,\n"
-            + "[Gender].members on 1\n"
-            + "from [Sales]",
+                + "[Gender].members on 1\n"
+                + "from [Sales]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Measures].[Fact Count]}\n"
-            + "{[Measures].[Unit Sales]}\n"
-            + "Axis #2:\n"
-            + "{[Gender].[Gender].[All Gender]}\n"
-            + "{[Gender].[Gender].[F]}\n"
-            + "{[Gender].[Gender].[M]}\n"
-            + "Row #0: 86,837\n"
-            + "Row #0: 266,773\n"
-            + "Row #1: 42,831\n"
-            + "Row #1: 131,558\n"
-            + "Row #2: 44,006\n"
-            + "Row #2: 135,215\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Measures].[Fact Count]}\n"
+                + "{[Measures].[Unit Sales]}\n"
+                + "Axis #2:\n"
+                + "{[Gender].[Gender].[All Gender]}\n"
+                + "{[Gender].[Gender].[F]}\n"
+                + "{[Gender].[Gender].[M]}\n"
+                + "Row #0: 86,837\n"
+                + "Row #0: 266,773\n"
+                + "Row #1: 42,831\n"
+                + "Row #1: 131,558\n"
+                + "Row #2: 44,006\n"
+                + "Row #2: 135,215\n");
     }
 
     /**
@@ -1085,11 +1088,12 @@ class SchemaTest {
         // EMF version of TestHierarchyTableNotFoundModifier
         class TestHierarchyTableNotFoundModifierEmf implements CatalogMappingSupplier {
             private CatalogImpl catalog;
+
             public TestHierarchyTableNotFoundModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
                 EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
                 this.catalog = (CatalogImpl) copier.get(catalog);
                 Optional<org.eclipse.daanse.rolap.mapping.model.Cube> oCube = this.catalog.getCubes().stream()
-                        .filter(c -> "Sales".equals(c.getName())).findAny();
+                    .filter(c -> "Sales".equals(c.getName())).findAny();
                 if (oCube.isPresent()) {
                     org.eclipse.daanse.rolap.mapping.model.PhysicalCube cube = (PhysicalCube) oCube.get();
                     // Create physical columns using RolapMappingFactory
@@ -1222,11 +1226,12 @@ class SchemaTest {
         // EMF version of TestPrimaryKeyTableNotFoundModifier
         class TestPrimaryKeyTableNotFoundModifierEmf implements CatalogMappingSupplier {
             private CatalogImpl catalog;
+
             public TestPrimaryKeyTableNotFoundModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
                 EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
                 this.catalog = (CatalogImpl) copier.get(catalog);
                 Optional<org.eclipse.daanse.rolap.mapping.model.Cube> oCube = this.catalog.getCubes().stream()
-                        .filter(c -> "Sales".equals(c.getName())).findAny();
+                    .filter(c -> "Sales".equals(c.getName())).findAny();
                 if (oCube.isPresent()) {
                     org.eclipse.daanse.rolap.mapping.model.PhysicalCube cube = (PhysicalCube) oCube.get();
                     // Create physical column using RolapMappingFactory
@@ -1348,11 +1353,12 @@ class SchemaTest {
         // EMF version of TestLevelTableNotFoundModifier
         class TestLevelTableNotFoundModifierEmf implements CatalogMappingSupplier {
             private CatalogImpl catalog;
+
             public TestLevelTableNotFoundModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
                 EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
                 this.catalog = (CatalogImpl) copier.get(catalog);
                 Optional<org.eclipse.daanse.rolap.mapping.model.Cube> oCube = this.catalog.getCubes().stream()
-                        .filter(c -> "Sales".equals(c.getName())).findAny();
+                    .filter(c -> "Sales".equals(c.getName())).findAny();
                 if (oCube.isPresent()) {
                     org.eclipse.daanse.rolap.mapping.model.PhysicalCube cube = (PhysicalCube) oCube.get();
                     // Create physical column using RolapMappingFactory
@@ -1470,11 +1476,12 @@ class SchemaTest {
         // EMF version of TestHierarchyBadDefaultMemberModifier
         class TestHierarchyBadDefaultMemberModifierEmf implements CatalogMappingSupplier {
             private CatalogImpl catalog;
+
             public TestHierarchyBadDefaultMemberModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
                 EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
                 this.catalog = (CatalogImpl) copier.get(catalog);
                 Optional<org.eclipse.daanse.rolap.mapping.model.Cube> oCube = this.catalog.getCubes().stream()
-                        .filter(c -> "Sales".equals(c.getName())).findAny();
+                    .filter(c -> "Sales".equals(c.getName())).findAny();
                 if (oCube.isPresent()) {
                     org.eclipse.daanse.rolap.mapping.model.PhysicalCube cube = (PhysicalCube) oCube.get();
                     // Create level using RolapMappingFactory
@@ -1590,11 +1597,12 @@ class SchemaTest {
         // EMF version of TestDuplicateTableAliasModifier
         class TestDuplicateTableAliasModifierEmf implements CatalogMappingSupplier {
             private CatalogImpl catalog;
+
             public TestDuplicateTableAliasModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
                 EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
                 this.catalog = (CatalogImpl) copier.get(catalog);
                 Optional<org.eclipse.daanse.rolap.mapping.model.Cube> oCube = this.catalog.getCubes().stream()
-                        .filter(c -> "Sales".equals(c.getName())).findAny();
+                    .filter(c -> "Sales".equals(c.getName())).findAny();
                 if (oCube.isPresent()) {
                     org.eclipse.daanse.rolap.mapping.model.PhysicalCube cube = (PhysicalCube) oCube.get();
                     // Create level using RolapMappingFactory
@@ -1649,12 +1657,12 @@ class SchemaTest {
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select {[Yearly Income2]} on columns, {[Measures].[Unit Sales]} on rows from [Sales]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Yearly Income2].[Yearly Income2].[All Yearly Income2s]}\n"
-            + "Axis #2:\n"
-            + "{[Measures].[Unit Sales]}\n"
-            + "Row #0: 266,773\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Yearly Income2].[Yearly Income2].[All Yearly Income2s]}\n"
+                + "Axis #2:\n"
+                + "{[Measures].[Unit Sales]}\n"
+                + "Row #0: 266,773\n");
     }
 
 
@@ -1708,11 +1716,12 @@ class SchemaTest {
         // EMF version of TestDuplicateTableAliasSameForeignKeyModifier
         class TestDuplicateTableAliasSameForeignKeyModifierEmf implements CatalogMappingSupplier {
             private CatalogImpl catalog;
+
             public TestDuplicateTableAliasSameForeignKeyModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
                 EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
                 this.catalog = (CatalogImpl) copier.get(catalog);
                 Optional<org.eclipse.daanse.rolap.mapping.model.Cube> oCube = this.catalog.getCubes().stream()
-                        .filter(c -> "Sales".equals(c.getName())).findAny();
+                    .filter(c -> "Sales".equals(c.getName())).findAny();
                 if (oCube.isPresent()) {
                     org.eclipse.daanse.rolap.mapping.model.PhysicalCube cube = (PhysicalCube) oCube.get();
                     // Create level using RolapMappingFactory
@@ -1767,18 +1776,18 @@ class SchemaTest {
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select from [Sales]",
             "Axis #0:\n"
-            + "{}\n"
-            + "266,773");
+                + "{}\n"
+                + "266,773");
 
         // NonEmptyCrossJoin Fails
         if (false) {
             assertQueryReturns(context.getConnectionWithDefaultRole(),
                 "select NonEmptyCrossJoin({[Yearly Income2].[All Yearly Income2s]},{[Customers].[All Customers]}) on rows,"
-                + "NON EMPTY {[Measures].[Unit Sales]} on columns"
-                + " from [Sales]",
+                    + "NON EMPTY {[Measures].[Unit Sales]} on columns"
+                    + " from [Sales]",
                 "Axis #0:\n"
-                + "{}\n"
-                + "266,773");
+                    + "{}\n"
+                    + "266,773");
         }
     }
 
@@ -1832,11 +1841,12 @@ class SchemaTest {
         // EMF version of TestDimensionsShareTableModifier
         class TestDimensionsShareTableModifierEmf implements CatalogMappingSupplier {
             private CatalogImpl catalog;
+
             public TestDimensionsShareTableModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
                 EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
                 this.catalog = (CatalogImpl) copier.get(catalog);
                 Optional<org.eclipse.daanse.rolap.mapping.model.Cube> oCube = this.catalog.getCubes().stream()
-                        .filter(c -> "Sales".equals(c.getName())).findAny();
+                    .filter(c -> "Sales".equals(c.getName())).findAny();
                 if (oCube.isPresent()) {
                     org.eclipse.daanse.rolap.mapping.model.PhysicalCube cube = (PhysicalCube) oCube.get();
                     // Create level using RolapMappingFactory
@@ -1892,153 +1902,153 @@ class SchemaTest {
         withSchemaEmf(context, TestDimensionsShareTableModifierEmf::new);
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select {[Yearly Income].[$10K - $30K]} on columns,"
-            + "{[Yearly Income2].[$150K +]} on rows from [Sales]",
+                + "{[Yearly Income2].[$150K +]} on rows from [Sales]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Yearly Income].[Yearly Income].[$10K - $30K]}\n"
-            + "Axis #2:\n"
-            + "{[Yearly Income2].[Yearly Income2].[$150K +]}\n"
-            + "Row #0: 918\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Yearly Income].[Yearly Income].[$10K - $30K]}\n"
+                + "Axis #2:\n"
+                + "{[Yearly Income2].[Yearly Income2].[$150K +]}\n"
+                + "Row #0: 918\n");
 
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select NON EMPTY {[Measures].[Unit Sales]} ON COLUMNS,\n"
-            + "NON EMPTY Crossjoin({[Yearly Income].[All Yearly Incomes].Children},\n"
-            + "                     [Yearly Income2].[All Yearly Income2s].Children) ON ROWS\n"
-            + "from [Sales]",
+                + "NON EMPTY Crossjoin({[Yearly Income].[All Yearly Incomes].Children},\n"
+                + "                     [Yearly Income2].[All Yearly Income2s].Children) ON ROWS\n"
+                + "from [Sales]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Measures].[Unit Sales]}\n"
-            + "Axis #2:\n"
-            + "{[Yearly Income].[Yearly Income].[$10K - $30K], [Yearly Income2].[Yearly Income2].[$10K - $30K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$10K - $30K], [Yearly Income2].[Yearly Income2].[$110K - $130K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$10K - $30K], [Yearly Income2].[Yearly Income2].[$130K - $150K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$10K - $30K], [Yearly Income2].[Yearly Income2].[$150K +]}\n"
-            + "{[Yearly Income].[Yearly Income].[$10K - $30K], [Yearly Income2].[Yearly Income2].[$30K - $50K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$10K - $30K], [Yearly Income2].[Yearly Income2].[$50K - $70K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$10K - $30K], [Yearly Income2].[Yearly Income2].[$70K - $90K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$10K - $30K], [Yearly Income2].[Yearly Income2].[$90K - $110K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$110K - $130K], [Yearly Income2].[Yearly Income2].[$10K - $30K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$110K - $130K], [Yearly Income2].[Yearly Income2].[$110K - $130K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$110K - $130K], [Yearly Income2].[Yearly Income2].[$130K - $150K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$110K - $130K], [Yearly Income2].[Yearly Income2].[$150K +]}\n"
-            + "{[Yearly Income].[Yearly Income].[$110K - $130K], [Yearly Income2].[Yearly Income2].[$30K - $50K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$110K - $130K], [Yearly Income2].[Yearly Income2].[$50K - $70K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$110K - $130K], [Yearly Income2].[Yearly Income2].[$70K - $90K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$110K - $130K], [Yearly Income2].[Yearly Income2].[$90K - $110K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$130K - $150K], [Yearly Income2].[Yearly Income2].[$10K - $30K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$130K - $150K], [Yearly Income2].[Yearly Income2].[$110K - $130K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$130K - $150K], [Yearly Income2].[Yearly Income2].[$130K - $150K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$130K - $150K], [Yearly Income2].[Yearly Income2].[$150K +]}\n"
-            + "{[Yearly Income].[Yearly Income].[$130K - $150K], [Yearly Income2].[Yearly Income2].[$30K - $50K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$130K - $150K], [Yearly Income2].[Yearly Income2].[$50K - $70K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$130K - $150K], [Yearly Income2].[Yearly Income2].[$70K - $90K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$130K - $150K], [Yearly Income2].[Yearly Income2].[$90K - $110K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$150K +], [Yearly Income2].[Yearly Income2].[$10K - $30K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$150K +], [Yearly Income2].[Yearly Income2].[$110K - $130K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$150K +], [Yearly Income2].[Yearly Income2].[$130K - $150K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$150K +], [Yearly Income2].[Yearly Income2].[$150K +]}\n"
-            + "{[Yearly Income].[Yearly Income].[$150K +], [Yearly Income2].[Yearly Income2].[$30K - $50K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$150K +], [Yearly Income2].[Yearly Income2].[$50K - $70K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$150K +], [Yearly Income2].[Yearly Income2].[$70K - $90K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$150K +], [Yearly Income2].[Yearly Income2].[$90K - $110K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$30K - $50K], [Yearly Income2].[Yearly Income2].[$10K - $30K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$30K - $50K], [Yearly Income2].[Yearly Income2].[$110K - $130K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$30K - $50K], [Yearly Income2].[Yearly Income2].[$130K - $150K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$30K - $50K], [Yearly Income2].[Yearly Income2].[$150K +]}\n"
-            + "{[Yearly Income].[Yearly Income].[$30K - $50K], [Yearly Income2].[Yearly Income2].[$30K - $50K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$30K - $50K], [Yearly Income2].[Yearly Income2].[$50K - $70K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$30K - $50K], [Yearly Income2].[Yearly Income2].[$70K - $90K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$30K - $50K], [Yearly Income2].[Yearly Income2].[$90K - $110K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$50K - $70K], [Yearly Income2].[Yearly Income2].[$10K - $30K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$50K - $70K], [Yearly Income2].[Yearly Income2].[$110K - $130K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$50K - $70K], [Yearly Income2].[Yearly Income2].[$130K - $150K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$50K - $70K], [Yearly Income2].[Yearly Income2].[$150K +]}\n"
-            + "{[Yearly Income].[Yearly Income].[$50K - $70K], [Yearly Income2].[Yearly Income2].[$30K - $50K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$50K - $70K], [Yearly Income2].[Yearly Income2].[$50K - $70K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$50K - $70K], [Yearly Income2].[Yearly Income2].[$70K - $90K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$50K - $70K], [Yearly Income2].[Yearly Income2].[$90K - $110K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$70K - $90K], [Yearly Income2].[Yearly Income2].[$10K - $30K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$70K - $90K], [Yearly Income2].[Yearly Income2].[$110K - $130K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$70K - $90K], [Yearly Income2].[Yearly Income2].[$130K - $150K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$70K - $90K], [Yearly Income2].[Yearly Income2].[$150K +]}\n"
-            + "{[Yearly Income].[Yearly Income].[$70K - $90K], [Yearly Income2].[Yearly Income2].[$30K - $50K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$70K - $90K], [Yearly Income2].[Yearly Income2].[$50K - $70K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$70K - $90K], [Yearly Income2].[Yearly Income2].[$70K - $90K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$70K - $90K], [Yearly Income2].[Yearly Income2].[$90K - $110K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$90K - $110K], [Yearly Income2].[Yearly Income2].[$10K - $30K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$90K - $110K], [Yearly Income2].[Yearly Income2].[$110K - $130K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$90K - $110K], [Yearly Income2].[Yearly Income2].[$130K - $150K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$90K - $110K], [Yearly Income2].[Yearly Income2].[$150K +]}\n"
-            + "{[Yearly Income].[Yearly Income].[$90K - $110K], [Yearly Income2].[Yearly Income2].[$30K - $50K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$90K - $110K], [Yearly Income2].[Yearly Income2].[$50K - $70K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$90K - $110K], [Yearly Income2].[Yearly Income2].[$70K - $90K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$90K - $110K], [Yearly Income2].[Yearly Income2].[$90K - $110K]}\n"
-            + "Row #0: 12,824\n"
-            + "Row #1: 2,822\n"
-            + "Row #2: 2,933\n"
-            + "Row #3: 918\n"
-            + "Row #4: 18,381\n"
-            + "Row #5: 10,436\n"
-            + "Row #6: 6,777\n"
-            + "Row #7: 2,859\n"
-            + "Row #8: 2,432\n"
-            + "Row #9: 532\n"
-            + "Row #10: 566\n"
-            + "Row #11: 177\n"
-            + "Row #12: 3,877\n"
-            + "Row #13: 2,131\n"
-            + "Row #14: 1,319\n"
-            + "Row #15: 527\n"
-            + "Row #16: 3,331\n"
-            + "Row #17: 643\n"
-            + "Row #18: 703\n"
-            + "Row #19: 187\n"
-            + "Row #20: 4,497\n"
-            + "Row #21: 2,629\n"
-            + "Row #22: 1,681\n"
-            + "Row #23: 721\n"
-            + "Row #24: 1,123\n"
-            + "Row #25: 224\n"
-            + "Row #26: 257\n"
-            + "Row #27: 109\n"
-            + "Row #28: 1,924\n"
-            + "Row #29: 1,026\n"
-            + "Row #30: 675\n"
-            + "Row #31: 291\n"
-            + "Row #32: 19,067\n"
-            + "Row #33: 4,078\n"
-            + "Row #34: 4,235\n"
-            + "Row #35: 1,569\n"
-            + "Row #36: 28,160\n"
-            + "Row #37: 15,368\n"
-            + "Row #38: 10,329\n"
-            + "Row #39: 4,504\n"
-            + "Row #40: 9,708\n"
-            + "Row #41: 2,353\n"
-            + "Row #42: 2,243\n"
-            + "Row #43: 748\n"
-            + "Row #44: 14,469\n"
-            + "Row #45: 7,966\n"
-            + "Row #46: 5,272\n"
-            + "Row #47: 2,208\n"
-            + "Row #48: 7,320\n"
-            + "Row #49: 1,630\n"
-            + "Row #50: 1,602\n"
-            + "Row #51: 541\n"
-            + "Row #52: 10,550\n"
-            + "Row #53: 5,843\n"
-            + "Row #54: 3,997\n"
-            + "Row #55: 1,562\n"
-            + "Row #56: 2,722\n"
-            + "Row #57: 597\n"
-            + "Row #58: 568\n"
-            + "Row #59: 193\n"
-            + "Row #60: 3,800\n"
-            + "Row #61: 2,192\n"
-            + "Row #62: 1,324\n"
-            + "Row #63: 523\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Measures].[Unit Sales]}\n"
+                + "Axis #2:\n"
+                + "{[Yearly Income].[Yearly Income].[$10K - $30K], [Yearly Income2].[Yearly Income2].[$10K - $30K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$10K - $30K], [Yearly Income2].[Yearly Income2].[$110K - $130K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$10K - $30K], [Yearly Income2].[Yearly Income2].[$130K - $150K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$10K - $30K], [Yearly Income2].[Yearly Income2].[$150K +]}\n"
+                + "{[Yearly Income].[Yearly Income].[$10K - $30K], [Yearly Income2].[Yearly Income2].[$30K - $50K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$10K - $30K], [Yearly Income2].[Yearly Income2].[$50K - $70K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$10K - $30K], [Yearly Income2].[Yearly Income2].[$70K - $90K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$10K - $30K], [Yearly Income2].[Yearly Income2].[$90K - $110K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$110K - $130K], [Yearly Income2].[Yearly Income2].[$10K - $30K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$110K - $130K], [Yearly Income2].[Yearly Income2].[$110K - $130K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$110K - $130K], [Yearly Income2].[Yearly Income2].[$130K - $150K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$110K - $130K], [Yearly Income2].[Yearly Income2].[$150K +]}\n"
+                + "{[Yearly Income].[Yearly Income].[$110K - $130K], [Yearly Income2].[Yearly Income2].[$30K - $50K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$110K - $130K], [Yearly Income2].[Yearly Income2].[$50K - $70K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$110K - $130K], [Yearly Income2].[Yearly Income2].[$70K - $90K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$110K - $130K], [Yearly Income2].[Yearly Income2].[$90K - $110K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$130K - $150K], [Yearly Income2].[Yearly Income2].[$10K - $30K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$130K - $150K], [Yearly Income2].[Yearly Income2].[$110K - $130K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$130K - $150K], [Yearly Income2].[Yearly Income2].[$130K - $150K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$130K - $150K], [Yearly Income2].[Yearly Income2].[$150K +]}\n"
+                + "{[Yearly Income].[Yearly Income].[$130K - $150K], [Yearly Income2].[Yearly Income2].[$30K - $50K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$130K - $150K], [Yearly Income2].[Yearly Income2].[$50K - $70K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$130K - $150K], [Yearly Income2].[Yearly Income2].[$70K - $90K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$130K - $150K], [Yearly Income2].[Yearly Income2].[$90K - $110K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$150K +], [Yearly Income2].[Yearly Income2].[$10K - $30K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$150K +], [Yearly Income2].[Yearly Income2].[$110K - $130K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$150K +], [Yearly Income2].[Yearly Income2].[$130K - $150K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$150K +], [Yearly Income2].[Yearly Income2].[$150K +]}\n"
+                + "{[Yearly Income].[Yearly Income].[$150K +], [Yearly Income2].[Yearly Income2].[$30K - $50K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$150K +], [Yearly Income2].[Yearly Income2].[$50K - $70K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$150K +], [Yearly Income2].[Yearly Income2].[$70K - $90K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$150K +], [Yearly Income2].[Yearly Income2].[$90K - $110K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$30K - $50K], [Yearly Income2].[Yearly Income2].[$10K - $30K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$30K - $50K], [Yearly Income2].[Yearly Income2].[$110K - $130K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$30K - $50K], [Yearly Income2].[Yearly Income2].[$130K - $150K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$30K - $50K], [Yearly Income2].[Yearly Income2].[$150K +]}\n"
+                + "{[Yearly Income].[Yearly Income].[$30K - $50K], [Yearly Income2].[Yearly Income2].[$30K - $50K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$30K - $50K], [Yearly Income2].[Yearly Income2].[$50K - $70K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$30K - $50K], [Yearly Income2].[Yearly Income2].[$70K - $90K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$30K - $50K], [Yearly Income2].[Yearly Income2].[$90K - $110K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$50K - $70K], [Yearly Income2].[Yearly Income2].[$10K - $30K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$50K - $70K], [Yearly Income2].[Yearly Income2].[$110K - $130K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$50K - $70K], [Yearly Income2].[Yearly Income2].[$130K - $150K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$50K - $70K], [Yearly Income2].[Yearly Income2].[$150K +]}\n"
+                + "{[Yearly Income].[Yearly Income].[$50K - $70K], [Yearly Income2].[Yearly Income2].[$30K - $50K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$50K - $70K], [Yearly Income2].[Yearly Income2].[$50K - $70K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$50K - $70K], [Yearly Income2].[Yearly Income2].[$70K - $90K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$50K - $70K], [Yearly Income2].[Yearly Income2].[$90K - $110K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$70K - $90K], [Yearly Income2].[Yearly Income2].[$10K - $30K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$70K - $90K], [Yearly Income2].[Yearly Income2].[$110K - $130K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$70K - $90K], [Yearly Income2].[Yearly Income2].[$130K - $150K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$70K - $90K], [Yearly Income2].[Yearly Income2].[$150K +]}\n"
+                + "{[Yearly Income].[Yearly Income].[$70K - $90K], [Yearly Income2].[Yearly Income2].[$30K - $50K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$70K - $90K], [Yearly Income2].[Yearly Income2].[$50K - $70K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$70K - $90K], [Yearly Income2].[Yearly Income2].[$70K - $90K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$70K - $90K], [Yearly Income2].[Yearly Income2].[$90K - $110K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$90K - $110K], [Yearly Income2].[Yearly Income2].[$10K - $30K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$90K - $110K], [Yearly Income2].[Yearly Income2].[$110K - $130K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$90K - $110K], [Yearly Income2].[Yearly Income2].[$130K - $150K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$90K - $110K], [Yearly Income2].[Yearly Income2].[$150K +]}\n"
+                + "{[Yearly Income].[Yearly Income].[$90K - $110K], [Yearly Income2].[Yearly Income2].[$30K - $50K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$90K - $110K], [Yearly Income2].[Yearly Income2].[$50K - $70K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$90K - $110K], [Yearly Income2].[Yearly Income2].[$70K - $90K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$90K - $110K], [Yearly Income2].[Yearly Income2].[$90K - $110K]}\n"
+                + "Row #0: 12,824\n"
+                + "Row #1: 2,822\n"
+                + "Row #2: 2,933\n"
+                + "Row #3: 918\n"
+                + "Row #4: 18,381\n"
+                + "Row #5: 10,436\n"
+                + "Row #6: 6,777\n"
+                + "Row #7: 2,859\n"
+                + "Row #8: 2,432\n"
+                + "Row #9: 532\n"
+                + "Row #10: 566\n"
+                + "Row #11: 177\n"
+                + "Row #12: 3,877\n"
+                + "Row #13: 2,131\n"
+                + "Row #14: 1,319\n"
+                + "Row #15: 527\n"
+                + "Row #16: 3,331\n"
+                + "Row #17: 643\n"
+                + "Row #18: 703\n"
+                + "Row #19: 187\n"
+                + "Row #20: 4,497\n"
+                + "Row #21: 2,629\n"
+                + "Row #22: 1,681\n"
+                + "Row #23: 721\n"
+                + "Row #24: 1,123\n"
+                + "Row #25: 224\n"
+                + "Row #26: 257\n"
+                + "Row #27: 109\n"
+                + "Row #28: 1,924\n"
+                + "Row #29: 1,026\n"
+                + "Row #30: 675\n"
+                + "Row #31: 291\n"
+                + "Row #32: 19,067\n"
+                + "Row #33: 4,078\n"
+                + "Row #34: 4,235\n"
+                + "Row #35: 1,569\n"
+                + "Row #36: 28,160\n"
+                + "Row #37: 15,368\n"
+                + "Row #38: 10,329\n"
+                + "Row #39: 4,504\n"
+                + "Row #40: 9,708\n"
+                + "Row #41: 2,353\n"
+                + "Row #42: 2,243\n"
+                + "Row #43: 748\n"
+                + "Row #44: 14,469\n"
+                + "Row #45: 7,966\n"
+                + "Row #46: 5,272\n"
+                + "Row #47: 2,208\n"
+                + "Row #48: 7,320\n"
+                + "Row #49: 1,630\n"
+                + "Row #50: 1,602\n"
+                + "Row #51: 541\n"
+                + "Row #52: 10,550\n"
+                + "Row #53: 5,843\n"
+                + "Row #54: 3,997\n"
+                + "Row #55: 1,562\n"
+                + "Row #56: 2,722\n"
+                + "Row #57: 597\n"
+                + "Row #58: 568\n"
+                + "Row #59: 193\n"
+                + "Row #60: 3,800\n"
+                + "Row #61: 2,192\n"
+                + "Row #62: 1,324\n"
+                + "Row #63: 523\n");
     }
 
     /**
@@ -2090,11 +2100,12 @@ class SchemaTest {
         // EMF version of TestDimensionsShareTableNativeNonEmptyCrossJoinModifier
         class TestDimensionsShareTableNativeNonEmptyCrossJoinModifierEmf implements CatalogMappingSupplier {
             private CatalogImpl catalog;
+
             public TestDimensionsShareTableNativeNonEmptyCrossJoinModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
                 EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
                 this.catalog = (CatalogImpl) copier.get(catalog);
                 Optional<org.eclipse.daanse.rolap.mapping.model.Cube> oCube = this.catalog.getCubes().stream()
-                        .filter(c -> "Sales".equals(c.getName())).findAny();
+                    .filter(c -> "Sales".equals(c.getName())).findAny();
                 if (oCube.isPresent()) {
                     org.eclipse.daanse.rolap.mapping.model.PhysicalCube cube = (PhysicalCube) oCube.get();
                     // Create level using RolapMappingFactory
@@ -2151,15 +2162,15 @@ class SchemaTest {
         withSchemaEmf(context, TestDimensionsShareTableNativeNonEmptyCrossJoinModifierEmf::new);
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select NonEmptyCrossJoin({[Yearly Income2].[All Yearly Income2s]},{[Customers].[All Customers]}) on rows,"
-            + "NON EMPTY {[Measures].[Unit Sales]} on columns"
-            + " from [Sales]",
+                + "NON EMPTY {[Measures].[Unit Sales]} on columns"
+                + " from [Sales]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Measures].[Unit Sales]}\n"
-            + "Axis #2:\n"
-            + "{[Yearly Income2].[Yearly Income2].[All Yearly Income2s], [Customers].[Customers].[All Customers]}\n"
-            + "Row #0: 266,773\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Measures].[Unit Sales]}\n"
+                + "Axis #2:\n"
+                + "{[Yearly Income2].[Yearly Income2].[All Yearly Income2s], [Customers].[Customers].[All Customers]}\n"
+                + "Row #0: 266,773\n");
     }
 
     /**
@@ -2211,11 +2222,12 @@ class SchemaTest {
         // EMF version of TestDimensionsShareTableSameForeignKeysModifier
         class TestDimensionsShareTableSameForeignKeysModifierEmf implements CatalogMappingSupplier {
             private CatalogImpl catalog;
+
             public TestDimensionsShareTableSameForeignKeysModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
                 EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
                 this.catalog = (CatalogImpl) copier.get(catalog);
                 Optional<org.eclipse.daanse.rolap.mapping.model.Cube> oCube = this.catalog.getCubes().stream()
-                        .filter(c -> "Sales".equals(c.getName())).findAny();
+                    .filter(c -> "Sales".equals(c.getName())).findAny();
                 if (oCube.isPresent()) {
                     org.eclipse.daanse.rolap.mapping.model.PhysicalCube cube = (PhysicalCube) oCube.get();
                     // Create level using RolapMappingFactory
@@ -2271,41 +2283,41 @@ class SchemaTest {
         withSchemaEmf(context, TestDimensionsShareTableSameForeignKeysModifierEmf::new);
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select {[Yearly Income].[$10K - $30K]} on columns,"
-            + "{[Yearly Income2].[$150K +]} on rows from [Sales]",
+                + "{[Yearly Income2].[$150K +]} on rows from [Sales]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Yearly Income].[Yearly Income].[$10K - $30K]}\n"
-            + "Axis #2:\n"
-            + "{[Yearly Income2].[Yearly Income2].[$150K +]}\n"
-            + "Row #0: \n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Yearly Income].[Yearly Income].[$10K - $30K]}\n"
+                + "Axis #2:\n"
+                + "{[Yearly Income2].[Yearly Income2].[$150K +]}\n"
+                + "Row #0: \n");
 
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select NON EMPTY {[Measures].[Unit Sales]} ON COLUMNS,\n"
-            + "NON EMPTY Crossjoin({[Yearly Income].[All Yearly Incomes].Children},\n"
-            + "                     [Yearly Income2].[All Yearly Income2s].Children) ON ROWS\n"
-            + "from [Sales]",
+                + "NON EMPTY Crossjoin({[Yearly Income].[All Yearly Incomes].Children},\n"
+                + "                     [Yearly Income2].[All Yearly Income2s].Children) ON ROWS\n"
+                + "from [Sales]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Measures].[Unit Sales]}\n"
-            + "Axis #2:\n"
-            + "{[Yearly Income].[Yearly Income].[$10K - $30K], [Yearly Income2].[Yearly Income2].[$10K - $30K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$110K - $130K], [Yearly Income2].[Yearly Income2].[$110K - $130K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$130K - $150K], [Yearly Income2].[Yearly Income2].[$130K - $150K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$150K +], [Yearly Income2].[Yearly Income2].[$150K +]}\n"
-            + "{[Yearly Income].[Yearly Income].[$30K - $50K], [Yearly Income2].[Yearly Income2].[$30K - $50K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$50K - $70K], [Yearly Income2].[Yearly Income2].[$50K - $70K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$70K - $90K], [Yearly Income2].[Yearly Income2].[$70K - $90K]}\n"
-            + "{[Yearly Income].[Yearly Income].[$90K - $110K], [Yearly Income2].[Yearly Income2].[$90K - $110K]}\n"
-            + "Row #0: 57,950\n"
-            + "Row #1: 11,561\n"
-            + "Row #2: 14,392\n"
-            + "Row #3: 5,629\n"
-            + "Row #4: 87,310\n"
-            + "Row #5: 44,967\n"
-            + "Row #6: 33,045\n"
-            + "Row #7: 11,919\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Measures].[Unit Sales]}\n"
+                + "Axis #2:\n"
+                + "{[Yearly Income].[Yearly Income].[$10K - $30K], [Yearly Income2].[Yearly Income2].[$10K - $30K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$110K - $130K], [Yearly Income2].[Yearly Income2].[$110K - $130K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$130K - $150K], [Yearly Income2].[Yearly Income2].[$130K - $150K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$150K +], [Yearly Income2].[Yearly Income2].[$150K +]}\n"
+                + "{[Yearly Income].[Yearly Income].[$30K - $50K], [Yearly Income2].[Yearly Income2].[$30K - $50K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$50K - $70K], [Yearly Income2].[Yearly Income2].[$50K - $70K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$70K - $90K], [Yearly Income2].[Yearly Income2].[$70K - $90K]}\n"
+                + "{[Yearly Income].[Yearly Income].[$90K - $110K], [Yearly Income2].[Yearly Income2].[$90K - $110K]}\n"
+                + "Row #0: 57,950\n"
+                + "Row #1: 11,561\n"
+                + "Row #2: 14,392\n"
+                + "Row #3: 5,629\n"
+                + "Row #4: 87,310\n"
+                + "Row #5: 44,967\n"
+                + "Row #6: 33,045\n"
+                + "Row #7: 11,919\n");
     }
 
     /**
@@ -2318,10 +2330,9 @@ class SchemaTest {
     void testSnowflakeHierarchyValidationNotNeeded(Context<?> context) {
         // this test breaks when using aggregates at the moment
         // due to a known limitation
-        if ((context.getConfigValue(ConfigConstants.READ_AGGREGATES, ConfigConstants.READ_AGGREGATES_DEFAULT_VALUE ,Boolean.class)
-             || context.getConfigValue(ConfigConstants.USE_AGGREGATES, ConfigConstants.USE_AGGREGATES_DEFAULT_VALUE ,Boolean.class))
-            && !Bug.Bug361Fixed)
-        {
+        if ((context.getConfigValue(ConfigConstants.READ_AGGREGATES, ConfigConstants.READ_AGGREGATES_DEFAULT_VALUE, Boolean.class)
+            || context.getConfigValue(ConfigConstants.USE_AGGREGATES, ConfigConstants.USE_AGGREGATES_DEFAULT_VALUE, Boolean.class))
+            && !Bug.Bug361Fixed) {
             return;
         }
         /*
@@ -2513,6 +2524,7 @@ class SchemaTest {
         // Note: This is a complex snowflake schema test with multiple JOINs
         class TestSnowflakeHierarchyValidationNotNeededModifierEmf implements CatalogMappingSupplier {
             private CatalogImpl catalog;
+
             public TestSnowflakeHierarchyValidationNotNeededModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
                 EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
                 this.catalog = (CatalogImpl) copier.get(catalog);
@@ -2671,7 +2683,7 @@ class SchemaTest {
 
                 org.eclipse.daanse.rolap.mapping.model.Level l34 = RolapMappingFactory.eINSTANCE.createLevel();
                 l34.setName("Name");
-                l34.setColumn( CatalogSupplier.COLUMN_CUSTOMER_ID_CUSTOMER);
+                l34.setColumn(CatalogSupplier.COLUMN_CUSTOMER_ID_CUSTOMER);
                 l34.setColumnType(ColumnInternalDataType.NUMERIC);
                 l34.setUniqueMembers(true);
 
@@ -2811,16 +2823,16 @@ class SchemaTest {
         withSchemaEmf(context, TestSnowflakeHierarchyValidationNotNeededModifierEmf::new);
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select  {[Store].[MyHierarchy].[Mexico]} on rows,"
-            + "{[Customers].[Customers].[USA].[South West]} on columns"
-            + " from "
-            + "AliasedDimensionsTesting",
+                + "{[Customers].[Customers].[USA].[South West]} on columns"
+                + " from "
+                + "AliasedDimensionsTesting",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Customers].[Customers].[USA].[South West]}\n"
-            + "Axis #2:\n"
-            + "{[Store].[MyHierarchy].[Mexico]}\n"
-            + "Row #0: 51,298\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Customers].[Customers].[USA].[South West]}\n"
+                + "Axis #2:\n"
+                + "{[Store].[MyHierarchy].[Mexico]}\n"
+                + "Row #0: 51,298\n");
     }
 
 
@@ -3017,6 +3029,7 @@ class SchemaTest {
         // Note: Similar to previous but with slightly different join paths
         class TestSnowflakeHierarchyValidationNotNeeded2ModifierEmf implements CatalogMappingSupplier {
             private CatalogImpl catalog;
+
             public TestSnowflakeHierarchyValidationNotNeeded2ModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
                 EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
                 this.catalog = (CatalogImpl) copier.get(catalog);
@@ -3311,22 +3324,22 @@ class SchemaTest {
         withSchemaEmf(context, TestSnowflakeHierarchyValidationNotNeeded2ModifierEmf::new);
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select  {[Store].[MyHierarchy].[USA].[South West]} on rows,"
-            + "{[Customers].[Customers].[USA].[South West]} on columns"
-            + " from "
-            + "AliasedDimensionsTesting",
+                + "{[Customers].[Customers].[USA].[South West]} on columns"
+                + " from "
+                + "AliasedDimensionsTesting",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Customers].[Customers].[USA].[South West]}\n"
-            + "Axis #2:\n"
-            + "{[Store].[MyHierarchy].[USA].[South West]}\n"
-            + "Row #0: 72,631\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Customers].[Customers].[USA].[South West]}\n"
+                + "Axis #2:\n"
+                + "{[Store].[MyHierarchy].[USA].[South West]}\n"
+                + "Row #0: 72,631\n");
     }
 
 
     /**
      * WG: This no longer throws an exception, it is now possible
-     *
+     * <p>
      * Tests two dimensions using same table (via different join paths).
      * both using a table alias.
      */
@@ -3479,6 +3492,7 @@ class SchemaTest {
         // EMF version of TestDimensionsShareJoinTableModifier
         class TestDimensionsShareJoinTableModifierEmf implements CatalogMappingSupplier {
             private CatalogImpl catalog;
+
             public TestDimensionsShareJoinTableModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
                 EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
                 this.catalog = (CatalogImpl) copier.get(catalog);
@@ -3707,16 +3721,16 @@ class SchemaTest {
         withSchemaEmf(context, TestDimensionsShareJoinTableModifierEmf::new);
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select  {[Store].[USA].[South West]} on rows,"
-            + "{[Customers].[USA].[South West]} on columns"
-            + " from "
-            + "AliasedDimensionsTesting",
+                + "{[Customers].[USA].[South West]} on columns"
+                + " from "
+                + "AliasedDimensionsTesting",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Customers].[Customers].[USA].[South West]}\n"
-            + "Axis #2:\n"
-            + "{[Store].[Store].[USA].[South West]}\n"
-            + "Row #0: 72,631\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Customers].[Customers].[USA].[South West]}\n"
+                + "Axis #2:\n"
+                + "{[Store].[Store].[USA].[South West]}\n"
+                + "Row #0: 72,631\n");
     }
 
 
@@ -3919,21 +3933,22 @@ class SchemaTest {
         withSchemaEmf(context, TestDimensionsShareJoinTableOneAliasModifierEmf::new);
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select  {[Store].[USA].[South West]} on rows,"
-            + "{[Customers].[USA].[South West]} on columns"
-            + " from "
-            + "AliasedDimensionsTesting",
+                + "{[Customers].[USA].[South West]} on columns"
+                + " from "
+                + "AliasedDimensionsTesting",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Customers].[USA].[South West]}\n"
-            + "Axis #2:\n"
-            + "{[Store].[USA].[South West]}\n"
-            + "Row #0: 72,631\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Customers].[USA].[South West]}\n"
+                + "Axis #2:\n"
+                + "{[Store].[USA].[South West]}\n"
+                + "Row #0: 72,631\n");
     }
 
     // EMF version of TestDimensionsShareJoinTableOneAliasModifier
     class TestDimensionsShareJoinTableOneAliasModifierEmf implements CatalogMappingSupplier {
         private CatalogImpl catalog;
+
         public TestDimensionsShareJoinTableOneAliasModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
             EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
             this.catalog = (CatalogImpl) copier.get(catalog);
@@ -4119,6 +4134,7 @@ class SchemaTest {
             this.catalog.getCubes().add(cube);
 
         }
+
         @Override
         public org.eclipse.daanse.rolap.mapping.model.Catalog get() {
             return catalog;
@@ -4324,20 +4340,21 @@ class SchemaTest {
         withSchemaEmf(context, TestDimensionsShareJoinTableTwoAliasesModifierEmf::new);
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select  {[Store].[USA].[South West]} on rows,"
-            + "{[Customers].[USA].[South West]} on columns"
-            + " from "
-            + "AliasedDimensionsTesting",
+                + "{[Customers].[USA].[South West]} on columns"
+                + " from "
+                + "AliasedDimensionsTesting",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Customers].[USA].[South West]}\n"
-            + "Axis #2:\n"
-            + "{[Store].[USA].[South West]}\n"
-            + "Row #0: 72,631\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Customers].[USA].[South West]}\n"
+                + "Axis #2:\n"
+                + "{[Store].[USA].[South West]}\n"
+                + "Row #0: 72,631\n");
     }
 
     private static class TestDimensionsShareJoinTableTwoAliasesModifierEmf implements CatalogMappingSupplier {
         private CatalogImpl catalog;
+
         public TestDimensionsShareJoinTableTwoAliasesModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
             EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
             this.catalog = (CatalogImpl) copier.get(catalog);
@@ -4692,20 +4709,21 @@ class SchemaTest {
         withSchemaEmf(context, TestTwoAliasesDimensionsShareTableModifierEmf::new);
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select {[StoreA].[USA]} on rows,"
-            + "{[StoreB].[USA]} on columns"
-            + " from "
-            + "AliasedDimensionsTesting",
+                + "{[StoreB].[USA]} on columns"
+                + " from "
+                + "AliasedDimensionsTesting",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[StoreB].[StoreB].[USA]}\n"
-            + "Axis #2:\n"
-            + "{[StoreA].[StoreA].[USA]}\n"
-            + "Row #0: 10,425\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[StoreB].[StoreB].[USA]}\n"
+                + "Axis #2:\n"
+                + "{[StoreA].[StoreA].[USA]}\n"
+                + "Row #0: 10,425\n");
     }
 
     private static class TestTwoAliasesDimensionsShareTableModifierEmf implements CatalogMappingSupplier {
         private CatalogImpl catalog;
+
         public TestTwoAliasesDimensionsShareTableModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
             EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
             this.catalog = (CatalogImpl) copier.get(catalog);
@@ -4989,20 +5007,21 @@ class SchemaTest {
         withSchemaEmf(context, TestTwoAliasesDimensionsShareTableSameForeignKeysModifierEmf::new);
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select {[StoreA].[USA]} on rows,"
-            + "{[StoreB].[USA]} on columns"
-            + " from "
-            + "AliasedDimensionsTesting",
+                + "{[StoreB].[USA]} on columns"
+                + " from "
+                + "AliasedDimensionsTesting",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[StoreB].[StoreB].[USA]}\n"
-            + "Axis #2:\n"
-            + "{[StoreA].[StoreA].[USA]}\n"
-            + "Row #0: 10,425\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[StoreB].[StoreB].[USA]}\n"
+                + "Axis #2:\n"
+                + "{[StoreA].[StoreA].[USA]}\n"
+                + "Row #0: 10,425\n");
     }
 
     private static class TestTwoAliasesDimensionsShareTableSameForeignKeysModifierEmf implements CatalogMappingSupplier {
         private CatalogImpl catalog;
+
         public TestTwoAliasesDimensionsShareTableSameForeignKeysModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
             EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
             this.catalog = (CatalogImpl) copier.get(catalog);
@@ -5205,20 +5224,21 @@ class SchemaTest {
         withSchemaEmf(context, TestMultipleDimensionUsagesModifierEmf::new);
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select\n"
-            + " {[Time2].[1997]} on columns,\n"
-            + " {[Time].[1997].[Q3]} on rows\n"
-            + "From [Sales Two Dimensions]",
+                + " {[Time2].[1997]} on columns,\n"
+                + " {[Time].[1997].[Q3]} on rows\n"
+                + "From [Sales Two Dimensions]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Time2].[Time].[1997]}\n"
-            + "Axis #2:\n"
-            + "{[Time].[Time].[1997].[Q3]}\n"
-            + "Row #0: 16,266\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Time2].[Time].[1997]}\n"
+                + "Axis #2:\n"
+                + "{[Time].[Time].[1997].[Q3]}\n"
+                + "Row #0: 16,266\n");
     }
 
     private static class TestMultipleDimensionUsagesModifierEmf implements CatalogMappingSupplier {
         private CatalogImpl catalog;
+
         public TestMultipleDimensionUsagesModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
             EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
             this.catalog = (CatalogImpl) copier.get(catalog);
@@ -5380,9 +5400,9 @@ class SchemaTest {
         withSchemaEmf(context, TestMultipleDimensionHierarchyCaptionUsagesModifierEmf::new);
         String query =
             "select\n"
-            + " {[Time2].[1997]} on columns,\n"
-            + " {[Time].[1997].[Q3]} on rows\n"
-            + "From [Sales Two Dimensions]";
+                + " {[Time2].[1997]} on columns,\n"
+                + " {[Time].[1997].[Q3]} on rows\n"
+                + "From [Sales Two Dimensions]";
 
         Result result = executeQuery(context.getConnectionWithDefaultRole(), query);
 
@@ -5402,6 +5422,7 @@ class SchemaTest {
 
     private static class TestMultipleDimensionHierarchyCaptionUsagesModifierEmf implements CatalogMappingSupplier {
         private CatalogImpl catalog;
+
         public TestMultipleDimensionHierarchyCaptionUsagesModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
             EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
             this.catalog = (CatalogImpl) copier.get(catalog);
@@ -5536,30 +5557,31 @@ class SchemaTest {
 
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select\n"
-            + "NON EMPTY {[Store].[All Stores].children} on columns \n"
-            + "From [Sales Create Dimension]",
+                + "NON EMPTY {[Store].[All Stores].children} on columns \n"
+                + "From [Sales Create Dimension]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Store].[Store].[USA]}\n"
-            + "Row #0: 266,773\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Store].[Store].[USA]}\n"
+                + "Row #0: 266,773\n");
 
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select\n"
-            + "NON EMPTY {[Store].[All Stores].children} on columns, \n"
-            + "{[Time].[1997].[Q1]} on rows \n"
-            + "From [Sales Create Dimension]",
+                + "NON EMPTY {[Store].[All Stores].children} on columns, \n"
+                + "{[Time].[1997].[Q1]} on rows \n"
+                + "From [Sales Create Dimension]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Store].[Store].[USA]}\n"
-            + "Axis #2:\n"
-            + "{[Time].[Time].[1997].[Q1]}\n"
-            + "Row #0: 66,291\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Store].[Store].[USA]}\n"
+                + "Axis #2:\n"
+                + "{[Time].[Time].[1997].[Q1]}\n"
+                + "Row #0: 66,291\n");
     }
 
     private static class TestDimensionCreationModifierEmf implements CatalogMappingSupplier {
         private CatalogImpl catalog;
+
         public TestDimensionCreationModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
             EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
             this.catalog = (CatalogImpl) copier.get(catalog);
@@ -5680,47 +5702,48 @@ class SchemaTest {
         withSchemaEmf(context, TestDimensionUsageLevelModifierEmf::new);
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select\n"
-            + " {[Store].[Store State].members} on columns \n"
-            + "From [Customer Usage Level]",
+                + " {[Store].[Store State].members} on columns \n"
+                + "From [Customer Usage Level]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Store].[Store].[Canada].[BC]}\n"
-            + "{[Store].[Store].[Mexico].[DF]}\n"
-            + "{[Store].[Store].[Mexico].[Guerrero]}\n"
-            + "{[Store].[Store].[Mexico].[Jalisco]}\n"
-            + "{[Store].[Store].[Mexico].[Veracruz]}\n"
-            + "{[Store].[Store].[Mexico].[Yucatan]}\n"
-            + "{[Store].[Store].[Mexico].[Zacatecas]}\n"
-            + "{[Store].[Store].[USA].[CA]}\n"
-            + "{[Store].[Store].[USA].[OR]}\n"
-            + "{[Store].[Store].[USA].[WA]}\n"
-            + "Row #0: 7,700\n"
-            + "Row #0: 1,492\n"
-            + "Row #0: 228\n"
-            + "Row #0: 206\n"
-            + "Row #0: 195\n"
-            + "Row #0: 229\n"
-            + "Row #0: 1,209\n"
-            + "Row #0: 46,965\n"
-            + "Row #0: 4,686\n"
-            + "Row #0: 32,767\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Store].[Store].[Canada].[BC]}\n"
+                + "{[Store].[Store].[Mexico].[DF]}\n"
+                + "{[Store].[Store].[Mexico].[Guerrero]}\n"
+                + "{[Store].[Store].[Mexico].[Jalisco]}\n"
+                + "{[Store].[Store].[Mexico].[Veracruz]}\n"
+                + "{[Store].[Store].[Mexico].[Yucatan]}\n"
+                + "{[Store].[Store].[Mexico].[Zacatecas]}\n"
+                + "{[Store].[Store].[USA].[CA]}\n"
+                + "{[Store].[Store].[USA].[OR]}\n"
+                + "{[Store].[Store].[USA].[WA]}\n"
+                + "Row #0: 7,700\n"
+                + "Row #0: 1,492\n"
+                + "Row #0: 228\n"
+                + "Row #0: 206\n"
+                + "Row #0: 195\n"
+                + "Row #0: 229\n"
+                + "Row #0: 1,209\n"
+                + "Row #0: 46,965\n"
+                + "Row #0: 4,686\n"
+                + "Row #0: 32,767\n");
 
         // BC.children should return an empty list, considering that we've
         // joined Store at the State level.
         if (false) {
             assertQueryReturns(context.getConnectionWithDefaultRole(),
                 "select\n"
-                + " {[Store].[All Stores].[Canada].[BC].children} on columns \n"
-                + "From [Customer Usage Level]",
+                    + " {[Store].[All Stores].[Canada].[BC].children} on columns \n"
+                    + "From [Customer Usage Level]",
                 "Axis #0:\n"
-                + "{}\n"
-                + "Axis #1:\n");
+                    + "{}\n"
+                    + "Axis #1:\n");
         }
     }
 
     private static class TestDimensionUsageLevelModifierEmf implements CatalogMappingSupplier {
         private CatalogImpl catalog;
+
         public TestDimensionUsageLevelModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
             EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
             this.catalog = (CatalogImpl) copier.get(catalog);
@@ -5873,20 +5896,20 @@ class SchemaTest {
         withSchemaEmf(context, TestAllMemberMultipleDimensionUsagesModifierEmf::new);
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select\n"
-            + " {[Store].[Store].[All Stores]} on columns,\n"
-            + " {" + store2AllMember + "} on rows\n"
-            + "From [Sales Two Sales Dimensions]",
+                + " {[Store].[Store].[All Stores]} on columns,\n"
+                + " {" + store2AllMember + "} on rows\n"
+                + "From [Sales Two Sales Dimensions]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Store].[Store].[All Stores]}\n"
-            + "Axis #2:\n"
-            + "{[Store2].[Store].[All Stores]}\n"
-            + "Row #0: 266,773\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Store].[Store].[All Stores]}\n"
+                + "Axis #2:\n"
+                + "{[Store2].[Store].[All Stores]}\n"
+                + "Row #0: 266,773\n");
 
         final Result result = executeQuery(context.getConnectionWithDefaultRole(),
             "select ([Store].[All Stores], " + store2AllMember + ") on 0\n"
-            + "from [Sales Two Sales Dimensions]");
+                + "from [Sales Two Sales Dimensions]");
         final Axis axis = result.getAxes()[0];
         final Position position = axis.getPositions().get(0);
         assertEquals(
@@ -5897,6 +5920,7 @@ class SchemaTest {
 
     private static class TestAllMemberMultipleDimensionUsagesModifierEmf implements CatalogMappingSupplier {
         private CatalogImpl catalog;
+
         public TestAllMemberMultipleDimensionUsagesModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
             EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
             this.catalog = (CatalogImpl) copier.get(catalog);
@@ -6048,11 +6072,11 @@ class SchemaTest {
          */
         withSchemaEmf(context, TestNonAliasedDimensionUsageModifierEmf::new);
         final String query = "select\n"
-                             + " {[Time2].[Time].[1997]} on columns \n"
-                             + "From [Sales Two Dimensions]";
-            assertQueryReturns(context.getConnectionWithDefaultRole(),
-                query,
-                "Axis #0:\n"
+            + " {[Time2].[Time].[1997]} on columns \n"
+            + "From [Sales Two Dimensions]";
+        assertQueryReturns(context.getConnectionWithDefaultRole(),
+            query,
+            "Axis #0:\n"
                 + "{}\n"
                 + "Axis #1:\n"
                 + "{[Time2].[Time].[1997]}\n"
@@ -6061,6 +6085,7 @@ class SchemaTest {
 
     private static class TestNonAliasedDimensionUsageModifierEmf implements CatalogMappingSupplier {
         private CatalogImpl catalog;
+
         public TestNonAliasedDimensionUsageModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
             EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
             this.catalog = (CatalogImpl) copier.get(catalog);
@@ -6282,21 +6307,22 @@ class SchemaTest {
         withSchemaEmf(context, TestViewDegenerateDimsModifierEmf::new);
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select\n"
-            + " NON EMPTY {[Time].[1997], [Time].[1997].[Q3]} on columns,\n"
-            + " NON EMPTY {[Store].[USA].Children} on rows\n"
-            + "From [Warehouse (based on view)]\n"
-            + "where [Warehouse].[2]",
+                + " NON EMPTY {[Time].[1997], [Time].[1997].[Q3]} on columns,\n"
+                + " NON EMPTY {[Store].[USA].Children} on rows\n"
+                + "From [Warehouse (based on view)]\n"
+                + "where [Warehouse].[2]",
             "Axis #0:\n"
-            + "{[Warehouse].[Warehouse].[2]}\n"
-            + "Axis #1:\n"
-            + "{[Time].[Time].[1997]}\n"
-            + "Axis #2:\n"
-            + "{[Store].[Store].[USA].[WA]}\n"
-            + "Row #0: 917.554\n");
+                + "{[Warehouse].[Warehouse].[2]}\n"
+                + "Axis #1:\n"
+                + "{[Time].[Time].[1997]}\n"
+                + "Axis #2:\n"
+                + "{[Store].[Store].[USA].[WA]}\n"
+                + "Row #0: 917.554\n");
     }
 
     private static class TestViewDegenerateDimsModifierEmf implements CatalogMappingSupplier {
         private CatalogImpl catalog;
+
         public TestViewDegenerateDimsModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
             EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
             this.catalog = (CatalogImpl) copier.get(catalog);
@@ -6609,29 +6635,30 @@ class SchemaTest {
         withSchemaEmf(context, TestViewFactTableModifierEmf::new);
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select\n"
-            + " {[Time].[1997], [Time].[1997].[Q3]} on columns,\n"
-            + " {[Store].[USA].Children} on rows\n"
-            + "From [Warehouse (based on view)]\n"
-            + "where [Warehouse].[USA]",
+                + " {[Time].[1997], [Time].[1997].[Q3]} on columns,\n"
+                + " {[Store].[USA].Children} on rows\n"
+                + "From [Warehouse (based on view)]\n"
+                + "where [Warehouse].[USA]",
             "Axis #0:\n"
-            + "{[Warehouse].[Warehouse].[USA]}\n"
-            + "Axis #1:\n"
-            + "{[Time].[Time].[1997]}\n"
-            + "{[Time].[Time].[1997].[Q3]}\n"
-            + "Axis #2:\n"
-            + "{[Store].[Store].[USA].[CA]}\n"
-            + "{[Store].[Store].[USA].[OR]}\n"
-            + "{[Store].[Store].[USA].[WA]}\n"
-            + "Row #0: 25,789.087\n"
-            + "Row #0: 8,624.791\n"
-            + "Row #1: 17,606.904\n"
-            + "Row #1: 3,812.023\n"
-            + "Row #2: 45,647.262\n"
-            + "Row #2: 12,664.162\n");
+                + "{[Warehouse].[Warehouse].[USA]}\n"
+                + "Axis #1:\n"
+                + "{[Time].[Time].[1997]}\n"
+                + "{[Time].[Time].[1997].[Q3]}\n"
+                + "Axis #2:\n"
+                + "{[Store].[Store].[USA].[CA]}\n"
+                + "{[Store].[Store].[USA].[OR]}\n"
+                + "{[Store].[Store].[USA].[WA]}\n"
+                + "Row #0: 25,789.087\n"
+                + "Row #0: 8,624.791\n"
+                + "Row #1: 17,606.904\n"
+                + "Row #1: 3,812.023\n"
+                + "Row #2: 45,647.262\n"
+                + "Row #2: 12,664.162\n");
     }
 
     private static class TestViewFactTableModifierEmf implements CatalogMappingSupplier {
         private CatalogImpl catalog;
+
         public TestViewFactTableModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
             EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
             this.catalog = (CatalogImpl) copier.get(catalog);
@@ -6882,24 +6909,25 @@ class SchemaTest {
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select {[Store Type].Children} on columns from [Store2]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Store Type].[Store Type].[Deluxe Supermarket]}\n"
-            + "{[Store Type].[Store Type].[Gourmet Supermarket]}\n"
-            + "{[Store Type].[Store Type].[HeadQuarters]}\n"
-            + "{[Store Type].[Store Type].[Mid-Size Grocery]}\n"
-            + "{[Store Type].[Store Type].[Small Grocery]}\n"
-            + "{[Store Type].[Store Type].[Supermarket]}\n"
-            + "Row #0: 146,045\n"
-            + "Row #0: 47,447\n"
-            + "Row #0: \n"
-            + "Row #0: 109,343\n"
-            + "Row #0: 75,281\n"
-            + "Row #0: 193,480\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Store Type].[Store Type].[Deluxe Supermarket]}\n"
+                + "{[Store Type].[Store Type].[Gourmet Supermarket]}\n"
+                + "{[Store Type].[Store Type].[HeadQuarters]}\n"
+                + "{[Store Type].[Store Type].[Mid-Size Grocery]}\n"
+                + "{[Store Type].[Store Type].[Small Grocery]}\n"
+                + "{[Store Type].[Store Type].[Supermarket]}\n"
+                + "Row #0: 146,045\n"
+                + "Row #0: 47,447\n"
+                + "Row #0: \n"
+                + "Row #0: 109,343\n"
+                + "Row #0: 75,281\n"
+                + "Row #0: 193,480\n");
     }
 
     private static class TestViewFactTable2ModifierEmf implements CatalogMappingSupplier {
         private CatalogImpl catalog;
+
         public TestViewFactTable2ModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
             EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
             this.catalog = (CatalogImpl) copier.get(catalog);
@@ -7046,45 +7074,46 @@ class SchemaTest {
         withSchemaEmf(context, TestDeprecatedDistinctCountAggregatorModifierEmf::new);
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select {[Measures].[Unit Sales],"
-            + "    [Measures].[Customer Count], "
-            + "    [Measures].[Customer Count2], "
-            + "    [Measures].[Half Customer Count]} on 0,\n"
-            + " {[Store].[USA].Children} ON 1\n"
-            + "FROM [Sales]\n"
-            + "WHERE ([Gender].[M])",
+                + "    [Measures].[Customer Count], "
+                + "    [Measures].[Customer Count2], "
+                + "    [Measures].[Half Customer Count]} on 0,\n"
+                + " {[Store].[USA].Children} ON 1\n"
+                + "FROM [Sales]\n"
+                + "WHERE ([Gender].[M])",
             "Axis #0:\n"
-            + "{[Gender].[Gender].[M]}\n"
-            + "Axis #1:\n"
-            + "{[Measures].[Unit Sales]}\n"
-            + "{[Measures].[Customer Count]}\n"
-            + "{[Measures].[Customer Count2]}\n"
-            + "{[Measures].[Half Customer Count]}\n"
-            + "Axis #2:\n"
-            + "{[Store].[Store].[USA].[CA]}\n"
-            + "{[Store].[Store].[USA].[OR]}\n"
-            + "{[Store].[Store].[USA].[WA]}\n"
-            + "Row #0: 37,989\n"
-            + "Row #0: 1,389\n"
-            + "Row #0: 1,389\n"
-            + "Row #0: 695\n"
-            + "Row #1: 34,623\n"
-            + "Row #1: 536\n"
-            + "Row #1: 536\n"
-            + "Row #1: 268\n"
-            + "Row #2: 62,603\n"
-            + "Row #2: 901\n"
-            + "Row #2: 901\n"
-            + "Row #2: 451\n");
+                + "{[Gender].[Gender].[M]}\n"
+                + "Axis #1:\n"
+                + "{[Measures].[Unit Sales]}\n"
+                + "{[Measures].[Customer Count]}\n"
+                + "{[Measures].[Customer Count2]}\n"
+                + "{[Measures].[Half Customer Count]}\n"
+                + "Axis #2:\n"
+                + "{[Store].[Store].[USA].[CA]}\n"
+                + "{[Store].[Store].[USA].[OR]}\n"
+                + "{[Store].[Store].[USA].[WA]}\n"
+                + "Row #0: 37,989\n"
+                + "Row #0: 1,389\n"
+                + "Row #0: 1,389\n"
+                + "Row #0: 695\n"
+                + "Row #1: 34,623\n"
+                + "Row #1: 536\n"
+                + "Row #1: 536\n"
+                + "Row #1: 268\n"
+                + "Row #2: 62,603\n"
+                + "Row #2: 901\n"
+                + "Row #2: 901\n"
+                + "Row #2: 451\n");
         context.getCatalogCache().clear();
     }
 
     private static class TestDeprecatedDistinctCountAggregatorModifierEmf implements CatalogMappingSupplier {
         private CatalogImpl catalog;
+
         public TestDeprecatedDistinctCountAggregatorModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
             EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
             this.catalog = (CatalogImpl) copier.get(catalog);
             Optional<org.eclipse.daanse.rolap.mapping.model.Cube> oCube = this.catalog.getCubes().stream()
-                    .filter(c -> "Sales".equals(c.getName())).findAny();
+                .filter(c -> "Sales".equals(c.getName())).findAny();
             if (oCube.isPresent()) {
                 org.eclipse.daanse.rolap.mapping.model.PhysicalCube cube = (PhysicalCube) oCube.get();
                 // Create Customer Count2 measure with distinct count
@@ -7255,12 +7284,13 @@ class SchemaTest {
             }
         }
         */
-        if (!context.getConfigValue(ConfigConstants.READ_AGGREGATES, ConfigConstants.READ_AGGREGATES_DEFAULT_VALUE ,Boolean.class)) {
+        if (!context.getConfigValue(ConfigConstants.READ_AGGREGATES, ConfigConstants.READ_AGGREGATES_DEFAULT_VALUE, Boolean.class)) {
             return;
         }
 
         class TestUnknownUsagesModifierEmf implements CatalogMappingSupplier {
             private org.eclipse.daanse.rolap.mapping.model.Catalog catalog;
+
             public TestUnknownUsagesModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
                 // Create aggregation excludes
                 org.eclipse.daanse.rolap.mapping.model.AggregationExclude aggExclude1 = RolapMappingFactory.eINSTANCE.createAggregationExclude();
@@ -7479,10 +7509,10 @@ class SchemaTest {
                 + "</Cube>\n"
                 + "</Schema>");
          */
-            withSchemaEmf(context, TestUnknownUsagesModifierEmf::new);
-            assertQueryReturns(context.getConnectionWithDefaultRole(),
-                "select from [Sales Degen]",
-                "Axis #0:\n"
+        withSchemaEmf(context, TestUnknownUsagesModifierEmf::new);
+        assertQueryReturns(context.getConnectionWithDefaultRole(),
+            "select from [Sales Degen]",
+            "Axis #0:\n"
                 + "{}\n"
                 + "225,627.23");
 
@@ -7490,10 +7520,10 @@ class SchemaTest {
         // It is used as a level in the degenerate dimension [Time Degenerate].
         assertEqualsVerbose(
             "WARN - Recognizer.checkUnusedColumns: Candidate aggregate table 'agg_c_10_sales_fact_1997' for fact table 'sales_fact_1997' has a column 'customer_count' with unknown usage.\n"
-            + "WARN - Recognizer.checkUnusedColumns: Candidate aggregate table 'agg_c_10_sales_fact_1997' for fact table 'sales_fact_1997' has a column 'month_of_year' with unknown usage.\n"
-            + "WARN - Recognizer.checkUnusedColumns: Candidate aggregate table 'agg_c_10_sales_fact_1997' for fact table 'sales_fact_1997' has a column 'quarter' with unknown usage.\n"
-            + "WARN - Recognizer.checkUnusedColumns: Candidate aggregate table 'agg_c_10_sales_fact_1997' for fact table 'sales_fact_1997' has a column 'the_year' with unknown usage.\n"
-            + "WARN - Recognizer.checkUnusedColumns: Candidate aggregate table 'agg_c_10_sales_fact_1997' for fact table 'sales_fact_1997' has a column 'unit_sales' with unknown usage.\n",
+                + "WARN - Recognizer.checkUnusedColumns: Candidate aggregate table 'agg_c_10_sales_fact_1997' for fact table 'sales_fact_1997' has a column 'month_of_year' with unknown usage.\n"
+                + "WARN - Recognizer.checkUnusedColumns: Candidate aggregate table 'agg_c_10_sales_fact_1997' for fact table 'sales_fact_1997' has a column 'quarter' with unknown usage.\n"
+                + "WARN - Recognizer.checkUnusedColumns: Candidate aggregate table 'agg_c_10_sales_fact_1997' for fact table 'sales_fact_1997' has a column 'the_year' with unknown usage.\n"
+                + "WARN - Recognizer.checkUnusedColumns: Candidate aggregate table 'agg_c_10_sales_fact_1997' for fact table 'sales_fact_1997' has a column 'unit_sales' with unknown usage.\n",
             sw.toString());
     }
 
@@ -7664,12 +7694,13 @@ class SchemaTest {
         }
         */
 
-        if (!context.getConfigValue(ConfigConstants.READ_AGGREGATES, ConfigConstants.READ_AGGREGATES_DEFAULT_VALUE ,Boolean.class)) {
+        if (!context.getConfigValue(ConfigConstants.READ_AGGREGATES, ConfigConstants.READ_AGGREGATES_DEFAULT_VALUE, Boolean.class)) {
             return;
         }
 
         class TestUnknownUsages1ModifierEmf implements CatalogMappingSupplier {
             private org.eclipse.daanse.rolap.mapping.model.Catalog catalog;
+
             public TestUnknownUsages1ModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
                 // Create aggregation excludes
                 org.eclipse.daanse.rolap.mapping.model.AggregationExclude aggExclude1 = RolapMappingFactory.eINSTANCE.createAggregationExclude();
@@ -7940,8 +7971,8 @@ class SchemaTest {
             assertQueryReturns(context.getConnectionWithDefaultRole(),
                 "select from [Denormalized Sales]",
                 "Axis #0:\n"
-                + "{}\n"
-                + "225,627.23");
+                    + "{}\n"
+                    + "225,627.23");
         } finally {
             //loggerConfig.removeAppender( appender.getName() );
             //ctx.updateLoggers();
@@ -8009,11 +8040,12 @@ class SchemaTest {
         }*/
         class TestPropertyFormatterModifierEmf implements CatalogMappingSupplier {
             private CatalogImpl catalog;
+
             public TestPropertyFormatterModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog catalog) {
                 EcoreUtil.Copier copier = EmfUtil.copier((CatalogImpl) catalog);
                 this.catalog = (CatalogImpl) copier.get(catalog);
                 Optional<org.eclipse.daanse.rolap.mapping.model.Cube> oCube = this.catalog.getCubes().stream()
-                        .filter(c -> "Sales".equals(c.getName())).findAny();
+                    .filter(c -> "Sales".equals(c.getName())).findAny();
                 if (oCube.isPresent()) {
                     org.eclipse.daanse.rolap.mapping.model.PhysicalCube cube = (PhysicalCube) oCube.get();
                     // Create MemberProperty objects using RolapMappingFactory
@@ -8184,10 +8216,10 @@ class SchemaTest {
         // aggregate tables are getting crossed.
         final String expected =
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Measures].[Unit Sales]}\n"
-            + "Row #0: 266,773\n";
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Measures].[Unit Sales]}\n"
+                + "Row #0: 266,773\n";
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select {[Measures]} on 0 from [Sales2]",
             expected);
@@ -8207,7 +8239,7 @@ class SchemaTest {
                 RolapMappingFactory.eINSTANCE.createDimensionConnector();
             d1.setOverrideDimensionName("Time");
             d1.setDimension((org.eclipse.daanse.rolap.mapping.model.Dimension)
-                    copier.get(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.DIMENSION_TIME));
+                copier.get(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.DIMENSION_TIME));
             d1.setForeignKey(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.COLUMN_TIME_ID_SALESFACT);
 
             // Create DimensionConnector for Product using RolapMappingFactory
@@ -8215,7 +8247,7 @@ class SchemaTest {
                 RolapMappingFactory.eINSTANCE.createDimensionConnector();
             d2.setOverrideDimensionName("Product");
             d2.setDimension((org.eclipse.daanse.rolap.mapping.model.Dimension)
-                    copier.get(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.DIMENSION_PRODUCT));
+                copier.get(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.DIMENSION_PRODUCT));
             d2.setForeignKey(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.COLUMN_PRODUCT_ID_SALESFACT);
 
             // Create Unit Sales measure using RolapMappingFactory
@@ -8346,57 +8378,57 @@ class SchemaTest {
         // return the store name instead of the store type.
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "WITH\n"
-            + "   MEMBER [Measures].[StoreType] AS \n"
-            + "   '[Store2].CurrentMember.Properties(\"Store Type\")'\n"
-            + "SELECT\n"
-            + "   NonEmptyCrossJoin({[Store2].[All Stores].children}, {[Product].[All Products]}) ON ROWS,\n"
-            + "   { [Measures].[Store Sales], [Measures].[StoreType]} ON COLUMNS\n"
-            + "FROM Sales",
+                + "   MEMBER [Measures].[StoreType] AS \n"
+                + "   '[Store2].CurrentMember.Properties(\"Store Type\")'\n"
+                + "SELECT\n"
+                + "   NonEmptyCrossJoin({[Store2].[All Stores].children}, {[Product].[All Products]}) ON ROWS,\n"
+                + "   { [Measures].[Store Sales], [Measures].[StoreType]} ON COLUMNS\n"
+                + "FROM Sales",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Measures].[Store Sales]}\n"
-            + "{[Measures].[StoreType]}\n"
-            + "Axis #2:\n"
-            + "{[Store2].[Store2].[2], [Product].[Product].[All Products]}\n"
-            + "{[Store2].[Store2].[3], [Product].[Product].[All Products]}\n"
-            + "{[Store2].[Store2].[6], [Product].[Product].[All Products]}\n"
-            + "{[Store2].[Store2].[7], [Product].[Product].[All Products]}\n"
-            + "{[Store2].[Store2].[11], [Product].[Product].[All Products]}\n"
-            + "{[Store2].[Store2].[13], [Product].[Product].[All Products]}\n"
-            + "{[Store2].[Store2].[14], [Product].[Product].[All Products]}\n"
-            + "{[Store2].[Store2].[15], [Product].[Product].[All Products]}\n"
-            + "{[Store2].[Store2].[16], [Product].[Product].[All Products]}\n"
-            + "{[Store2].[Store2].[17], [Product].[Product].[All Products]}\n"
-            + "{[Store2].[Store2].[22], [Product].[Product].[All Products]}\n"
-            + "{[Store2].[Store2].[23], [Product].[Product].[All Products]}\n"
-            + "{[Store2].[Store2].[24], [Product].[Product].[All Products]}\n"
-            + "Row #0: 4,739.23\n"
-            + "Row #0: Small Grocery\n"
-            + "Row #1: 52,896.30\n"
-            + "Row #1: Supermarket\n"
-            + "Row #2: 45,750.24\n"
-            + "Row #2: Gourmet Supermarket\n"
-            + "Row #3: 54,545.28\n"
-            + "Row #3: Supermarket\n"
-            + "Row #4: 55,058.79\n"
-            + "Row #4: Supermarket\n"
-            + "Row #5: 87,218.28\n"
-            + "Row #5: Deluxe Supermarket\n"
-            + "Row #6: 4,441.18\n"
-            + "Row #6: Small Grocery\n"
-            + "Row #7: 52,644.07\n"
-            + "Row #7: Supermarket\n"
-            + "Row #8: 49,634.46\n"
-            + "Row #8: Supermarket\n"
-            + "Row #9: 74,843.96\n"
-            + "Row #9: Deluxe Supermarket\n"
-            + "Row #10: 4,705.97\n"
-            + "Row #10: Small Grocery\n"
-            + "Row #11: 24,329.23\n"
-            + "Row #11: Mid-Size Grocery\n"
-            + "Row #12: 54,431.14\n"
-            + "Row #12: Supermarket\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Measures].[Store Sales]}\n"
+                + "{[Measures].[StoreType]}\n"
+                + "Axis #2:\n"
+                + "{[Store2].[Store2].[2], [Product].[Product].[All Products]}\n"
+                + "{[Store2].[Store2].[3], [Product].[Product].[All Products]}\n"
+                + "{[Store2].[Store2].[6], [Product].[Product].[All Products]}\n"
+                + "{[Store2].[Store2].[7], [Product].[Product].[All Products]}\n"
+                + "{[Store2].[Store2].[11], [Product].[Product].[All Products]}\n"
+                + "{[Store2].[Store2].[13], [Product].[Product].[All Products]}\n"
+                + "{[Store2].[Store2].[14], [Product].[Product].[All Products]}\n"
+                + "{[Store2].[Store2].[15], [Product].[Product].[All Products]}\n"
+                + "{[Store2].[Store2].[16], [Product].[Product].[All Products]}\n"
+                + "{[Store2].[Store2].[17], [Product].[Product].[All Products]}\n"
+                + "{[Store2].[Store2].[22], [Product].[Product].[All Products]}\n"
+                + "{[Store2].[Store2].[23], [Product].[Product].[All Products]}\n"
+                + "{[Store2].[Store2].[24], [Product].[Product].[All Products]}\n"
+                + "Row #0: 4,739.23\n"
+                + "Row #0: Small Grocery\n"
+                + "Row #1: 52,896.30\n"
+                + "Row #1: Supermarket\n"
+                + "Row #2: 45,750.24\n"
+                + "Row #2: Gourmet Supermarket\n"
+                + "Row #3: 54,545.28\n"
+                + "Row #3: Supermarket\n"
+                + "Row #4: 55,058.79\n"
+                + "Row #4: Supermarket\n"
+                + "Row #5: 87,218.28\n"
+                + "Row #5: Deluxe Supermarket\n"
+                + "Row #6: 4,441.18\n"
+                + "Row #6: Small Grocery\n"
+                + "Row #7: 52,644.07\n"
+                + "Row #7: Supermarket\n"
+                + "Row #8: 49,634.46\n"
+                + "Row #8: Supermarket\n"
+                + "Row #9: 74,843.96\n"
+                + "Row #9: Deluxe Supermarket\n"
+                + "Row #10: 4,705.97\n"
+                + "Row #10: Small Grocery\n"
+                + "Row #11: 24,329.23\n"
+                + "Row #11: Mid-Size Grocery\n"
+                + "Row #12: 54,431.14\n"
+                + "Row #12: Supermarket\n");
     }
 
     class TestBugMondrian303ModifierEmf implements CatalogMappingSupplier {
@@ -8409,57 +8441,57 @@ class SchemaTest {
 
             if (oCube.isPresent()) {
                 org.eclipse.daanse.rolap.mapping.model.PhysicalCube cube = (org.eclipse.daanse.rolap.mapping.model.PhysicalCube) oCube.get();
-            // Create MemberProperty objects using RolapMappingFactory
-            org.eclipse.daanse.rolap.mapping.model.MemberProperty storeTypeProperty =
-                RolapMappingFactory.eINSTANCE.createMemberProperty();
-            storeTypeProperty.setName("Store Type");
-            storeTypeProperty.setColumn(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.COLUMN_STORE_TYPE_STORE_RAGGED);
+                // Create MemberProperty objects using RolapMappingFactory
+                org.eclipse.daanse.rolap.mapping.model.MemberProperty storeTypeProperty =
+                    RolapMappingFactory.eINSTANCE.createMemberProperty();
+                storeTypeProperty.setName("Store Type");
+                storeTypeProperty.setColumn(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.COLUMN_STORE_TYPE_STORE_RAGGED);
 
-            org.eclipse.daanse.rolap.mapping.model.MemberProperty storeManagerProperty =
-                RolapMappingFactory.eINSTANCE.createMemberProperty();
-            storeManagerProperty.setName("Store Manager");
-            storeManagerProperty.setColumn(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.COLUMN_STORE_MANAGER_STORE_RAGGED);
+                org.eclipse.daanse.rolap.mapping.model.MemberProperty storeManagerProperty =
+                    RolapMappingFactory.eINSTANCE.createMemberProperty();
+                storeManagerProperty.setName("Store Manager");
+                storeManagerProperty.setColumn(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.COLUMN_STORE_MANAGER_STORE_RAGGED);
 
-            // Create Level using RolapMappingFactory
-            org.eclipse.daanse.rolap.mapping.model.Level level =
-                RolapMappingFactory.eINSTANCE.createLevel();
-            level.setName("Store2");
-            level.setColumn(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.COLUMN_STORE_ID_STORE_RAGGED);
-            level.setCaptionColumn(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.COLUMN_STORE_NAME_STORE_RAGGED);
-            level.setUniqueMembers(true);
-            level.getMemberProperties().add(storeTypeProperty);
-            level.getMemberProperties().add(storeManagerProperty);
+                // Create Level using RolapMappingFactory
+                org.eclipse.daanse.rolap.mapping.model.Level level =
+                    RolapMappingFactory.eINSTANCE.createLevel();
+                level.setName("Store2");
+                level.setColumn(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.COLUMN_STORE_ID_STORE_RAGGED);
+                level.setCaptionColumn(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.COLUMN_STORE_NAME_STORE_RAGGED);
+                level.setUniqueMembers(true);
+                level.getMemberProperties().add(storeTypeProperty);
+                level.getMemberProperties().add(storeManagerProperty);
 
-            // Create TableQuery using RolapMappingFactory
-            org.eclipse.daanse.rolap.mapping.model.TableQuery tableQuery =
-                RolapMappingFactory.eINSTANCE.createTableQuery();
-            tableQuery.setTable(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.TABLE_STORE_RAGGED);
+                // Create TableQuery using RolapMappingFactory
+                org.eclipse.daanse.rolap.mapping.model.TableQuery tableQuery =
+                    RolapMappingFactory.eINSTANCE.createTableQuery();
+                tableQuery.setTable(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.TABLE_STORE_RAGGED);
 
-            // Create ExplicitHierarchy using RolapMappingFactory
-            org.eclipse.daanse.rolap.mapping.model.ExplicitHierarchy hierarchy =
-                RolapMappingFactory.eINSTANCE.createExplicitHierarchy();
-            hierarchy.setName("Store2");
-            hierarchy.setHasAll(true);
-            hierarchy.setAllMemberName("All Stores");
-            hierarchy.setPrimaryKey(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.COLUMN_STORE_ID_STORE_RAGGED);
-            hierarchy.setQuery(tableQuery);
-            hierarchy.getLevels().add(level);
+                // Create ExplicitHierarchy using RolapMappingFactory
+                org.eclipse.daanse.rolap.mapping.model.ExplicitHierarchy hierarchy =
+                    RolapMappingFactory.eINSTANCE.createExplicitHierarchy();
+                hierarchy.setName("Store2");
+                hierarchy.setHasAll(true);
+                hierarchy.setAllMemberName("All Stores");
+                hierarchy.setPrimaryKey(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.COLUMN_STORE_ID_STORE_RAGGED);
+                hierarchy.setQuery(tableQuery);
+                hierarchy.getLevels().add(level);
 
-            // Create StandardDimension using RolapMappingFactory
-            org.eclipse.daanse.rolap.mapping.model.StandardDimension dimension =
-                RolapMappingFactory.eINSTANCE.createStandardDimension();
-            dimension.setName("Store2");
-            dimension.getHierarchies().add(hierarchy);
+                // Create StandardDimension using RolapMappingFactory
+                org.eclipse.daanse.rolap.mapping.model.StandardDimension dimension =
+                    RolapMappingFactory.eINSTANCE.createStandardDimension();
+                dimension.setName("Store2");
+                dimension.getHierarchies().add(hierarchy);
 
-            // Create DimensionConnector using RolapMappingFactory
-            org.eclipse.daanse.rolap.mapping.model.DimensionConnector dimensionConnector =
-                RolapMappingFactory.eINSTANCE.createDimensionConnector();
-            dimensionConnector.setOverrideDimensionName("Store2");
-            dimensionConnector.setForeignKey(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.COLUMN_STORE_ID_SALESFACT);
-            dimensionConnector.setDimension(dimension);
-            DimensionConnectorImpl dimensionConn = (DimensionConnectorImpl) dimensionConnector;
-            List<DimensionConnector> dimensionConnectors = (List<DimensionConnector>) cube.getDimensionConnectors();
-            dimensionConnectors.add(dimensionConn);
+                // Create DimensionConnector using RolapMappingFactory
+                org.eclipse.daanse.rolap.mapping.model.DimensionConnector dimensionConnector =
+                    RolapMappingFactory.eINSTANCE.createDimensionConnector();
+                dimensionConnector.setOverrideDimensionName("Store2");
+                dimensionConnector.setForeignKey(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.COLUMN_STORE_ID_SALESFACT);
+                dimensionConnector.setDimension(dimension);
+                DimensionConnectorImpl dimensionConn = (DimensionConnectorImpl) dimensionConnector;
+                List<DimensionConnector> dimensionConnectors = (List<DimensionConnector>) cube.getDimensionConnectors();
+                dimensionConnectors.add(dimensionConn);
             }
         }
 
@@ -8554,77 +8586,79 @@ class SchemaTest {
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select {[Promotion Media]} on columns from [OneDim]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Promotion Media].[Promotion Media].[All Media]}\n"
-            + "Row #0: 266,773\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Promotion Media].[Promotion Media].[All Media]}\n"
+                + "Row #0: 266,773\n");
     }
 
     class TestCubeWithOneDimensionOneMeasureModifierEmf implements CatalogMappingSupplier {
         private CatalogImpl catalog;
+
         public TestCubeWithOneDimensionOneMeasureModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog cat) {
             catalog = org.opencube.junit5.EmfUtil.copy((CatalogImpl) cat);
             org.eclipse.daanse.rolap.mapping.model.Level level =
-                    RolapMappingFactory.eINSTANCE.createLevel();
-                level.setName("Media Type");
-                level.setColumn(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.COLUMN_MEDIA_TYPE_PROMOTION);
-                level.setUniqueMembers(true);
+                RolapMappingFactory.eINSTANCE.createLevel();
+            level.setName("Media Type");
+            level.setColumn(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.COLUMN_MEDIA_TYPE_PROMOTION);
+            level.setUniqueMembers(true);
 
-                // Create TableQuery using RolapMappingFactory
-                org.eclipse.daanse.rolap.mapping.model.TableQuery promotionTableQuery =
-                    RolapMappingFactory.eINSTANCE.createTableQuery();
-                promotionTableQuery.setTable(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.TABLE_PROMOTION);
+            // Create TableQuery using RolapMappingFactory
+            org.eclipse.daanse.rolap.mapping.model.TableQuery promotionTableQuery =
+                RolapMappingFactory.eINSTANCE.createTableQuery();
+            promotionTableQuery.setTable(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.TABLE_PROMOTION);
 
-                // Create ExplicitHierarchy using RolapMappingFactory
-                org.eclipse.daanse.rolap.mapping.model.ExplicitHierarchy h1 =
-                    RolapMappingFactory.eINSTANCE.createExplicitHierarchy();
-                h1.setHasAll(true);
-                h1.setAllMemberName("All Media");
-                h1.setPrimaryKey(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.COLUMN_PROMOTION_ID_PROMOTION);
-                h1.setDefaultMember("All Media");
-                h1.setQuery(promotionTableQuery);
-                h1.getLevels().add(level);
+            // Create ExplicitHierarchy using RolapMappingFactory
+            org.eclipse.daanse.rolap.mapping.model.ExplicitHierarchy h1 =
+                RolapMappingFactory.eINSTANCE.createExplicitHierarchy();
+            h1.setHasAll(true);
+            h1.setAllMemberName("All Media");
+            h1.setPrimaryKey(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.COLUMN_PROMOTION_ID_PROMOTION);
+            h1.setDefaultMember("All Media");
+            h1.setQuery(promotionTableQuery);
+            h1.getLevels().add(level);
 
-                // Create StandardDimension using RolapMappingFactory
-                org.eclipse.daanse.rolap.mapping.model.StandardDimension dimension =
-                    RolapMappingFactory.eINSTANCE.createStandardDimension();
-                dimension.setName("Promotion Media");
-                dimension.getHierarchies().add(h1);
+            // Create StandardDimension using RolapMappingFactory
+            org.eclipse.daanse.rolap.mapping.model.StandardDimension dimension =
+                RolapMappingFactory.eINSTANCE.createStandardDimension();
+            dimension.setName("Promotion Media");
+            dimension.getHierarchies().add(h1);
 
-                // Create DimensionConnector using RolapMappingFactory
-                org.eclipse.daanse.rolap.mapping.model.DimensionConnector d1 =
-                    RolapMappingFactory.eINSTANCE.createDimensionConnector();
-                d1.setOverrideDimensionName("Promotion Media");
-                d1.setForeignKey(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.COLUMN_PROMOTION_ID_SALESFACT);
-                d1.setDimension(dimension);
+            // Create DimensionConnector using RolapMappingFactory
+            org.eclipse.daanse.rolap.mapping.model.DimensionConnector d1 =
+                RolapMappingFactory.eINSTANCE.createDimensionConnector();
+            d1.setOverrideDimensionName("Promotion Media");
+            d1.setForeignKey(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.COLUMN_PROMOTION_ID_SALESFACT);
+            d1.setDimension(dimension);
 
-                // Create Unit Sales measure using RolapMappingFactory
-                org.eclipse.daanse.rolap.mapping.model.SumMeasure unitSalesMeasure =
-                    RolapMappingFactory.eINSTANCE.createSumMeasure();
-                unitSalesMeasure.setName("Unit Sales");
-                unitSalesMeasure.setColumn(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.COLUMN_UNIT_SALES_SALESFACT);
-                unitSalesMeasure.setFormatString("Standard");
+            // Create Unit Sales measure using RolapMappingFactory
+            org.eclipse.daanse.rolap.mapping.model.SumMeasure unitSalesMeasure =
+                RolapMappingFactory.eINSTANCE.createSumMeasure();
+            unitSalesMeasure.setName("Unit Sales");
+            unitSalesMeasure.setColumn(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.COLUMN_UNIT_SALES_SALESFACT);
+            unitSalesMeasure.setFormatString("Standard");
 
-                // Create MeasureGroup using RolapMappingFactory
-                org.eclipse.daanse.rolap.mapping.model.MeasureGroup measureGroup =
-                    RolapMappingFactory.eINSTANCE.createMeasureGroup();
-                measureGroup.getMeasures().add(unitSalesMeasure);
+            // Create MeasureGroup using RolapMappingFactory
+            org.eclipse.daanse.rolap.mapping.model.MeasureGroup measureGroup =
+                RolapMappingFactory.eINSTANCE.createMeasureGroup();
+            measureGroup.getMeasures().add(unitSalesMeasure);
 
-                // Create TableQuery for fact table using RolapMappingFactory
-                org.eclipse.daanse.rolap.mapping.model.TableQuery factTableQuery =
-                    RolapMappingFactory.eINSTANCE.createTableQuery();
-                factTableQuery.setTable(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.TABLE_SALES_FACT);
+            // Create TableQuery for fact table using RolapMappingFactory
+            org.eclipse.daanse.rolap.mapping.model.TableQuery factTableQuery =
+                RolapMappingFactory.eINSTANCE.createTableQuery();
+            factTableQuery.setTable(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.TABLE_SALES_FACT);
 
-                // Create PhysicalCube using RolapMappingFactory
-                org.eclipse.daanse.rolap.mapping.model.PhysicalCube c =
-                    RolapMappingFactory.eINSTANCE.createPhysicalCube();
-                c.setName("OneDim");
-                c.setDefaultMeasure(unitSalesMeasure);
-                c.setQuery(factTableQuery);
-                c.getDimensionConnectors().add(d1);
-                c.getMeasureGroups().add(measureGroup);
-                catalog.getCubes().add(c);
+            // Create PhysicalCube using RolapMappingFactory
+            org.eclipse.daanse.rolap.mapping.model.PhysicalCube c =
+                RolapMappingFactory.eINSTANCE.createPhysicalCube();
+            c.setName("OneDim");
+            c.setDefaultMeasure(unitSalesMeasure);
+            c.setQuery(factTableQuery);
+            c.getDimensionConnectors().add(d1);
+            c.getMeasureGroups().add(measureGroup);
+            catalog.getCubes().add(c);
         }
+
         public org.eclipse.daanse.rolap.mapping.model.Catalog get() {
             return catalog;
         }
@@ -8693,14 +8727,14 @@ class SchemaTest {
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select {[Product].Children} on columns from [OneDimUsage]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Product].[Product].[Drink]}\n"
-            + "{[Product].[Product].[Food]}\n"
-            + "{[Product].[Product].[Non-Consumable]}\n"
-            + "Row #0: 24,597\n"
-            + "Row #0: 191,940\n"
-            + "Row #0: 50,236\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Product].[Product].[Drink]}\n"
+                + "{[Product].[Product].[Food]}\n"
+                + "{[Product].[Product].[Non-Consumable]}\n"
+                + "Row #0: 24,597\n"
+                + "Row #0: 191,940\n"
+                + "Row #0: 50,236\n");
     }
 
     class TestCubeWithOneDimensionUsageOneMeasureModifierEmf implements CatalogMappingSupplier {
@@ -8962,10 +8996,10 @@ class SchemaTest {
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select {[Measures].[Unit Sales]} on columns from [NoDim]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Measures].[Unit Sales]}\n"
-            + "Row #0: 266,773\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Measures].[Unit Sales]}\n"
+                + "Row #0: 266,773\n");
     }
 
     class TestCubeWithNoDimensionsModifierEmf implements CatalogMappingSupplier {
@@ -9249,12 +9283,12 @@ class SchemaTest {
         // non-visible ones, come before calculated measures.
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select {[Measures]} on columns from [OneCalcMeasure]\n"
-            + "where [Promotion Media].[TV]",
+                + "where [Promotion Media].[TV]",
             "Axis #0:\n"
-            + "{[Promotion Media].[Promotion Media].[TV]}\n"
-            + "Axis #1:\n"
-            + "{[Measures].[Fact Count]}\n"
-            + "Row #0: 1,171\n");
+                + "{[Promotion Media].[Promotion Media].[TV]}\n"
+                + "Axis #1:\n"
+                + "{[Measures].[Fact Count]}\n"
+                + "Row #0: 1,171\n");
     }
 
     class TestCubeWithOneCalcMeasureModifierEmf implements CatalogMappingSupplier {
@@ -9382,17 +9416,17 @@ class SchemaTest {
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select {[Store].[Store].[USA].[CA].[SF and LA]} on columns from [Sales]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Store].[Store].[USA].[CA].[SF and LA]}\n"
-            + "Row #0: 27,780\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Store].[Store].[USA].[CA].[SF and LA]}\n"
+                + "Row #0: 27,780\n");
 
         // Now access the same member using a path that is not its unique name.
         // Only works with new name resolver (if ssas = true).
 
-            assertQueryReturns(context.getConnectionWithDefaultRole(),
-                "select {[Store].[Store].[All Stores].[USA].[CA].[SF and LA]} on columns from [Sales]",
-                "Axis #0:\n"
+        assertQueryReturns(context.getConnectionWithDefaultRole(),
+            "select {[Store].[Store].[All Stores].[USA].[CA].[SF and LA]} on columns from [Sales]",
+            "Axis #0:\n"
                 + "{}\n"
                 + "Axis #1:\n"
                 + "{[Store].[Store].[USA].[CA].[SF and LA]}\n"
@@ -9442,18 +9476,18 @@ class SchemaTest {
                     + "</CalculatedMember>",
                     null, false));
              */
-            ((TestContext)context).setCatalogMappingSupplier(new CatalogSupplier());
+            ((TestContext) context).setCatalogMappingSupplier(new CatalogSupplier());
             withSchemaEmf(context, TestCalcMemberInCubeModifier2Emf::new);
             assertQueryReturns(context.getConnectionWithDefaultRole(),
                 "select {[Store].[Store].[All Stores].[USA].[CA].[SF and LA]} on columns from [Sales]",
                 "Axis #0:\n"
-                + "{}\n"
-                + "Axis #1:\n"
-                + "{[Store].[Store].[USA].[CA].[SF and LA]}\n"
-                + "Row #0: 27,780\n");
+                    + "{}\n"
+                    + "Axis #1:\n"
+                    + "{[Store].[Store].[USA].[CA].[SF and LA]}\n"
+                    + "Row #0: 27,780\n");
             //fail();
         } catch (OlapRuntimeException e) {
-        	//dimension was removed in new model
+            //dimension was removed in new model
             //assertTrue(
             //    e.getMessage().contains(
             //        "Cannot specify both a dimension and hierarchy"
@@ -9502,15 +9536,15 @@ class SchemaTest {
                     + "</CalculatedMember>",
                     null, false));
              */
-            ((TestContext)context).setCatalogMappingSupplier(new CatalogSupplier());
+            ((TestContext) context).setCatalogMappingSupplier(new CatalogSupplier());
             withSchemaEmf(context, TestCalcMemberInCubeModifier3Emf::new);
             assertQueryReturns(context.getConnectionWithDefaultRole(),
                 "select {[Store].[Store].[All Stores].[USA].[CA].[SF and LA]} on columns from [Sales]",
                 "Axis #0:\n"
-                + "{}\n"
-                + "Axis #1:\n"
-                + "{[Store].[Store].[USA].[CA].[SF and LA]}\n"
-                + "Row #0: 27,780\n");
+                    + "{}\n"
+                    + "Axis #1:\n"
+                    + "{[Store].[Store].[USA].[CA].[SF and LA]}\n"
+                    + "Row #0: 27,780\n");
             fail();
         } catch (OlapRuntimeException e) {
             assertTrue(
@@ -9559,15 +9593,15 @@ class SchemaTest {
                     + "</CalculatedMember>",
                     null, false));
              */
-            ((TestContext)context).setCatalogMappingSupplier(new CatalogSupplier());
+            ((TestContext) context).setCatalogMappingSupplier(new CatalogSupplier());
             withSchemaEmf(context, TestCalcMemberInCubeModifier4Emf::new);
             assertQueryReturns(context.getConnectionWithDefaultRole(),
                 "select {[Store].[Store].[All Stores].[USA].[CA].[SF and LA]} on columns from [Sales]",
                 "Axis #0:\n"
-                + "{}\n"
-                + "Axis #1:\n"
-                + "{[Store].[Store].[USA].[CA].[SF and LA]}\n"
-                + "Row #0: 27,780\n");
+                    + "{}\n"
+                    + "Axis #1:\n"
+                    + "{[Store].[Store].[USA].[CA].[SF and LA]}\n"
+                    + "Row #0: 27,780\n");
             fail();
         } catch (OlapRuntimeException e) {
             assertTrue(
@@ -9617,22 +9651,22 @@ class SchemaTest {
                     + "</CalculatedMember>",
                     null, false));
              */
-            ((TestContext)context).setCatalogMappingSupplier(new CatalogSupplier());
+            ((TestContext) context).setCatalogMappingSupplier(new CatalogSupplier());
             withSchemaEmf(context, TestCalcMemberInCubeModifier5Emf::new);
             assertQueryReturns(context.getConnectionWithDefaultRole(),
                 "select {[Store].[All Stores].[USA].[CA].[SF and LA]} on columns from [Sales]",
                 "Axis #0:\n"
-                + "{}\n"
-                + "Axis #1:\n"
-                + "{[Store].[Store].[USA].[CA].[SF and LA]}\n"
-                + "Row #0: 27,780\n");
+                    + "{}\n"
+                    + "Axis #1:\n"
+                    + "{[Store].[Store].[USA].[CA].[SF and LA]}\n"
+                    + "Row #0: 27,780\n");
             fail();
         } catch (OlapRuntimeException e) {
             assertTrue(
                 e.getMessage().contains(
                     "Cannot find a parent with name '[Store].[USA].[CA]"
-                    + ".[Baconville]' for calculated member 'SF and LA'"
-                    + " in cube 'Sales'"));
+                        + ".[Baconville]' for calculated member 'SF and LA'"
+                        + " in cube 'Sales'"));
         }
 
         // test where parent is not in same hierarchy as hierarchy. should fail
@@ -9678,22 +9712,22 @@ class SchemaTest {
                     + "</CalculatedMember>",
                     null, false));
              */
-            ((TestContext)context).setCatalogMappingSupplier(new CatalogSupplier());
+            ((TestContext) context).setCatalogMappingSupplier(new CatalogSupplier());
             withSchemaEmf(context, TestCalcMemberInCubeModifier6Emf::new);
             assertQueryReturns(context.getConnectionWithDefaultRole(),
                 "select {[Store].[Store].[All Stores].[USA].[CA].[SF and LA]} on columns from [Sales]",
                 "Axis #0:\n"
-                + "{}\n"
-                + "Axis #1:\n"
-                + "{[Store].[Store].[Store].[USA].[CA].[SF and LA]}\n"
-                + "Row #0: 27,780\n");
+                    + "{}\n"
+                    + "Axis #1:\n"
+                    + "{[Store].[Store].[Store].[USA].[CA].[SF and LA]}\n"
+                    + "Row #0: 27,780\n");
             fail();
         } catch (OlapRuntimeException e) {
             assertTrue(
                 e.getMessage().contains(
                     "The calculated member 'SF and LA' in cube 'Sales'"
-                    + " is defined for hierarchy '[Store Type].[Store Type]' but its"
-                    + " parent member is not part of that hierarchy"));
+                        + " is defined for hierarchy '[Store Type].[Store Type]' but its"
+                        + " parent member is not part of that hierarchy"));
         }
 
         // test where calc member has no formula (formula attribute or
@@ -9738,15 +9772,15 @@ class SchemaTest {
                     + "</CalculatedMember>",
                     null, false));
              */
-            ((TestContext)context).setCatalogMappingSupplier(new CatalogSupplier());
+            ((TestContext) context).setCatalogMappingSupplier(new CatalogSupplier());
             withSchemaEmf(context, TestCalcMemberInCubeModifier7Emf::new);
             assertQueryReturns(context.getConnectionWithDefaultRole(),
                 "select {[Store].[Store].[All Stores].[USA].[CA].[SF and LA]} on columns from [Sales]",
                 "Axis #0:\n"
-                + "{}\n"
-                + "Axis #1:\n"
-                + "{[Store].[Store].[USA].[CA].[SF and LA]}\n"
-                + "Row #0: 27,780\n");
+                    + "{}\n"
+                    + "Axis #1:\n"
+                    + "{[Store].[Store].[USA].[CA].[SF and LA]}\n"
+                    + "Row #0: 27,780\n");
             fail();
         } catch (OlapRuntimeException e) {
             assertTrue(
@@ -9930,7 +9964,7 @@ class SchemaTest {
                     RolapMappingFactory.eINSTANCE.createCalculatedMember();
                 calculatedMember.setName("SF and LA");
                 calculatedMember.setHierarchy((org.eclipse.daanse.rolap.mapping.model.Hierarchy)
-                        copier.get(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.HIERARCHY_STORE));
+                    copier.get(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.HIERARCHY_STORE));
                 calculatedMember.setParent("[Store].[USA].[CA].[Baconville]");
                 calculatedMember.setFormula("[Store].[USA].[CA].[San Francisco] + [Store].[USA].[CA].[Los Angeles]");
 
@@ -9968,7 +10002,7 @@ class SchemaTest {
                     RolapMappingFactory.eINSTANCE.createCalculatedMember();
                 calculatedMember.setName("SF and LA");
                 calculatedMember.setHierarchy((org.eclipse.daanse.rolap.mapping.model.Hierarchy)
-                        copier.get(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.HIERARCHY_STORE_TYPE));
+                    copier.get(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.HIERARCHY_STORE_TYPE));
                 calculatedMember.setParent("[Store].[Store].[USA].[CA]");
                 calculatedMember.setFormula("[Store].[Store].[USA].[CA].[San Francisco] + [Store].[Store].[USA].[CA].[Los Angeles]");
 
@@ -10006,7 +10040,7 @@ class SchemaTest {
                     RolapMappingFactory.eINSTANCE.createCalculatedMember();
                 calculatedMember.setName("SF and LA");
                 calculatedMember.setHierarchy((org.eclipse.daanse.rolap.mapping.model.Hierarchy)
-                        copier.get(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.HIERARCHY_STORE));
+                    copier.get(org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.HIERARCHY_STORE));
                 calculatedMember.setParent("[Store].[Store].[USA].[CA]");
                 calculatedMember.setFormula("");
 
@@ -10176,26 +10210,26 @@ class SchemaTest {
             withSchemaEmf(context, TestAggTableSupportOfSharedDimsModifierEmf::new);
             assertQueryReturns(context.getConnectionWithDefaultRole(),
                 "select\n"
-                + " {[Time2].[1997]} on columns,\n"
-                + " {[Time].[1997].[Q3]} on rows\n"
-                + "From [Sales Two Dimensions]",
+                    + " {[Time2].[1997]} on columns,\n"
+                    + " {[Time].[1997].[Q3]} on rows\n"
+                    + "From [Sales Two Dimensions]",
                 "Axis #0:\n"
-                + "{}\n"
-                + "Axis #1:\n"
-                + "{[Time2].[1997]}\n"
-                + "Axis #2:\n"
-                + "{[Time].[1997].[Q3]}\n"
-                + "Row #0: 16,266\n");
+                    + "{}\n"
+                    + "Axis #1:\n"
+                    + "{[Time2].[1997]}\n"
+                    + "Axis #2:\n"
+                    + "{[Time].[1997].[Q3]}\n"
+                    + "Row #0: 16,266\n");
 
             SystemWideProperties props = SystemWideProperties.instance();
 
             // turn off caching
-            ((TestContextImpl)context).setDisableCaching(true);
+            ((TestContextImpl) context).setDisableCaching(true);
 
             // re-read aggregates
-            ((TestContextImpl)context).setUseAggregates(true);
-            ((TestContextImpl)context).setReadAggregates(false);
-            ((TestContextImpl)context).setReadAggregates(true);
+            ((TestContextImpl) context).setUseAggregates(true);
+            ((TestContextImpl) context).setReadAggregates(false);
+            ((TestContextImpl) context).setReadAggregates(true);
 
             // force reloading of aggregates, which currently throws an
             // exception
@@ -10241,11 +10275,11 @@ class SchemaTest {
 
             // Create SqlSelectQuery (View) using RolapMappingFactory
             org.eclipse.daanse.rolap.mapping.model.SqlView sqlView =
-                    RolapMappingFactory.eINSTANCE.createSqlView();
-                sqlView.getColumns().add(genderColumn);
-                sqlView.getColumns().add(customerIdColumn);
-                sqlView.getSqlStatements().add(sqlStatementGeneric);
-                sqlView.getSqlStatements().add(sqlStatementOther);
+                RolapMappingFactory.eINSTANCE.createSqlView();
+            sqlView.getColumns().add(genderColumn);
+            sqlView.getColumns().add(customerIdColumn);
+            sqlView.getSqlStatements().add(sqlStatementGeneric);
+            sqlView.getSqlStatements().add(sqlStatementOther);
 
             SqlSelectQuery sqlSelectQuery = RolapMappingFactory.eINSTANCE.createSqlSelectQuery();
             sqlSelectQuery.setAlias("customer");
@@ -10470,8 +10504,8 @@ class SchemaTest {
 
         assertEqualsVerbose(
             "[Gender2].[Gender2].[All Gender]\n"
-            + "[Gender2].[Gender2].[F]\n"
-            + "[Gender2].[Gender2].[M]",
+                + "[Gender2].[Gender2].[F]\n"
+                + "[Gender2].[Gender2].[M]",
             TestUtil.toString(
                 result.getAxes()[0].getPositions()));
     }
@@ -10727,12 +10761,12 @@ class SchemaTest {
         withSchemaEmf(context, TestAllMemberNoStringReplaceModifierEmf::new);
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select [TIME].[CALENDAR].[All TIME(CALENDAR)] on columns\n"
-            + "from [Sales Special Time]",
+                + "from [Sales Special Time]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[TIME].[CALENDAR].[All TIME(CALENDAR)]}\n"
-            + "Row #0: 266,773\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[TIME].[CALENDAR].[All TIME(CALENDAR)]}\n"
+                + "Row #0: 266,773\n");
     }
 
     class TestUnionRoleModifierEmf implements CatalogMappingSupplier {
@@ -10854,11 +10888,11 @@ class SchemaTest {
         withSchema(context, schema);
          */
         withSchemaEmf(context, TestUnionRoleModifierEmf::new);
-        assertQueryReturns(((TestContext)context).getConnection(new ConnectionProps(List.of("Role1Plus2Plus1"))),
+        assertQueryReturns(((TestContext) context).getConnection(new ConnectionProps(List.of("Role1Plus2Plus1"))),
             "select from [Sales]",
             "Axis #0:\n"
-            + "{}\n"
-            + "266,773");
+                + "{}\n"
+                + "266,773");
     }
 
     class TestUnionRoleContainsGrantsModifierEmf implements CatalogMappingSupplier {
@@ -11002,7 +11036,8 @@ class SchemaTest {
         }
     }
 
-    @Disabled // Disabled role now as reference to role not a string. we not aable set wrong string role. this test will delete in future
+    @Disabled
+    // Disabled role now as reference to role not a string. we not aable set wrong string role. this test will delete in future
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testUnionRoleIllegalForwardRef(Context<?> context) {
@@ -11119,38 +11154,38 @@ class SchemaTest {
         withSchemaEmf(context, TestVirtualCubeNamedSetSupportInSchemaModifierEmf::new);
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "WITH "
-            + "SET [Non CA State Stores] AS 'EXCEPT({[Store].[Store Country].[USA].children},"
-            + "{[Store].[Store Country].[USA].[CA]})'\n"
-            + "MEMBER "
-            + "[Store].[Total Non CA State] AS \n"
-            + "'SUM({[Non CA State Stores]})'\n"
-            + "SELECT {[Store].[Store Country].[USA],[Store].[Total Non CA State]} ON 0,"
-            + "{[Measures].[Unit Sales]} ON 1 FROM [Sales]",
+                + "SET [Non CA State Stores] AS 'EXCEPT({[Store].[Store Country].[USA].children},"
+                + "{[Store].[Store Country].[USA].[CA]})'\n"
+                + "MEMBER "
+                + "[Store].[Total Non CA State] AS \n"
+                + "'SUM({[Non CA State Stores]})'\n"
+                + "SELECT {[Store].[Store Country].[USA],[Store].[Total Non CA State]} ON 0,"
+                + "{[Measures].[Unit Sales]} ON 1 FROM [Sales]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Store].[Store].[USA]}\n"
-            + "{[Store].[Store].[Total Non CA State]}\n"
-            + "Axis #2:\n"
-            + "{[Measures].[Unit Sales]}\n"
-            + "Row #0: 266,773\n"
-            + "Row #0: 192,025\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Store].[Store].[USA]}\n"
+                + "{[Store].[Store].[Total Non CA State]}\n"
+                + "Axis #2:\n"
+                + "{[Measures].[Unit Sales]}\n"
+                + "Row #0: 266,773\n"
+                + "Row #0: 192,025\n");
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "WITH "
-            + "MEMBER "
-            + "[Store].[Total Non CA State] AS \n"
-            + "'SUM({[Non CA State Stores]})'\n"
-            + "SELECT {[Store].[Store Country].[USA],[Store].[Total Non CA State]} ON 0,"
-            + "{[Measures].[Unit Sales]} ON 1 FROM [Warehouse and Sales]",
+                + "MEMBER "
+                + "[Store].[Total Non CA State] AS \n"
+                + "'SUM({[Non CA State Stores]})'\n"
+                + "SELECT {[Store].[Store Country].[USA],[Store].[Total Non CA State]} ON 0,"
+                + "{[Measures].[Unit Sales]} ON 1 FROM [Warehouse and Sales]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Store].[Store].[USA]}\n"
-            + "{[Store].[Store].[Total Non CA State]}\n"
-            + "Axis #2:\n"
-            + "{[Measures].[Unit Sales]}\n"
-            + "Row #0: 266,773\n"
-            + "Row #0: 192,025\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Store].[Store].[USA]}\n"
+                + "{[Store].[Store].[Total Non CA State]}\n"
+                + "Axis #2:\n"
+                + "{[Measures].[Unit Sales]}\n"
+                + "Row #0: 266,773\n"
+                + "Row #0: 192,025\n");
     }
 
     class TestVirtualCubeNamedSetSupportInSchemaErrorModifierEmf implements CatalogMappingSupplier {
@@ -11219,22 +11254,22 @@ class SchemaTest {
             withSchemaEmf(context, TestVirtualCubeNamedSetSupportInSchemaErrorModifierEmf::new);
             assertQueryReturns(context.getConnectionWithDefaultRole(),
                 "WITH "
-                + "SET [Non CA State Stores] AS 'EXCEPT({[Store].[Store Country].[USA].children},"
-                + "{[Store].[Store Country].[USA].[CA]})'\n"
-                + "MEMBER "
-                + "[Store].[Total Non CA State] AS \n"
-                + "'SUM({[Non CA State Stores]})'\n"
-                + "SELECT {[Store].[Store Country].[USA],[Store].[Total Non CA State]} ON 0,"
-                + "{[Measures].[Unit Sales]} ON 1 FROM [Sales]",
+                    + "SET [Non CA State Stores] AS 'EXCEPT({[Store].[Store Country].[USA].children},"
+                    + "{[Store].[Store Country].[USA].[CA]})'\n"
+                    + "MEMBER "
+                    + "[Store].[Total Non CA State] AS \n"
+                    + "'SUM({[Non CA State Stores]})'\n"
+                    + "SELECT {[Store].[Store Country].[USA],[Store].[Total Non CA State]} ON 0,"
+                    + "{[Measures].[Unit Sales]} ON 1 FROM [Sales]",
                 "Axis #0:\n"
-                + "{}\n"
-                + "Axis #1:\n"
-                + "{[Store].[USA]}\n"
-                + "{[Store].[Total Non CA State]}\n"
-                + "Axis #2:\n"
-                + "{[Measures].[Unit Sales]}\n"
-                + "Row #0: 266,773\n"
-                + "Row #0: 192,025\n");
+                    + "{}\n"
+                    + "Axis #1:\n"
+                    + "{[Store].[USA]}\n"
+                    + "{[Store].[Total Non CA State]}\n"
+                    + "Axis #2:\n"
+                    + "{[Measures].[Unit Sales]}\n"
+                    + "Row #0: 266,773\n"
+                    + "Row #0: 192,025\n");
             fail();
         } catch (OlapRuntimeException e) {
             assertTrue(e.getMessage().indexOf("bad formula") >= 0);
@@ -11379,7 +11414,8 @@ class SchemaTest {
         }
     }
 
-    @Disabled // Disabled role now as reference to role not a string. we not aable set wrong string role. this test will delete in future
+    @Disabled
+    // Disabled role now as reference to role not a string. we not aable set wrong string role. this test will delete in future
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testInvalidRoleError(Context<?> context) {
@@ -11408,11 +11444,10 @@ class SchemaTest {
          */
         withSchemaEmf(context, TestInvalidRoleErrorModifierEmf::new);
         try {
-        	TestUtil.getSchemaWarnings(context);
-        	fail("should be exception with \"Role 'Unknown'\" ");
-        }
-        catch (Exception e) {
-        	assertTrue(e.getMessage().contains("Role 'Unknown' not found"));
+            TestUtil.getSchemaWarnings(context);
+            fail("should be exception with \"Role 'Unknown'\" ");
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("Role 'Unknown' not found"));
         }
     }
 
@@ -11584,15 +11619,15 @@ class SchemaTest {
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testBinaryLevelKey(Context<?> context) {
         switch (getDatabaseProduct(getDialect(context.getConnectionWithDefaultRole()).getDialectName())) {
-        case DERBY:
-        case MARIADB:
-        case MYSQL:
-            break;
-        default:
-            // Not all databases support binary literals (e.g. X'AB01'). Only
-            // Derby returns them as byte[] values from its JDBC driver and
-            // therefore experiences bug MONDRIAN-413.
-            return;
+            case DERBY:
+            case MARIADB:
+            case MYSQL:
+                break;
+            default:
+                // Not all databases support binary literals (e.g. X'AB01'). Only
+                // Derby returns them as byte[] values from its JDBC driver and
+                // therefore experiences bug MONDRIAN-413.
+                return;
         }
         /*
         class TestBinaryLevelKeyModifier extends PojoMappingModifier {
@@ -11701,33 +11736,33 @@ class SchemaTest {
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select {[Binary].members} on 0 from [Sales]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Binary].[Binary].[Ben]}\n"
-            + "{[Binary].[Binary].[Ben].[2]}\n"
-            + "{[Binary].[Binary].[Bill]}\n"
-            + "{[Binary].[Binary].[Bill].[3]}\n"
-            + "{[Binary].[Binary].[Bill].[4]}\n"
-            + "Row #0: \n"
-            + "Row #0: \n"
-            + "Row #0: \n"
-            + "Row #0: \n"
-            + "Row #0: \n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Binary].[Binary].[Ben]}\n"
+                + "{[Binary].[Binary].[Ben].[2]}\n"
+                + "{[Binary].[Binary].[Bill]}\n"
+                + "{[Binary].[Binary].[Bill].[3]}\n"
+                + "{[Binary].[Binary].[Bill].[4]}\n"
+                + "Row #0: \n"
+                + "Row #0: \n"
+                + "Row #0: \n"
+                + "Row #0: \n"
+                + "Row #0: \n");
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select hierarchize({[Binary].members}) on 0 from [Sales]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Binary].[Binary].[Ben]}\n"
-            + "{[Binary].[Binary].[Ben].[2]}\n"
-            + "{[Binary].[Binary].[Bill]}\n"
-            + "{[Binary].[Binary].[Bill].[3]}\n"
-            + "{[Binary].[Binary].[Bill].[4]}\n"
-            + "Row #0: \n"
-            + "Row #0: \n"
-            + "Row #0: \n"
-            + "Row #0: \n"
-            + "Row #0: \n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Binary].[Binary].[Ben]}\n"
+                + "{[Binary].[Binary].[Ben].[2]}\n"
+                + "{[Binary].[Binary].[Bill]}\n"
+                + "{[Binary].[Binary].[Bill].[3]}\n"
+                + "{[Binary].[Binary].[Bill].[4]}\n"
+                + "Row #0: \n"
+                + "Row #0: \n"
+                + "Row #0: \n"
+                + "Row #0: \n"
+                + "Row #0: \n");
     }
 
     class TestLevelInternalTypeModifierEmf implements CatalogMappingSupplier {
@@ -11975,16 +12010,16 @@ class SchemaTest {
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select {[Big numbers].members} on 0 from [Sales]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Big numbers].[Big numbers].[1234]}\n"
-            + "{[Big numbers].[Big numbers].[1234].[0]}\n"
-            + "{[Big numbers].[Big numbers].[1.234567890123E12]}\n"
-            + "{[Big numbers].[Big numbers].[1.234567890123E12].[519]}\n"
-            + "Row #0: 195,448\n"
-            + "Row #0: 195,448\n"
-            + "Row #0: 739\n"
-            + "Row #0: 739\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Big numbers].[Big numbers].[1234]}\n"
+                + "{[Big numbers].[Big numbers].[1234].[0]}\n"
+                + "{[Big numbers].[Big numbers].[1.234567890123E12]}\n"
+                + "{[Big numbers].[Big numbers].[1.234567890123E12].[519]}\n"
+                + "Row #0: 195,448\n"
+                + "Row #0: 195,448\n"
+                + "Row #0: 739\n"
+                + "Row #0: 739\n");
     }
 
     class TestLevelInternalTypeErrModifierEmf implements CatalogMappingSupplier {
@@ -12106,7 +12141,7 @@ class SchemaTest {
      */
     @Disabled // level internalTypedoesn't support now
     @ParameterizedTest
-    @DisabledIfSystemProperty(named = "tempIgnoreStrageTests",matches = "true")
+    @DisabledIfSystemProperty(named = "tempIgnoreStrageTests", matches = "true")
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testLevelInternalTypeErr(Context<?> context) {
         /*
@@ -12197,8 +12232,8 @@ class SchemaTest {
         withSchemaEmf(context, TestLevelInternalTypeErrModifierEmf::new);
         assertQueryThrows(context,
             "select {[Big numbers].members} on 0 from [Sales]",
-        		"Illegal value 'char'.  Legal values: {int, long, Object, String}");
-            //"In Schema: In Cube: In Dimension: In Hierarchy: In Level: Value 'char' of attribute 'internalType' has illegal value 'char'.  Legal values: {int, long, Object, String}");
+            "Illegal value 'char'.  Legal values: {int, long, Object, String}");
+        //"In Schema: In Cube: In Dimension: In Hierarchy: In Level: Value 'char' of attribute 'internalType' has illegal value 'char'.  Legal values: {int, long, Object, String}");
     }
 
     @Disabled // Adventure Works schema not found
@@ -12209,34 +12244,34 @@ class SchemaTest {
         // TODO: schema syntax to create attribute hierarchy
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "WITH \n"
-            + " MEMBER\n"
-            + "  Measures.SalesPerWorkingDay AS \n"
-            + "    IIF(\n"
-            + "     Count(\n"
-            + "      Filter(\n"
-            + "        Descendants(\n"
-            + "          [Date].[Calendar].CurrentMember\n"
-            + "          ,[Date].[Calendar].[Date]\n"
-            + "          ,SELF)\n"
-            + "       ,  [Date].[Day of Week].CurrentMember.Name <> \"1\"\n"
-            + "      )\n"
-            + "    ) = 0\n"
-            + "     ,NULL\n"
-            + "     ,[Measures].[Internet Sales Amount]\n"
-            + "      /\n"
-            + "       Count(\n"
-            + "         Filter(\n"
-            + "           Descendants(\n"
-            + "             [Date].[Calendar].CurrentMember\n"
-            + "             ,[Date].[Calendar].[Date]\n"
-            + "             ,SELF)\n"
-            + "          ,  [Date].[Day of Week].CurrentMember.Name <> \"1\"\n"
-            + "         )\n"
-            + "       )\n"
-            + "    )\n"
-            + "SELECT [Measures].[SalesPerWorkingDay] ON 0\n"
-            + ", [Date].[Calendar].[Month].MEMBERS ON 1\n"
-            + "FROM [Adventure Works]",
+                + " MEMBER\n"
+                + "  Measures.SalesPerWorkingDay AS \n"
+                + "    IIF(\n"
+                + "     Count(\n"
+                + "      Filter(\n"
+                + "        Descendants(\n"
+                + "          [Date].[Calendar].CurrentMember\n"
+                + "          ,[Date].[Calendar].[Date]\n"
+                + "          ,SELF)\n"
+                + "       ,  [Date].[Day of Week].CurrentMember.Name <> \"1\"\n"
+                + "      )\n"
+                + "    ) = 0\n"
+                + "     ,NULL\n"
+                + "     ,[Measures].[Internet Sales Amount]\n"
+                + "      /\n"
+                + "       Count(\n"
+                + "         Filter(\n"
+                + "           Descendants(\n"
+                + "             [Date].[Calendar].CurrentMember\n"
+                + "             ,[Date].[Calendar].[Date]\n"
+                + "             ,SELF)\n"
+                + "          ,  [Date].[Day of Week].CurrentMember.Name <> \"1\"\n"
+                + "         )\n"
+                + "       )\n"
+                + "    )\n"
+                + "SELECT [Measures].[SalesPerWorkingDay] ON 0\n"
+                + ", [Date].[Calendar].[Month].MEMBERS ON 1\n"
+                + "FROM [Adventure Works]",
             "x");
     }
 
@@ -12389,19 +12424,19 @@ class SchemaTest {
         withSchemaEmf(context, TestScdJoinModifierEmf::new);
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select non empty {[Measures].[Unit Sales]} on 0,\n"
-            + " non empty Filter({[Product truncated].Members}, [Measures].[Unit Sales] > 10000) on 1\n"
-            + "from [Sales]",
+                + " non empty Filter({[Product truncated].Members}, [Measures].[Unit Sales] > 10000) on 1\n"
+                + "from [Sales]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Measures].[Unit Sales]}\n"
-            + "Axis #2:\n"
-            + "{[Product truncated].[Product truncated].[All Product truncateds]}\n"
-            + "{[Product truncated].[Product truncated].[Fresh Vegetables]}\n"
-            + "{[Product truncated].[Product truncated].[Fresh Fruit]}\n"
-            + "Row #0: 266,773\n"
-            + "Row #1: 20,739\n"
-            + "Row #2: 11,767\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Measures].[Unit Sales]}\n"
+                + "Axis #2:\n"
+                + "{[Product truncated].[Product truncated].[All Product truncateds]}\n"
+                + "{[Product truncated].[Product truncated].[Fresh Vegetables]}\n"
+                + "{[Product truncated].[Product truncated].[Fresh Fruit]}\n"
+                + "Row #0: 266,773\n"
+                + "Row #1: 20,739\n"
+                + "Row #2: 11,767\n");
     }
 
     class TestNonUniqueAliasModifierEmf implements CatalogMappingSupplier {
@@ -12658,14 +12693,13 @@ class SchemaTest {
         // dialects." is fixed, this test case only works on MySQL
         if (!Bug.Bug495Fixed
             && getDatabaseProduct(getDialect(context.getConnectionWithDefaultRole()).getDialectName())
-            != MYSQL)
-        {
+            != MYSQL) {
             return;
         }
 
         // skip this test if using aggregates, the agg tables do not
         // enforce the SQL element in the fact table
-        if (context.getConfigValue(ConfigConstants.USE_AGGREGATES, ConfigConstants.USE_AGGREGATES_DEFAULT_VALUE ,Boolean.class)) {
+        if (context.getConfigValue(ConfigConstants.USE_AGGREGATES, ConfigConstants.USE_AGGREGATES_DEFAULT_VALUE, Boolean.class)) {
             return;
         }
         /*
@@ -12756,43 +12790,43 @@ class SchemaTest {
         // cache
         String query1 =
             "WITH SET [#DataSet#] as "
-            + "'NonEmptyCrossjoin({[Product].[All Products]}, {[Store].[All Stores].[USA].Children})' "
-            + "SELECT {[Measures].[Unit Sales]} on columns, "
-            + "NON EMPTY Hierarchize({[#DataSet#]}) on rows FROM [Sales2]";
+                + "'NonEmptyCrossjoin({[Product].[All Products]}, {[Store].[All Stores].[USA].Children})' "
+                + "SELECT {[Measures].[Unit Sales]} on columns, "
+                + "NON EMPTY Hierarchize({[#DataSet#]}) on rows FROM [Sales2]";
 
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             query1,
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Measures].[Unit Sales]}\n"
-            + "Axis #2:\n"
-            + "{[Product].[Product].[All Products], [Store].[Store].[USA].[CA]}\n"
-            + "Row #0: 74,748\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Measures].[Unit Sales]}\n"
+                + "Axis #2:\n"
+                + "{[Product].[Product].[All Products], [Store].[Store].[USA].[CA]}\n"
+                + "Row #0: 74,748\n");
 
         // Now query the children of CA using the descendants function
         // This is where the ClassCastException occurs
         String query2 =
             "WITH SET [#DataSet#] as "
-            + "'{Descendants([Store].[Store].[All Stores], 3)}' "
-            + "SELECT {[Measures].[Unit Sales]} on columns, "
-            + "NON EMPTY Hierarchize({[#DataSet#]}) on rows FROM [Sales2]";
+                + "'{Descendants([Store].[Store].[All Stores], 3)}' "
+                + "SELECT {[Measures].[Unit Sales]} on columns, "
+                + "NON EMPTY Hierarchize({[#DataSet#]}) on rows FROM [Sales2]";
 
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             query2,
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Measures].[Unit Sales]}\n"
-            + "Axis #2:\n"
-            + "{[Store].[Store].[USA].[CA].[Beverly Hills]}\n"
-            + "{[Store].[Store].[USA].[CA].[Los Angeles]}\n"
-            + "{[Store].[Store].[USA].[CA].[San Diego]}\n"
-            + "{[Store].[Store].[USA].[CA].[San Francisco]}\n"
-            + "Row #0: 21,333\n"
-            + "Row #1: 25,663\n"
-            + "Row #2: 25,635\n"
-            + "Row #3: 2,117\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Measures].[Unit Sales]}\n"
+                + "Axis #2:\n"
+                + "{[Store].[Store].[USA].[CA].[Beverly Hills]}\n"
+                + "{[Store].[Store].[USA].[CA].[Los Angeles]}\n"
+                + "{[Store].[Store].[USA].[CA].[San Diego]}\n"
+                + "{[Store].[Store].[USA].[CA].[San Francisco]}\n"
+                + "Row #0: 21,333\n"
+                + "Row #1: 25,663\n"
+                + "Row #2: 25,635\n"
+                + "Row #3: 2,117\n");
     }
 
     /**
@@ -12803,15 +12837,15 @@ class SchemaTest {
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testBugMondrian355(Context<?> context) {
-    	context.getCatalogCache().clear();
+        context.getCatalogCache().clear();
         checkBugMondrian355(context, "TIME_HALF_YEARS");
-        ((TestContext)context).setCatalogMappingSupplier(new CatalogSupplier());
+        ((TestContext) context).setCatalogMappingSupplier(new CatalogSupplier());
         // make sure that the deprecated name still works
         checkBugMondrian355(context, "TIME_HALF_YEARS");
     }
 
     public void checkBugMondrian355(Context<?> context, String timeHalfYear) {
-    	context.getCatalogCache().clear();
+        context.getCatalogCache().clear();
     	/*
         class CheckBugMondrian355Modifier1 extends PojoMappingModifier {
             public CheckBugMondrian355Modifier1(CatalogMapping catalog) {
@@ -13081,16 +13115,16 @@ class SchemaTest {
         withSchemaEmf(context, CheckBugMondrian355Modifier1Emf::new);
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select Head([Time2].[Quarter hours].Members, 3) on columns\n"
-            + "from [Sales]",
+                + "from [Sales]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Time2].[Time2].[1997].[Q1].[1].[367]}\n"
-            + "{[Time2].[Time2].[1997].[Q1].[1].[368]}\n"
-            + "{[Time2].[Time2].[1997].[Q1].[1].[369]}\n"
-            + "Row #0: 348\n"
-            + "Row #0: 635\n"
-            + "Row #0: 589\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Time2].[Time2].[1997].[Q1].[1].[367]}\n"
+                + "{[Time2].[Time2].[1997].[Q1].[1].[368]}\n"
+                + "{[Time2].[Time2].[1997].[Q1].[1].[369]}\n"
+                + "Row #0: 348\n"
+                + "Row #0: 635\n"
+                + "Row #0: 589\n");
 
         // Check that can apply ParallelPeriod to a TimeUndefined level.
         Connection connection = context.getConnectionWithDefaultRole();
@@ -13101,7 +13135,7 @@ class SchemaTest {
         assertAxisReturns(connection, "Sales",
             "PeriodsToDate([Time2].[Half year], [Time2].[1997].[Q1].[1].[368])",
             "[Time2].[Time2].[1997].[Q1].[1].[367]\n"
-            + "[Time2].[Time2].[1997].[Q1].[1].[368]");
+                + "[Time2].[Time2].[1997].[Q1].[1].[368]");
         // Check that get an error if give invalid level type
         try {
             /*
@@ -13109,16 +13143,16 @@ class SchemaTest {
                     "Sales",
                 xml.replace("TimeUndefined", "TimeUnspecified"), false));
             */
-        	withSchemaEmf(context, CheckBugMondrian355Modifier2Emf::new);
+            withSchemaEmf(context, CheckBugMondrian355Modifier2Emf::new);
             assertSimpleQuery(context.getConnectionWithDefaultRole());
             fail("expected error");
         } catch (Throwable e) {
             //((TestContext)context).setDatabaseMappingSchemaProviders(
-        	//		List.of(provider));
+            //		List.of(provider));
             checkThrowable(
                 e,
-           		"level-type must be  'Regular', 'TimeYears', 'TimeHalfYears', 'TimeHalfYear', 'TimeQuarters', 'TimeMonths', 'TimeWeeks', 'TimeDays', 'TimeHours', 'TimeMinutes', 'TimeSeconds', 'TimeUndefined'.");
-                //"Mondrian Error:Level '[Time2].[Quarter hours]' belongs to a time hierarchy, so its level-type must be  'Regular', 'TimeYears', 'TimeHalfYears', 'TimeHalfYear', 'TimeQuarters', 'TimeMonths', 'TimeWeeks', 'TimeDays', 'TimeHours', 'TimeMinutes', 'TimeSeconds', 'TimeUndefined'.");
+                "level-type must be  'Regular', 'TimeYears', 'TimeHalfYears', 'TimeHalfYear', 'TimeQuarters', 'TimeMonths', 'TimeWeeks', 'TimeDays', 'TimeHours', 'TimeMinutes', 'TimeSeconds', 'TimeUndefined'.");
+            //"Mondrian Error:Level '[Time2].[Quarter hours]' belongs to a time hierarchy, so its level-type must be  'Regular', 'TimeYears', 'TimeHalfYears', 'TimeHalfYear', 'TimeQuarters', 'TimeMonths', 'TimeWeeks', 'TimeDays', 'TimeHours', 'TimeMinutes', 'TimeSeconds', 'TimeUndefined'.");
         }
     }
 
@@ -13742,7 +13776,7 @@ class SchemaTest {
                 calcMember.getAnnotations().add(calcMemberAnnotation);
 
                 org.eclipse.daanse.rolap.mapping.model.CalculatedMemberProperty calcMemberProperty =
-                        RolapMappingFactory.eINSTANCE.createCalculatedMemberProperty();
+                    RolapMappingFactory.eINSTANCE.createCalculatedMemberProperty();
                 calcMemberProperty.setName("FORMAT_STRING");
                 calcMemberProperty.setValue("$#,##0.00");
                 calcMember.getCalculatedMemberProperties().add(calcMemberProperty);
@@ -14198,17 +14232,16 @@ class SchemaTest {
 
     private static void checkAnnotations(
         MetaData metaData,
-        String... nameVal)
-    {
+        String... nameVal) {
         assertNotNull(metaData);
         assertEquals(0, nameVal.length % 2);
         assertEquals(nameVal.length / 2, metaData.size());
         int i = 0;
         for (int j = 0; j < metaData.size(); j++) {
-            String key=nameVal[i++];
-            String val=nameVal[i++];
+            String key = nameVal[i++];
+            String val = nameVal[i++];
             assertEquals(val, metaData.get(key));
-         }
+        }
     }
 
     @ParameterizedTest
@@ -14341,19 +14374,19 @@ class SchemaTest {
 
 
         switch (getDatabaseProduct(getDialect(context.getConnectionWithDefaultRole()).getDialectName())) {
-        case POSTGRES:
-            // Postgres fails with:
-            //   Internal error: while building member cache; sql=[select
-            //     "customer"."gender" as "c0", 'foobar' as "c1" from "customer"
-            //     as "customer" group by "customer"."gender", 'foobar' order by
-            //     "customer"."\ gender" ASC NULLS LAST]
-            //   Caused by: org.postgresql.util.PSQLException: ERROR:
-            //     non-integer constant in GROUP BY
-            //
-            // It's difficult for mondrian to spot that it's been given a
-            // constant expression. We can live with this bug. Postgres
-            // shouldn't be so picky, and people shouldn't be so daft.
-            return;
+            case POSTGRES:
+                // Postgres fails with:
+                //   Internal error: while building member cache; sql=[select
+                //     "customer"."gender" as "c0", 'foobar' as "c1" from "customer"
+                //     as "customer" group by "customer"."gender", 'foobar' order by
+                //     "customer"."\ gender" ASC NULLS LAST]
+                //   Caused by: org.postgresql.util.PSQLException: ERROR:
+                //     non-integer constant in GROUP BY
+                //
+                // It's difficult for mondrian to spot that it's been given a
+                // constant expression. We can live with this bug. Postgres
+                // shouldn't be so picky, and people shouldn't be so daft.
+                return;
         }
         Result result = executeQuery(context.getConnectionWithDefaultRole(),
             "select {[Gender2].Children} on columns from [Sales]");
@@ -14371,9 +14404,8 @@ class SchemaTest {
         }
 
         @Override
-		public String format(
-            Member member, Property propertyName, Object propertyValue)
-        {
+        public String format(
+            Member member, Property propertyName, Object propertyValue) {
             return null;
         }
     }
@@ -14391,10 +14423,10 @@ class SchemaTest {
         // that scalar subqery, viz oracle. I believe that the mondrian code
         // being works in all dialects.
         switch (getDatabaseProduct(getDialect(context.getConnectionWithDefaultRole()).getDialectName())) {
-        case ORACLE:
-            break;
-        default:
-            return;
+            case ORACLE:
+                break;
+            default:
+                return;
         }
         /*
         class TestBugMondrian747Modifier extends PojoMappingModifier {
@@ -14856,8 +14888,7 @@ class SchemaTest {
         */
 
         if (!Bug.Bug747Fixed
-            && context.getConfigValue(ConfigConstants.ENABLE_GROUPING_SETS, ConfigConstants.ENABLE_GROUPING_SETS_DEFAULT_VALUE, Boolean.class))
-        {
+            && context.getConfigValue(ConfigConstants.ENABLE_GROUPING_SETS, ConfigConstants.ENABLE_GROUPING_SETS_DEFAULT_VALUE, Boolean.class)) {
             // With grouping sets enabled, MONDRIAN-747 behavior is even worse.
             return;
         }
@@ -14872,134 +14903,134 @@ class SchemaTest {
             : "266,773";
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select non empty {[Measures].[unitsales2]} on 0,\n"
-            + " non empty [Store].members on 1\n"
-            + "from [cube2]",
+                + " non empty [Store].members on 1\n"
+                + "from [cube2]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Measures].[unitsales2]}\n"
-            + "Axis #2:\n"
-            + "{[Store].[All Stores]}\n"
-            + "{[Store].[USA]}\n"
-            + "{[Store].[USA].[CA]}\n"
-            + "{[Store].[USA].[OR]}\n"
-            + "{[Store].[USA].[WA]}\n"
-            + "Row #0: 266,773\n"
-            + "Row #1: " + x + "\n"
-            + "Row #2: 373,740\n"
-            + "Row #3: 135,318\n"
-            + "Row #4: 870,562\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Measures].[unitsales2]}\n"
+                + "Axis #2:\n"
+                + "{[Store].[All Stores]}\n"
+                + "{[Store].[USA]}\n"
+                + "{[Store].[USA].[CA]}\n"
+                + "{[Store].[USA].[OR]}\n"
+                + "{[Store].[USA].[WA]}\n"
+                + "Row #0: 266,773\n"
+                + "Row #1: " + x + "\n"
+                + "Row #2: 373,740\n"
+                + "Row #3: 135,318\n"
+                + "Row #4: 870,562\n");
 
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select non empty {[Measures].[unitsales1]} on 0,\n"
-            + " non empty [Store].members on 1\n"
-            + "from [cube1]",
+                + " non empty [Store].members on 1\n"
+                + "from [cube1]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Measures].[unitsales1]}\n"
-            + "Axis #2:\n"
-            + "{[Store].[All Stores]}\n"
-            + "{[Store].[USA]}\n"
-            + "{[Store].[USA].[CA]}\n"
-            + "{[Store].[USA].[CA].[Beverly Hills]}\n"
-            + "{[Store].[USA].[CA].[Los Angeles]}\n"
-            + "{[Store].[USA].[CA].[San Diego]}\n"
-            + "{[Store].[USA].[CA].[San Francisco]}\n"
-            + "{[Store].[USA].[OR]}\n"
-            + "{[Store].[USA].[OR].[Portland]}\n"
-            + "{[Store].[USA].[OR].[Salem]}\n"
-            + "{[Store].[USA].[WA]}\n"
-            + "{[Store].[USA].[WA].[Bellingham]}\n"
-            + "{[Store].[USA].[WA].[Bremerton]}\n"
-            + "{[Store].[USA].[WA].[Seattle]}\n"
-            + "{[Store].[USA].[WA].[Spokane]}\n"
-            + "{[Store].[USA].[WA].[Tacoma]}\n"
-            + "{[Store].[USA].[WA].[Walla Walla]}\n"
-            + "{[Store].[USA].[WA].[Yakima]}\n"
-            + "Row #0: 266,773\n"
-            + "Row #1: 266,773\n"
-            + "Row #2: 74,748\n"
-            + "Row #3: 21,333\n"
-            + "Row #4: 25,663\n"
-            + "Row #5: 25,635\n"
-            + "Row #6: 2,117\n"
-            + "Row #7: 67,659\n"
-            + "Row #8: 26,079\n"
-            + "Row #9: 41,580\n"
-            + "Row #10: 124,366\n"
-            + "Row #11: 2,237\n"
-            + "Row #12: 24,576\n"
-            + "Row #13: 25,011\n"
-            + "Row #14: 23,591\n"
-            + "Row #15: 35,257\n"
-            + "Row #16: 2,203\n"
-            + "Row #17: 11,491\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Measures].[unitsales1]}\n"
+                + "Axis #2:\n"
+                + "{[Store].[All Stores]}\n"
+                + "{[Store].[USA]}\n"
+                + "{[Store].[USA].[CA]}\n"
+                + "{[Store].[USA].[CA].[Beverly Hills]}\n"
+                + "{[Store].[USA].[CA].[Los Angeles]}\n"
+                + "{[Store].[USA].[CA].[San Diego]}\n"
+                + "{[Store].[USA].[CA].[San Francisco]}\n"
+                + "{[Store].[USA].[OR]}\n"
+                + "{[Store].[USA].[OR].[Portland]}\n"
+                + "{[Store].[USA].[OR].[Salem]}\n"
+                + "{[Store].[USA].[WA]}\n"
+                + "{[Store].[USA].[WA].[Bellingham]}\n"
+                + "{[Store].[USA].[WA].[Bremerton]}\n"
+                + "{[Store].[USA].[WA].[Seattle]}\n"
+                + "{[Store].[USA].[WA].[Spokane]}\n"
+                + "{[Store].[USA].[WA].[Tacoma]}\n"
+                + "{[Store].[USA].[WA].[Walla Walla]}\n"
+                + "{[Store].[USA].[WA].[Yakima]}\n"
+                + "Row #0: 266,773\n"
+                + "Row #1: 266,773\n"
+                + "Row #2: 74,748\n"
+                + "Row #3: 21,333\n"
+                + "Row #4: 25,663\n"
+                + "Row #5: 25,635\n"
+                + "Row #6: 2,117\n"
+                + "Row #7: 67,659\n"
+                + "Row #8: 26,079\n"
+                + "Row #9: 41,580\n"
+                + "Row #10: 124,366\n"
+                + "Row #11: 2,237\n"
+                + "Row #12: 24,576\n"
+                + "Row #13: 25,011\n"
+                + "Row #14: 23,591\n"
+                + "Row #15: 35,257\n"
+                + "Row #16: 2,203\n"
+                + "Row #17: 11,491\n");
 
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select non empty {[Measures].[unitsales2], [Measures].[unitsales1]} on 0,\n"
-            + " non empty [Store].members on 1\n"
-            + "from [virtual_cube]",
+                + " non empty [Store].members on 1\n"
+                + "from [virtual_cube]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Measures].[unitsales2]}\n"
-            + "{[Measures].[unitsales1]}\n"
-            + "Axis #2:\n"
-            + "{[Store].[All Stores]}\n"
-            + "{[Store].[USA]}\n"
-            + "{[Store].[USA].[CA]}\n"
-            + "{[Store].[USA].[CA].[Beverly Hills]}\n"
-            + "{[Store].[USA].[CA].[Los Angeles]}\n"
-            + "{[Store].[USA].[CA].[San Diego]}\n"
-            + "{[Store].[USA].[CA].[San Francisco]}\n"
-            + "{[Store].[USA].[OR]}\n"
-            + "{[Store].[USA].[OR].[Portland]}\n"
-            + "{[Store].[USA].[OR].[Salem]}\n"
-            + "{[Store].[USA].[WA]}\n"
-            + "{[Store].[USA].[WA].[Bellingham]}\n"
-            + "{[Store].[USA].[WA].[Bremerton]}\n"
-            + "{[Store].[USA].[WA].[Seattle]}\n"
-            + "{[Store].[USA].[WA].[Spokane]}\n"
-            + "{[Store].[USA].[WA].[Tacoma]}\n"
-            + "{[Store].[USA].[WA].[Walla Walla]}\n"
-            + "{[Store].[USA].[WA].[Yakima]}\n"
-            + "Row #0: 266,773\n"
-            + "Row #0: 266,773\n"
-            + "Row #1: 1,379,620\n"
-            + "Row #1: 266,773\n"
-            + "Row #2: 373,740\n"
-            + "Row #2: 74,748\n"
-            + "Row #3: \n"
-            + "Row #3: 21,333\n"
-            + "Row #4: \n"
-            + "Row #4: 25,663\n"
-            + "Row #5: \n"
-            + "Row #5: 25,635\n"
-            + "Row #6: \n"
-            + "Row #6: 2,117\n"
-            + "Row #7: 135,318\n"
-            + "Row #7: 67,659\n"
-            + "Row #8: \n"
-            + "Row #8: 26,079\n"
-            + "Row #9: \n"
-            + "Row #9: 41,580\n"
-            + "Row #10: 870,562\n"
-            + "Row #10: 124,366\n"
-            + "Row #11: \n"
-            + "Row #11: 2,237\n"
-            + "Row #12: \n"
-            + "Row #12: 24,576\n"
-            + "Row #13: \n"
-            + "Row #13: 25,011\n"
-            + "Row #14: \n"
-            + "Row #14: 23,591\n"
-            + "Row #15: \n"
-            + "Row #15: 35,257\n"
-            + "Row #16: \n"
-            + "Row #16: 2,203\n"
-            + "Row #17: \n"
-            + "Row #17: 11,491\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Measures].[unitsales2]}\n"
+                + "{[Measures].[unitsales1]}\n"
+                + "Axis #2:\n"
+                + "{[Store].[All Stores]}\n"
+                + "{[Store].[USA]}\n"
+                + "{[Store].[USA].[CA]}\n"
+                + "{[Store].[USA].[CA].[Beverly Hills]}\n"
+                + "{[Store].[USA].[CA].[Los Angeles]}\n"
+                + "{[Store].[USA].[CA].[San Diego]}\n"
+                + "{[Store].[USA].[CA].[San Francisco]}\n"
+                + "{[Store].[USA].[OR]}\n"
+                + "{[Store].[USA].[OR].[Portland]}\n"
+                + "{[Store].[USA].[OR].[Salem]}\n"
+                + "{[Store].[USA].[WA]}\n"
+                + "{[Store].[USA].[WA].[Bellingham]}\n"
+                + "{[Store].[USA].[WA].[Bremerton]}\n"
+                + "{[Store].[USA].[WA].[Seattle]}\n"
+                + "{[Store].[USA].[WA].[Spokane]}\n"
+                + "{[Store].[USA].[WA].[Tacoma]}\n"
+                + "{[Store].[USA].[WA].[Walla Walla]}\n"
+                + "{[Store].[USA].[WA].[Yakima]}\n"
+                + "Row #0: 266,773\n"
+                + "Row #0: 266,773\n"
+                + "Row #1: 1,379,620\n"
+                + "Row #1: 266,773\n"
+                + "Row #2: 373,740\n"
+                + "Row #2: 74,748\n"
+                + "Row #3: \n"
+                + "Row #3: 21,333\n"
+                + "Row #4: \n"
+                + "Row #4: 25,663\n"
+                + "Row #5: \n"
+                + "Row #5: 25,635\n"
+                + "Row #6: \n"
+                + "Row #6: 2,117\n"
+                + "Row #7: 135,318\n"
+                + "Row #7: 67,659\n"
+                + "Row #8: \n"
+                + "Row #8: 26,079\n"
+                + "Row #9: \n"
+                + "Row #9: 41,580\n"
+                + "Row #10: 870,562\n"
+                + "Row #10: 124,366\n"
+                + "Row #11: \n"
+                + "Row #11: 2,237\n"
+                + "Row #12: \n"
+                + "Row #12: 24,576\n"
+                + "Row #13: \n"
+                + "Row #13: 25,011\n"
+                + "Row #14: \n"
+                + "Row #14: 23,591\n"
+                + "Row #15: \n"
+                + "Row #15: 35,257\n"
+                + "Row #16: \n"
+                + "Row #16: 2,203\n"
+                + "Row #17: \n"
+                + "Row #17: 11,491\n");
     }
 
     /**
@@ -15010,8 +15041,7 @@ class SchemaTest {
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testBugMondrian463(Context<?> context) {
-        if (!SystemWideProperties.instance().FilterChildlessSnowflakeMembers)
-        {
+        if (!SystemWideProperties.instance().FilterChildlessSnowflakeMembers) {
             // Similar to aggregates. If we turn off filtering,
             // we get wild stuff because of referential integrity.
             return;
@@ -15271,9 +15301,8 @@ class SchemaTest {
         withSchemaEmf(context, TestBugMondrian463Modifier1Emf::new);
         checkBugMondrian463(context);
         // As above, but using shared dimension.
-        if (context.getConfigValue(ConfigConstants.READ_AGGREGATES, ConfigConstants.READ_AGGREGATES_DEFAULT_VALUE ,Boolean.class)
-            && context.getConfigValue(ConfigConstants.USE_AGGREGATES, ConfigConstants.USE_AGGREGATES_DEFAULT_VALUE ,Boolean.class))
-        {
+        if (context.getConfigValue(ConfigConstants.READ_AGGREGATES, ConfigConstants.READ_AGGREGATES_DEFAULT_VALUE, Boolean.class)
+            && context.getConfigValue(ConfigConstants.USE_AGGREGATES, ConfigConstants.USE_AGGREGATES_DEFAULT_VALUE, Boolean.class)) {
             // With aggregates enabled, query gives different answer. This is
             // expected because some of the foreign keys have referential
             // integrity problems.
@@ -15669,33 +15698,33 @@ class SchemaTest {
     private void checkBugMondrian463(Context<?> context) {
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select [Measures] on 0,\n"
-            + " head([Product3].members, 10) on 1\n"
-            + "from [Sales]",
+                + " head([Product3].members, 10) on 1\n"
+                + "from [Sales]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Measures].[Unit Sales]}\n"
-            + "Axis #2:\n"
-            + "{[Product3].[Product3].[All Product3s]}\n"
-            + "{[Product3].[Product3].[Drink]}\n"
-            + "{[Product3].[Product3].[Drink].[Baking Goods]}\n"
-            + "{[Product3].[Product3].[Drink].[Baking Goods].[Dry Goods]}\n"
-            + "{[Product3].[Product3].[Drink].[Baking Goods].[Dry Goods].[Coffee]}\n"
-            + "{[Product3].[Product3].[Drink].[Baking Goods].[Dry Goods].[Coffee].[24]}\n"
-            + "{[Product3].[Product3].[Drink].[Baking Goods].[Dry Goods].[Coffee].[24].[Amigo]}\n"
-            + "{[Product3].[Product3].[Drink].[Baking Goods].[Dry Goods].[Coffee].[24].[Amigo].[Amigo Lox]}\n"
-            + "{[Product3].[Product3].[Drink].[Baking Goods].[Dry Goods].[Coffee].[24].[Curlew]}\n"
-            + "{[Product3].[Product3].[Drink].[Baking Goods].[Dry Goods].[Coffee].[24].[Curlew].[Curlew Lox]}\n"
-            + "Row #0: 266,773\n"
-            + "Row #1: 2,647\n"
-            + "Row #2: 835\n"
-            + "Row #3: 835\n"
-            + "Row #4: 835\n"
-            + "Row #5: 835\n"
-            + "Row #6: 175\n"
-            + "Row #7: 175\n"
-            + "Row #8: 186\n"
-            + "Row #9: 186\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Measures].[Unit Sales]}\n"
+                + "Axis #2:\n"
+                + "{[Product3].[Product3].[All Product3s]}\n"
+                + "{[Product3].[Product3].[Drink]}\n"
+                + "{[Product3].[Product3].[Drink].[Baking Goods]}\n"
+                + "{[Product3].[Product3].[Drink].[Baking Goods].[Dry Goods]}\n"
+                + "{[Product3].[Product3].[Drink].[Baking Goods].[Dry Goods].[Coffee]}\n"
+                + "{[Product3].[Product3].[Drink].[Baking Goods].[Dry Goods].[Coffee].[24]}\n"
+                + "{[Product3].[Product3].[Drink].[Baking Goods].[Dry Goods].[Coffee].[24].[Amigo]}\n"
+                + "{[Product3].[Product3].[Drink].[Baking Goods].[Dry Goods].[Coffee].[24].[Amigo].[Amigo Lox]}\n"
+                + "{[Product3].[Product3].[Drink].[Baking Goods].[Dry Goods].[Coffee].[24].[Curlew]}\n"
+                + "{[Product3].[Product3].[Drink].[Baking Goods].[Dry Goods].[Coffee].[24].[Curlew].[Curlew Lox]}\n"
+                + "Row #0: 266,773\n"
+                + "Row #1: 2,647\n"
+                + "Row #2: 835\n"
+                + "Row #3: 835\n"
+                + "Row #4: 835\n"
+                + "Row #5: 835\n"
+                + "Row #6: 175\n"
+                + "Row #7: 175\n"
+                + "Row #8: 186\n"
+                + "Row #9: 186\n");
     }
 
     /**
@@ -15971,7 +16000,7 @@ class SchemaTest {
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testCaptionWithOrdinalColumn(Context<?> context) {
-    	context.getCatalogCache().clear();
+        context.getCatalogCache().clear();
     	/*
         class TestCaptionWithOrdinalColumnModifier extends PojoMappingModifier {
 
@@ -16102,8 +16131,8 @@ class SchemaTest {
 
         String mdxQuery =
             "WITH SET [#DataSet#] as '{Descendants([Position].[All Position], 2)}' "
-            + "SELECT {[Measures].[Org Salary]} on columns, "
-            + "NON EMPTY Hierarchize({[#DataSet#]}) on rows FROM [HR]";
+                + "SELECT {[Measures].[Org Salary]} on columns, "
+                + "NON EMPTY Hierarchize({[#DataSet#]}) on rows FROM [HR]";
         Result result = executeQuery(context.getConnectionWithDefaultRole(), mdxQuery);
         Axis[] axes = result.getAxes();
         List<Position> positions = axes[1].getPositions();
@@ -16260,16 +16289,15 @@ class SchemaTest {
          */
         withSchemaEmf(context, TestBugMondrian923ModifierEmf::new);
         for (Cube cube
-                : context.getConnectionWithDefaultRole().getCatalogReader().getCubes())
-        {
+            : context.getConnectionWithDefaultRole().getCatalogReader().getCubes()) {
             if (cube.getName().equals("Warehouse and Sales")) {
                 for (Dimension dim : cube.getDimensions()) {
                     if (dim.isMeasures()) {
                         List<Member> members =
                             context.getConnectionWithDefaultRole()
                                 .getCatalogReader().getLevelMembers(
-                                    dim.getHierarchy().getLevels().getFirst(),
-                                    true);
+                                dim.getHierarchy().getLevels().getFirst(),
+                                true);
                         assertTrue(
                             members.toString().contains(
                                 "[Measures].[Profit Per Unit Shipped]"));
@@ -16296,7 +16324,7 @@ class SchemaTest {
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testCubesVisibility(Context<?> context) throws Exception {
-        for (Boolean testValue : new Boolean[] {true, false}) {
+        for (Boolean testValue : new Boolean[]{true, false}) {
             /*
             class TestCubesVisibilityModifier extends PojoMappingModifier {
 
@@ -16435,7 +16463,7 @@ class SchemaTest {
                     null, cubeDef, null, null, null, null);
             withSchema(context, schema);
              */
-            ((TestContext)context).setCatalogMappingSupplier(new CatalogSupplier());
+            ((TestContext) context).setCatalogMappingSupplier(new CatalogSupplier());
             withSchemaEmf(context, TestCubesVisibilityModifierEmf::new);
             final Cube cube =
                 context.getConnectionWithDefaultRole().getCatalog()
@@ -16447,7 +16475,7 @@ class SchemaTest {
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testVirtualCubesVisibility(Context<?> context) throws Exception {
-        for (Boolean testValue : new Boolean[] {true, false}) {
+        for (Boolean testValue : new Boolean[]{true, false}) {
             /*
             class TestVirtualCubesVisibilityModifier extends PojoMappingModifier {
 
@@ -16555,7 +16583,7 @@ class SchemaTest {
                     null, null, cubeDef, null, null, null);
             withSchema(context, schema);
              */
-            ((TestContext)context).setCatalogMappingSupplier(new CatalogSupplier());
+            ((TestContext) context).setCatalogMappingSupplier(new CatalogSupplier());
             withSchemaEmf(context, TestVirtualCubesVisibilityModifierEmf::new);
             final Cube cube =
                 context.getConnectionWithDefaultRole().getCatalog()
@@ -16567,7 +16595,7 @@ class SchemaTest {
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testDimensionVisibility(Context<?> context) throws Exception {
-        for (Boolean testValue : new Boolean[] {true, false}) {
+        for (Boolean testValue : new Boolean[]{true, false}) {
             /*
             class TestDimensionVisibilityModifier extends PojoMappingModifier {
 
@@ -16726,7 +16754,7 @@ class SchemaTest {
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testVirtualDimensionVisibility(Context<?> context) throws Exception {
-        for (Boolean testValue : new Boolean[] {true, false}) {
+        for (Boolean testValue : new Boolean[]{true, false}) {
             /*
             class TestVirtualDimensionVisibilityModifier extends PojoMappingModifier {
 
@@ -16828,7 +16856,7 @@ class SchemaTest {
                     null, null, cubeDef, null, null, null);
             withSchema(context, schema);
              */
-            ((TestContext)context).setCatalogMappingSupplier(new CatalogSupplier());
+            ((TestContext) context).setCatalogMappingSupplier(new CatalogSupplier());
             withSchemaEmf(context, TestVirtualDimensionVisibilityModifierEmf::new);
             final Cube cube =
                 context.getConnectionWithDefaultRole().getCatalog()
@@ -16847,7 +16875,7 @@ class SchemaTest {
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testDimensionUsageVisibility(Context<?> context) throws Exception {
-        for (Boolean testValue : new Boolean[] {true, false}) {
+        for (Boolean testValue : new Boolean[]{true, false}) {
             /*
             class TestDimensionUsageVisibilityModifier extends PojoMappingModifier {
                 private Boolean value;
@@ -17020,12 +17048,12 @@ class SchemaTest {
                     null, cubeDef, null, null, null, null);
             withSchema(context, schema);
              */
-            ((TestContext)context).setCatalogMappingSupplier(new CatalogSupplier());
+            ((TestContext) context).setCatalogMappingSupplier(new CatalogSupplier());
             context.getCatalogCache().clear();
             org.eclipse.daanse.rolap.mapping.model.Catalog catalogMapping = ((RolapContext) context).getCatalogMapping();
             TestDimensionUsageVisibilityModifierEmf testDimensionUsageVisibilityModifier =
-            		new TestDimensionUsageVisibilityModifierEmf(catalogMapping, testValue);
-            ((TestContext)context).setCatalogMappingSupplier(testDimensionUsageVisibilityModifier);
+                new TestDimensionUsageVisibilityModifierEmf(catalogMapping, testValue);
+            ((TestContext) context).setCatalogMappingSupplier(testDimensionUsageVisibilityModifier);
 
             final Cube cube =
                 context.getConnectionWithDefaultRole().getCatalog()
@@ -17045,8 +17073,8 @@ class SchemaTest {
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testHierarchyVisibility(Context<?> context) throws Exception {
-        for (Boolean testValue : new Boolean[] {true, false}) {
-        	context.getCatalogCache().clear();
+        for (Boolean testValue : new Boolean[]{true, false}) {
+            context.getCatalogCache().clear();
         	/*
             class TestHierarchyVisibilityModifier extends PojoMappingModifier {
 
@@ -17191,7 +17219,7 @@ class SchemaTest {
                     null, cubeDef, null, null, null, null);
             withSchema(context, schema);
              */
-            ((TestContext)context).setCatalogMappingSupplier(new CatalogSupplier());
+            ((TestContext) context).setCatalogMappingSupplier(new CatalogSupplier());
             withSchemaEmf(context, TestHierarchyVisibilityModifierEmf::new);
             final Cube cube =
                 context.getConnectionWithDefaultRole().getCatalog()
@@ -17214,7 +17242,7 @@ class SchemaTest {
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testLevelVisibility(Context<?> context) throws Exception {
-        for (Boolean testValue : new Boolean[] {true, false}) {
+        for (Boolean testValue : new Boolean[]{true, false}) {
             /*
             class TestLevelVisibilityModifier extends PojoMappingModifier {
 
@@ -17336,7 +17364,7 @@ class SchemaTest {
                     null, cubeDef, null, null, null, null);
             withSchema(context, schema);
              */
-            ((TestContext)context).setCatalogMappingSupplier(new CatalogSupplier());
+            ((TestContext) context).setCatalogMappingSupplier(new CatalogSupplier());
             withSchemaEmf(context, TestLevelVisibilityModifierEmf::new);
             final Cube cube =
                 context.getConnectionWithDefaultRole().getCatalog()
@@ -17361,9 +17389,8 @@ class SchemaTest {
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testNonCollapsedAggregate(Context<?> context) throws Exception {
-        if (context.getConfigValue(ConfigConstants.USE_AGGREGATES, ConfigConstants.USE_AGGREGATES_DEFAULT_VALUE ,Boolean.class) == false
-            && context.getConfigValue(ConfigConstants.READ_AGGREGATES, ConfigConstants.READ_AGGREGATES_DEFAULT_VALUE ,Boolean.class) == false)
-        {
+        if (context.getConfigValue(ConfigConstants.USE_AGGREGATES, ConfigConstants.USE_AGGREGATES_DEFAULT_VALUE, Boolean.class) == false
+            && context.getConfigValue(ConfigConstants.READ_AGGREGATES, ConfigConstants.READ_AGGREGATES_DEFAULT_VALUE, Boolean.class) == false) {
             return;
         }
         context.getCatalogCache().clear();
@@ -17708,18 +17735,17 @@ class SchemaTest {
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select {[Product].[Product Family].Members} on rows, {[Measures].[Unit Sales]} on columns from [Foo]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Measures].[Unit Sales]}\n"
-            + "Axis #2:\n"
-            + "{[Product].[Drink]}\n"
-            + "{[Product].[Food]}\n"
-            + "{[Product].[Non-Consumable]}\n"
-            + "Row #0: 24,597\n"
-            + "Row #1: 191,940\n"
-            + "Row #2: 50,236\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Measures].[Unit Sales]}\n"
+                + "Axis #2:\n"
+                + "{[Product].[Drink]}\n"
+                + "{[Product].[Food]}\n"
+                + "{[Product].[Non-Consumable]}\n"
+                + "Row #0: 24,597\n"
+                + "Row #1: 191,940\n"
+                + "Row #2: 50,236\n");
     }
-
 
 
     public static class TestMondrian1499ModifierEmf implements CatalogMappingSupplier {
@@ -18246,7 +18272,6 @@ class SchemaTest {
             dimensionConnector.setOverrideDimensionName("PandaSteak");
             dimensionConnector.setForeignKey((Column) copier.get(CatalogSupplier.COLUMN_PROMOTION_ID_SALESFACT));
             dimensionConnector.setDimension(dimension);
-
 
 
             // Find Sales cube and add the dimension connector
@@ -19043,6 +19068,7 @@ class SchemaTest {
 
     public static class TestBugMonrian2528ModifierEmf implements CatalogMappingSupplier {
         private CatalogImpl catalog;
+
         public TestBugMonrian2528ModifierEmf(org.eclipse.daanse.rolap.mapping.model.Catalog cat) {
             EcoreUtil.Copier copier = org.opencube.junit5.EmfUtil.copier((CatalogImpl) cat);
             catalog = (CatalogImpl) copier.get(cat);
@@ -19203,11 +19229,9 @@ class SchemaTest {
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testNonCollapsedAggregateOnNonUniqueLevelFails(Context<?> context)
-        throws Exception
-    {
-        if (context.getConfigValue(ConfigConstants.USE_AGGREGATES, ConfigConstants.USE_AGGREGATES_DEFAULT_VALUE ,Boolean.class) == false
-            && context.getConfigValue(ConfigConstants.READ_AGGREGATES, ConfigConstants.READ_AGGREGATES_DEFAULT_VALUE ,Boolean.class) == false)
-        {
+        throws Exception {
+        if (context.getConfigValue(ConfigConstants.USE_AGGREGATES, ConfigConstants.USE_AGGREGATES_DEFAULT_VALUE, Boolean.class) == false
+            && context.getConfigValue(ConfigConstants.READ_AGGREGATES, ConfigConstants.READ_AGGREGATES_DEFAULT_VALUE, Boolean.class) == false) {
             return;
         }
         /*
@@ -19394,9 +19418,8 @@ class SchemaTest {
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testTwoNonCollapsedAggregate(Context<?> context) throws Exception {
-        if (context.getConfigValue(ConfigConstants.USE_AGGREGATES, ConfigConstants.USE_AGGREGATES_DEFAULT_VALUE ,Boolean.class) == false
-            && context.getConfigValue(ConfigConstants.READ_AGGREGATES, ConfigConstants.READ_AGGREGATES_DEFAULT_VALUE ,Boolean.class) == false)
-        {
+        if (context.getConfigValue(ConfigConstants.USE_AGGREGATES, ConfigConstants.USE_AGGREGATES_DEFAULT_VALUE, Boolean.class) == false
+            && context.getConfigValue(ConfigConstants.READ_AGGREGATES, ConfigConstants.READ_AGGREGATES_DEFAULT_VALUE, Boolean.class) == false) {
             return;
         }
         /*
@@ -19638,168 +19661,167 @@ class SchemaTest {
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select {Crossjoin([Product].[Product Family].Members, [Store].[Store Id].Members)} on rows, {[Measures].[Unit Sales]} on columns from [Foo]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Measures].[Unit Sales]}\n"
-            + "Axis #2:\n"
-            + "{[Product].[Drink], [Store].[Acapulco].[1]}\n"
-            + "{[Product].[Drink], [Store].[Bellingham].[2]}\n"
-            + "{[Product].[Drink], [Store].[Beverly Hills].[6]}\n"
-            + "{[Product].[Drink], [Store].[Bremerton].[3]}\n"
-            + "{[Product].[Drink], [Store].[Camacho].[4]}\n"
-            + "{[Product].[Drink], [Store].[Guadalajara].[5]}\n"
-            + "{[Product].[Drink], [Store].[Hidalgo].[12]}\n"
-            + "{[Product].[Drink], [Store].[Hidalgo].[18]}\n"
-            + "{[Product].[Drink], [Store].[Los Angeles].[7]}\n"
-            + "{[Product].[Drink], [Store].[Merida].[8]}\n"
-            + "{[Product].[Drink], [Store].[Mexico City].[9]}\n"
-            + "{[Product].[Drink], [Store].[None].[0]}\n"
-            + "{[Product].[Drink], [Store].[Orizaba].[10]}\n"
-            + "{[Product].[Drink], [Store].[Portland].[11]}\n"
-            + "{[Product].[Drink], [Store].[Salem].[13]}\n"
-            + "{[Product].[Drink], [Store].[San Andres].[21]}\n"
-            + "{[Product].[Drink], [Store].[San Diego].[24]}\n"
-            + "{[Product].[Drink], [Store].[San Francisco].[14]}\n"
-            + "{[Product].[Drink], [Store].[Seattle].[15]}\n"
-            + "{[Product].[Drink], [Store].[Spokane].[16]}\n"
-            + "{[Product].[Drink], [Store].[Tacoma].[17]}\n"
-            + "{[Product].[Drink], [Store].[Vancouver].[19]}\n"
-            + "{[Product].[Drink], [Store].[Victoria].[20]}\n"
-            + "{[Product].[Drink], [Store].[Walla Walla].[22]}\n"
-            + "{[Product].[Drink], [Store].[Yakima].[23]}\n"
-            + "{[Product].[Food], [Store].[Acapulco].[1]}\n"
-            + "{[Product].[Food], [Store].[Bellingham].[2]}\n"
-            + "{[Product].[Food], [Store].[Beverly Hills].[6]}\n"
-            + "{[Product].[Food], [Store].[Bremerton].[3]}\n"
-            + "{[Product].[Food], [Store].[Camacho].[4]}\n"
-            + "{[Product].[Food], [Store].[Guadalajara].[5]}\n"
-            + "{[Product].[Food], [Store].[Hidalgo].[12]}\n"
-            + "{[Product].[Food], [Store].[Hidalgo].[18]}\n"
-            + "{[Product].[Food], [Store].[Los Angeles].[7]}\n"
-            + "{[Product].[Food], [Store].[Merida].[8]}\n"
-            + "{[Product].[Food], [Store].[Mexico City].[9]}\n"
-            + "{[Product].[Food], [Store].[None].[0]}\n"
-            + "{[Product].[Food], [Store].[Orizaba].[10]}\n"
-            + "{[Product].[Food], [Store].[Portland].[11]}\n"
-            + "{[Product].[Food], [Store].[Salem].[13]}\n"
-            + "{[Product].[Food], [Store].[San Andres].[21]}\n"
-            + "{[Product].[Food], [Store].[San Diego].[24]}\n"
-            + "{[Product].[Food], [Store].[San Francisco].[14]}\n"
-            + "{[Product].[Food], [Store].[Seattle].[15]}\n"
-            + "{[Product].[Food], [Store].[Spokane].[16]}\n"
-            + "{[Product].[Food], [Store].[Tacoma].[17]}\n"
-            + "{[Product].[Food], [Store].[Vancouver].[19]}\n"
-            + "{[Product].[Food], [Store].[Victoria].[20]}\n"
-            + "{[Product].[Food], [Store].[Walla Walla].[22]}\n"
-            + "{[Product].[Food], [Store].[Yakima].[23]}\n"
-            + "{[Product].[Non-Consumable], [Store].[Acapulco].[1]}\n"
-            + "{[Product].[Non-Consumable], [Store].[Bellingham].[2]}\n"
-            + "{[Product].[Non-Consumable], [Store].[Beverly Hills].[6]}\n"
-            + "{[Product].[Non-Consumable], [Store].[Bremerton].[3]}\n"
-            + "{[Product].[Non-Consumable], [Store].[Camacho].[4]}\n"
-            + "{[Product].[Non-Consumable], [Store].[Guadalajara].[5]}\n"
-            + "{[Product].[Non-Consumable], [Store].[Hidalgo].[12]}\n"
-            + "{[Product].[Non-Consumable], [Store].[Hidalgo].[18]}\n"
-            + "{[Product].[Non-Consumable], [Store].[Los Angeles].[7]}\n"
-            + "{[Product].[Non-Consumable], [Store].[Merida].[8]}\n"
-            + "{[Product].[Non-Consumable], [Store].[Mexico City].[9]}\n"
-            + "{[Product].[Non-Consumable], [Store].[None].[0]}\n"
-            + "{[Product].[Non-Consumable], [Store].[Orizaba].[10]}\n"
-            + "{[Product].[Non-Consumable], [Store].[Portland].[11]}\n"
-            + "{[Product].[Non-Consumable], [Store].[Salem].[13]}\n"
-            + "{[Product].[Non-Consumable], [Store].[San Andres].[21]}\n"
-            + "{[Product].[Non-Consumable], [Store].[San Diego].[24]}\n"
-            + "{[Product].[Non-Consumable], [Store].[San Francisco].[14]}\n"
-            + "{[Product].[Non-Consumable], [Store].[Seattle].[15]}\n"
-            + "{[Product].[Non-Consumable], [Store].[Spokane].[16]}\n"
-            + "{[Product].[Non-Consumable], [Store].[Tacoma].[17]}\n"
-            + "{[Product].[Non-Consumable], [Store].[Vancouver].[19]}\n"
-            + "{[Product].[Non-Consumable], [Store].[Victoria].[20]}\n"
-            + "{[Product].[Non-Consumable], [Store].[Walla Walla].[22]}\n"
-            + "{[Product].[Non-Consumable], [Store].[Yakima].[23]}\n"
-            + "Row #0: \n"
-            + "Row #1: 208\n"
-            + "Row #2: 1,945\n"
-            + "Row #3: 2,288\n"
-            + "Row #4: \n"
-            + "Row #5: \n"
-            + "Row #6: \n"
-            + "Row #7: \n"
-            + "Row #8: 2,422\n"
-            + "Row #9: \n"
-            + "Row #10: \n"
-            + "Row #11: \n"
-            + "Row #12: \n"
-            + "Row #13: 2,371\n"
-            + "Row #14: 3,735\n"
-            + "Row #15: \n"
-            + "Row #16: 2,560\n"
-            + "Row #17: 175\n"
-            + "Row #18: 2,213\n"
-            + "Row #19: 2,238\n"
-            + "Row #20: 3,092\n"
-            + "Row #21: \n"
-            + "Row #22: \n"
-            + "Row #23: 191\n"
-            + "Row #24: 1,159\n"
-            + "Row #25: \n"
-            + "Row #26: 1,587\n"
-            + "Row #27: 15,438\n"
-            + "Row #28: 17,809\n"
-            + "Row #29: \n"
-            + "Row #30: \n"
-            + "Row #31: \n"
-            + "Row #32: \n"
-            + "Row #33: 18,294\n"
-            + "Row #34: \n"
-            + "Row #35: \n"
-            + "Row #36: \n"
-            + "Row #37: \n"
-            + "Row #38: 18,632\n"
-            + "Row #39: 29,905\n"
-            + "Row #40: \n"
-            + "Row #41: 18,369\n"
-            + "Row #42: 1,555\n"
-            + "Row #43: 18,159\n"
-            + "Row #44: 16,925\n"
-            + "Row #45: 25,453\n"
-            + "Row #46: \n"
-            + "Row #47: \n"
-            + "Row #48: 1,622\n"
-            + "Row #49: 8,192\n"
-            + "Row #50: \n"
-            + "Row #51: 442\n"
-            + "Row #52: 3,950\n"
-            + "Row #53: 4,479\n"
-            + "Row #54: \n"
-            + "Row #55: \n"
-            + "Row #56: \n"
-            + "Row #57: \n"
-            + "Row #58: 4,947\n"
-            + "Row #59: \n"
-            + "Row #60: \n"
-            + "Row #61: \n"
-            + "Row #62: \n"
-            + "Row #63: 5,076\n"
-            + "Row #64: 7,940\n"
-            + "Row #65: \n"
-            + "Row #66: 4,706\n"
-            + "Row #67: 387\n"
-            + "Row #68: 4,639\n"
-            + "Row #69: 4,428\n"
-            + "Row #70: 6,712\n"
-            + "Row #71: \n"
-            + "Row #72: \n"
-            + "Row #73: 390\n"
-            + "Row #74: 2,140\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Measures].[Unit Sales]}\n"
+                + "Axis #2:\n"
+                + "{[Product].[Drink], [Store].[Acapulco].[1]}\n"
+                + "{[Product].[Drink], [Store].[Bellingham].[2]}\n"
+                + "{[Product].[Drink], [Store].[Beverly Hills].[6]}\n"
+                + "{[Product].[Drink], [Store].[Bremerton].[3]}\n"
+                + "{[Product].[Drink], [Store].[Camacho].[4]}\n"
+                + "{[Product].[Drink], [Store].[Guadalajara].[5]}\n"
+                + "{[Product].[Drink], [Store].[Hidalgo].[12]}\n"
+                + "{[Product].[Drink], [Store].[Hidalgo].[18]}\n"
+                + "{[Product].[Drink], [Store].[Los Angeles].[7]}\n"
+                + "{[Product].[Drink], [Store].[Merida].[8]}\n"
+                + "{[Product].[Drink], [Store].[Mexico City].[9]}\n"
+                + "{[Product].[Drink], [Store].[None].[0]}\n"
+                + "{[Product].[Drink], [Store].[Orizaba].[10]}\n"
+                + "{[Product].[Drink], [Store].[Portland].[11]}\n"
+                + "{[Product].[Drink], [Store].[Salem].[13]}\n"
+                + "{[Product].[Drink], [Store].[San Andres].[21]}\n"
+                + "{[Product].[Drink], [Store].[San Diego].[24]}\n"
+                + "{[Product].[Drink], [Store].[San Francisco].[14]}\n"
+                + "{[Product].[Drink], [Store].[Seattle].[15]}\n"
+                + "{[Product].[Drink], [Store].[Spokane].[16]}\n"
+                + "{[Product].[Drink], [Store].[Tacoma].[17]}\n"
+                + "{[Product].[Drink], [Store].[Vancouver].[19]}\n"
+                + "{[Product].[Drink], [Store].[Victoria].[20]}\n"
+                + "{[Product].[Drink], [Store].[Walla Walla].[22]}\n"
+                + "{[Product].[Drink], [Store].[Yakima].[23]}\n"
+                + "{[Product].[Food], [Store].[Acapulco].[1]}\n"
+                + "{[Product].[Food], [Store].[Bellingham].[2]}\n"
+                + "{[Product].[Food], [Store].[Beverly Hills].[6]}\n"
+                + "{[Product].[Food], [Store].[Bremerton].[3]}\n"
+                + "{[Product].[Food], [Store].[Camacho].[4]}\n"
+                + "{[Product].[Food], [Store].[Guadalajara].[5]}\n"
+                + "{[Product].[Food], [Store].[Hidalgo].[12]}\n"
+                + "{[Product].[Food], [Store].[Hidalgo].[18]}\n"
+                + "{[Product].[Food], [Store].[Los Angeles].[7]}\n"
+                + "{[Product].[Food], [Store].[Merida].[8]}\n"
+                + "{[Product].[Food], [Store].[Mexico City].[9]}\n"
+                + "{[Product].[Food], [Store].[None].[0]}\n"
+                + "{[Product].[Food], [Store].[Orizaba].[10]}\n"
+                + "{[Product].[Food], [Store].[Portland].[11]}\n"
+                + "{[Product].[Food], [Store].[Salem].[13]}\n"
+                + "{[Product].[Food], [Store].[San Andres].[21]}\n"
+                + "{[Product].[Food], [Store].[San Diego].[24]}\n"
+                + "{[Product].[Food], [Store].[San Francisco].[14]}\n"
+                + "{[Product].[Food], [Store].[Seattle].[15]}\n"
+                + "{[Product].[Food], [Store].[Spokane].[16]}\n"
+                + "{[Product].[Food], [Store].[Tacoma].[17]}\n"
+                + "{[Product].[Food], [Store].[Vancouver].[19]}\n"
+                + "{[Product].[Food], [Store].[Victoria].[20]}\n"
+                + "{[Product].[Food], [Store].[Walla Walla].[22]}\n"
+                + "{[Product].[Food], [Store].[Yakima].[23]}\n"
+                + "{[Product].[Non-Consumable], [Store].[Acapulco].[1]}\n"
+                + "{[Product].[Non-Consumable], [Store].[Bellingham].[2]}\n"
+                + "{[Product].[Non-Consumable], [Store].[Beverly Hills].[6]}\n"
+                + "{[Product].[Non-Consumable], [Store].[Bremerton].[3]}\n"
+                + "{[Product].[Non-Consumable], [Store].[Camacho].[4]}\n"
+                + "{[Product].[Non-Consumable], [Store].[Guadalajara].[5]}\n"
+                + "{[Product].[Non-Consumable], [Store].[Hidalgo].[12]}\n"
+                + "{[Product].[Non-Consumable], [Store].[Hidalgo].[18]}\n"
+                + "{[Product].[Non-Consumable], [Store].[Los Angeles].[7]}\n"
+                + "{[Product].[Non-Consumable], [Store].[Merida].[8]}\n"
+                + "{[Product].[Non-Consumable], [Store].[Mexico City].[9]}\n"
+                + "{[Product].[Non-Consumable], [Store].[None].[0]}\n"
+                + "{[Product].[Non-Consumable], [Store].[Orizaba].[10]}\n"
+                + "{[Product].[Non-Consumable], [Store].[Portland].[11]}\n"
+                + "{[Product].[Non-Consumable], [Store].[Salem].[13]}\n"
+                + "{[Product].[Non-Consumable], [Store].[San Andres].[21]}\n"
+                + "{[Product].[Non-Consumable], [Store].[San Diego].[24]}\n"
+                + "{[Product].[Non-Consumable], [Store].[San Francisco].[14]}\n"
+                + "{[Product].[Non-Consumable], [Store].[Seattle].[15]}\n"
+                + "{[Product].[Non-Consumable], [Store].[Spokane].[16]}\n"
+                + "{[Product].[Non-Consumable], [Store].[Tacoma].[17]}\n"
+                + "{[Product].[Non-Consumable], [Store].[Vancouver].[19]}\n"
+                + "{[Product].[Non-Consumable], [Store].[Victoria].[20]}\n"
+                + "{[Product].[Non-Consumable], [Store].[Walla Walla].[22]}\n"
+                + "{[Product].[Non-Consumable], [Store].[Yakima].[23]}\n"
+                + "Row #0: \n"
+                + "Row #1: 208\n"
+                + "Row #2: 1,945\n"
+                + "Row #3: 2,288\n"
+                + "Row #4: \n"
+                + "Row #5: \n"
+                + "Row #6: \n"
+                + "Row #7: \n"
+                + "Row #8: 2,422\n"
+                + "Row #9: \n"
+                + "Row #10: \n"
+                + "Row #11: \n"
+                + "Row #12: \n"
+                + "Row #13: 2,371\n"
+                + "Row #14: 3,735\n"
+                + "Row #15: \n"
+                + "Row #16: 2,560\n"
+                + "Row #17: 175\n"
+                + "Row #18: 2,213\n"
+                + "Row #19: 2,238\n"
+                + "Row #20: 3,092\n"
+                + "Row #21: \n"
+                + "Row #22: \n"
+                + "Row #23: 191\n"
+                + "Row #24: 1,159\n"
+                + "Row #25: \n"
+                + "Row #26: 1,587\n"
+                + "Row #27: 15,438\n"
+                + "Row #28: 17,809\n"
+                + "Row #29: \n"
+                + "Row #30: \n"
+                + "Row #31: \n"
+                + "Row #32: \n"
+                + "Row #33: 18,294\n"
+                + "Row #34: \n"
+                + "Row #35: \n"
+                + "Row #36: \n"
+                + "Row #37: \n"
+                + "Row #38: 18,632\n"
+                + "Row #39: 29,905\n"
+                + "Row #40: \n"
+                + "Row #41: 18,369\n"
+                + "Row #42: 1,555\n"
+                + "Row #43: 18,159\n"
+                + "Row #44: 16,925\n"
+                + "Row #45: 25,453\n"
+                + "Row #46: \n"
+                + "Row #47: \n"
+                + "Row #48: 1,622\n"
+                + "Row #49: 8,192\n"
+                + "Row #50: \n"
+                + "Row #51: 442\n"
+                + "Row #52: 3,950\n"
+                + "Row #53: 4,479\n"
+                + "Row #54: \n"
+                + "Row #55: \n"
+                + "Row #56: \n"
+                + "Row #57: \n"
+                + "Row #58: 4,947\n"
+                + "Row #59: \n"
+                + "Row #60: \n"
+                + "Row #61: \n"
+                + "Row #62: \n"
+                + "Row #63: 5,076\n"
+                + "Row #64: 7,940\n"
+                + "Row #65: \n"
+                + "Row #66: 4,706\n"
+                + "Row #67: 387\n"
+                + "Row #68: 4,639\n"
+                + "Row #69: 4,428\n"
+                + "Row #70: 6,712\n"
+                + "Row #71: \n"
+                + "Row #72: \n"
+                + "Row #73: 390\n"
+                + "Row #74: 2,140\n");
     }
 
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testCollapsedError(Context<?> context) throws Exception {
-        if (context.getConfigValue(ConfigConstants.USE_AGGREGATES, ConfigConstants.USE_AGGREGATES_DEFAULT_VALUE ,Boolean.class) == false
-            && context.getConfigValue(ConfigConstants.READ_AGGREGATES, ConfigConstants.READ_AGGREGATES_DEFAULT_VALUE ,Boolean.class) == false)
-        {
+        if (context.getConfigValue(ConfigConstants.USE_AGGREGATES, ConfigConstants.USE_AGGREGATES_DEFAULT_VALUE, Boolean.class) == false
+            && context.getConfigValue(ConfigConstants.READ_AGGREGATES, ConfigConstants.READ_AGGREGATES_DEFAULT_VALUE, Boolean.class) == false) {
             return;
         }
         /*
@@ -19994,11 +20016,11 @@ class SchemaTest {
     void testBugMondrian1047(Context<?> context) {
         // Test case only works under MySQL, due to how columns are quoted.
         switch (getDatabaseProduct(getDialect(context.getConnectionWithDefaultRole()).getDialectName())) {
-        case MARIADB:
-        case MYSQL:
-            break;
-        default:
-            return;
+            case MARIADB:
+            case MYSQL:
+                break;
+            default:
+                return;
         }
         checkBugMondrian1047(context, 100); // 115 bits
         checkBugMondrian1047(context, 50); // 65 bits
@@ -20102,7 +20124,6 @@ class SchemaTest {
                 dimensionConnector.setDimension(dimension);
 
 
-
                 // Find HR cube and add the dimension connector
                 for (org.eclipse.daanse.rolap.mapping.model.Cube cube : catalog.getCubes()) {
                     if ("HR".equals(cube.getName()) && cube instanceof PhysicalCube) {
@@ -20119,7 +20140,7 @@ class SchemaTest {
             }
         }
 
-        ((TestContext)context).setCatalogMappingSupplier(new CatalogSupplier());
+        ((TestContext) context).setCatalogMappingSupplier(new CatalogSupplier());
         withSchemaEmf(context, CheckBugMondrian1047ModifierEmf::new);
         /*
         ((BaseTestContext)context).update(SchemaUpdater.createSubstitutingCube(
@@ -20139,8 +20160,8 @@ class SchemaTest {
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select from [HR]",
             "Axis #0:\n"
-            + "{}\n"
-            + "$39,431.67");
+                + "{}\n"
+                + "$39,431.67");
     }
 
     /**
@@ -20154,10 +20175,10 @@ class SchemaTest {
     void testBugMondrian1065(Context<?> context) {
         // Test case only works under Oracle
         switch (getDatabaseProduct(getDialect(context.getConnectionWithDefaultRole()).getDialectName())) {
-        case ORACLE:
-            break;
-        default:
-            return;
+            case ORACLE:
+                break;
+            default:
+                return;
         }
         /*
         class TestBugMondrian1065Modifier extends PojoMappingModifier{
@@ -20281,28 +20302,28 @@ class SchemaTest {
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select non empty crossjoin({[PandaSteak].[Level3].[level 3 - 1], [PandaSteak].[Level3].[level 3 - 2]}, {[Measures].[Unit Sales], [Measures].[Store Cost]}) on columns, {[Product].[Product Family].Members} on rows from [Sales]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[PandaSteak].[level 1].[level 2 - 1].[level 3 - 1], [Measures].[Unit Sales]}\n"
-            + "{[PandaSteak].[level 1].[level 2 - 1].[level 3 - 1], [Measures].[Store Cost]}\n"
-            + "{[PandaSteak].[level 1].[level 2 - 1].[level 3 - 2], [Measures].[Unit Sales]}\n"
-            + "{[PandaSteak].[level 1].[level 2 - 1].[level 3 - 2], [Measures].[Store Cost]}\n"
-            + "Axis #2:\n"
-            + "{[Product].[Drink]}\n"
-            + "{[Product].[Food]}\n"
-            + "{[Product].[Non-Consumable]}\n"
-            + "Row #0: 5\n"
-            + "Row #0: 3.50\n"
-            + "Row #0: 9\n"
-            + "Row #0: 7.70\n"
-            + "Row #1: 27\n"
-            + "Row #1: 20.77\n"
-            + "Row #1: 46\n"
-            + "Row #1: 39.88\n"
-            + "Row #2: 10\n"
-            + "Row #2: 9.63\n"
-            + "Row #2: 17\n"
-            + "Row #2: 16.21\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[PandaSteak].[level 1].[level 2 - 1].[level 3 - 1], [Measures].[Unit Sales]}\n"
+                + "{[PandaSteak].[level 1].[level 2 - 1].[level 3 - 1], [Measures].[Store Cost]}\n"
+                + "{[PandaSteak].[level 1].[level 2 - 1].[level 3 - 2], [Measures].[Unit Sales]}\n"
+                + "{[PandaSteak].[level 1].[level 2 - 1].[level 3 - 2], [Measures].[Store Cost]}\n"
+                + "Axis #2:\n"
+                + "{[Product].[Drink]}\n"
+                + "{[Product].[Food]}\n"
+                + "{[Product].[Non-Consumable]}\n"
+                + "Row #0: 5\n"
+                + "Row #0: 3.50\n"
+                + "Row #0: 9\n"
+                + "Row #0: 7.70\n"
+                + "Row #1: 27\n"
+                + "Row #1: 20.77\n"
+                + "Row #1: 46\n"
+                + "Row #1: 39.88\n"
+                + "Row #2: 10\n"
+                + "Row #2: 9.63\n"
+                + "Row #2: 17\n"
+                + "Row #2: 16.21\n");
     }
 
     /**
@@ -20320,7 +20341,7 @@ class SchemaTest {
         Cube salesCube = schema.lookupCube("Sales").orElseThrow();
         CatalogReader sr = salesCube.getCatalogReader(null).withLocus();
         List<Member> members = sr.getLevelMembers(
-            (Level)Util.lookupCompound(
+            (Level) Util.lookupCompound(
                 sr,
                 salesCube,
                 Util.parseIdentifier(
@@ -20330,34 +20351,34 @@ class SchemaTest {
             true);
         assertEquals(
             "[[Store Size in SQFT].[Store Size in SQFT].[#null], "
-            + "[Store Size in SQFT].[Store Size in SQFT].[20319], "
-            + "[Store Size in SQFT].[Store Size in SQFT].[21215], "
-            + "[Store Size in SQFT].[Store Size in SQFT].[22478], "
-            + "[Store Size in SQFT].[Store Size in SQFT].[23112], "
-            + "[Store Size in SQFT].[Store Size in SQFT].[23593], "
-            + "[Store Size in SQFT].[Store Size in SQFT].[23598], "
-            + "[Store Size in SQFT].[Store Size in SQFT].[23688], "
-            + "[Store Size in SQFT].[Store Size in SQFT].[23759], "
-            + "[Store Size in SQFT].[Store Size in SQFT].[24597], "
-            + "[Store Size in SQFT].[Store Size in SQFT].[27694], "
-            + "[Store Size in SQFT].[Store Size in SQFT].[28206], "
-            + "[Store Size in SQFT].[Store Size in SQFT].[30268], "
-            + "[Store Size in SQFT].[Store Size in SQFT].[30584], "
-            + "[Store Size in SQFT].[Store Size in SQFT].[30797], "
-            + "[Store Size in SQFT].[Store Size in SQFT].[33858], "
-            + "[Store Size in SQFT].[Store Size in SQFT].[34452], "
-            + "[Store Size in SQFT].[Store Size in SQFT].[34791], "
-            + "[Store Size in SQFT].[Store Size in SQFT].[36509], "
-            + "[Store Size in SQFT].[Store Size in SQFT].[38382], "
-            + "[Store Size in SQFT].[Store Size in SQFT].[39696]]",
+                + "[Store Size in SQFT].[Store Size in SQFT].[20319], "
+                + "[Store Size in SQFT].[Store Size in SQFT].[21215], "
+                + "[Store Size in SQFT].[Store Size in SQFT].[22478], "
+                + "[Store Size in SQFT].[Store Size in SQFT].[23112], "
+                + "[Store Size in SQFT].[Store Size in SQFT].[23593], "
+                + "[Store Size in SQFT].[Store Size in SQFT].[23598], "
+                + "[Store Size in SQFT].[Store Size in SQFT].[23688], "
+                + "[Store Size in SQFT].[Store Size in SQFT].[23759], "
+                + "[Store Size in SQFT].[Store Size in SQFT].[24597], "
+                + "[Store Size in SQFT].[Store Size in SQFT].[27694], "
+                + "[Store Size in SQFT].[Store Size in SQFT].[28206], "
+                + "[Store Size in SQFT].[Store Size in SQFT].[30268], "
+                + "[Store Size in SQFT].[Store Size in SQFT].[30584], "
+                + "[Store Size in SQFT].[Store Size in SQFT].[30797], "
+                + "[Store Size in SQFT].[Store Size in SQFT].[33858], "
+                + "[Store Size in SQFT].[Store Size in SQFT].[34452], "
+                + "[Store Size in SQFT].[Store Size in SQFT].[34791], "
+                + "[Store Size in SQFT].[Store Size in SQFT].[36509], "
+                + "[Store Size in SQFT].[Store Size in SQFT].[38382], "
+                + "[Store Size in SQFT].[Store Size in SQFT].[39696]]",
             members.toString());
     }
 
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testMondrian1499(Context<?> context) throws Exception {
-        ((TestContextImpl)context).setUseAggregates(false);
-        ((TestContextImpl)context).setReadAggregates(false);
+        ((TestContextImpl) context).setUseAggregates(false);
+        ((TestContextImpl) context).setReadAggregates(false);
         /*
         class TestMondrian1499Modifier extends PojoMappingModifier {
 
@@ -20733,25 +20754,25 @@ class SchemaTest {
         withSchemaEmf(context, TestMondrian1499ModifierEmf::new);
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select {[Measures].[Org Salary]} on columns,\n"
-            + "{[Store].[Store Country].Members} on rows from [HR]",
+                + "{[Store].[Store Country].Members} on rows from [HR]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Measures].[Org Salary]}\n"
-            + "Axis #2:\n"
-            + "{[Store].[Store].[Canada]}\n"
-            + "{[Store].[Store].[Mexico]}\n"
-            + "{[Store].[Store].[USA]}\n"
-            + "Row #0: $7,473.54\n"
-            + "Row #1: $180,599.76\n"
-            + "Row #2: $83,479.14\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Measures].[Org Salary]}\n"
+                + "Axis #2:\n"
+                + "{[Store].[Store].[Canada]}\n"
+                + "{[Store].[Store].[Mexico]}\n"
+                + "{[Store].[Store].[USA]}\n"
+                + "Row #0: $7,473.54\n"
+                + "Row #1: $180,599.76\n"
+                + "Row #2: $83,479.14\n");
     }
 
     /**
-    * Testcase for bug
-    * <a href="http://jira.pentaho.com/browse/MONDRIAN-1073">MONDRIAN-1073,
-    * "Two cubes operating on same fact table gives wrong WHERE clause"</a>.
-    */
+     * Testcase for bug
+     * <a href="http://jira.pentaho.com/browse/MONDRIAN-1073">MONDRIAN-1073,
+     * "Two cubes operating on same fact table gives wrong WHERE clause"</a>.
+     */
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testMondrian1073(Context<?> context) throws Exception {
@@ -20855,13 +20876,13 @@ class SchemaTest {
         withSchemaEmf(context, TestMondrian1073ModifierEmf::new);
         assertQueryReturns(context.getConnectionWithDefaultRole(), "CubeB",
             "SELECT [Measures].[Fantastic Count for Different Types of Promotion] ON COLUMNS\n"
-            + "FROM [CubeB]",
+                + "FROM [CubeB]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Measures].[Fantastic Count for Different Types of Promotion]}\n"
-            + "Row #0: 22\n");
-  }
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Measures].[Fantastic Count for Different Types of Promotion]}\n"
+                + "Row #0: 22\n");
+    }
 
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
@@ -20907,14 +20928,14 @@ class SchemaTest {
         assertQueryReturns(context.getConnectionWithDefaultRole(),
             "select [Gender].members on 0 from sales",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Gender].[地域].[All Gender]}\n"
-            + "{[Gender].[地域].[F]}\n"
-            + "{[Gender].[地域].[M]}\n"
-            + "Row #0: 266,773\n"
-            + "Row #0: 131,558\n"
-            + "Row #0: 135,215\n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Gender].[地域].[All Gender]}\n"
+                + "{[Gender].[地域].[F]}\n"
+                + "{[Gender].[地域].[M]}\n"
+                + "Row #0: 266,773\n"
+                + "Row #0: 131,558\n"
+                + "Row #0: 135,215\n");
     }
 
     @ParameterizedTest
@@ -20985,8 +21006,8 @@ class SchemaTest {
             }
         }
         */
-                // Default member [Measures].[Unit Sales] is denied for the current role.
-      // Before the fix ClassCastException was thrown on query.
+        // Default member [Measures].[Unit Sales] is denied for the current role.
+        // Before the fix ClassCastException was thrown on query.
 
       /*
       String baseSchema = TestUtil.getRawSchema(context);
@@ -21018,24 +21039,24 @@ class SchemaTest {
        */
         withSchemaEmf(context, TestBugMonrian2528ModifierEmf::new);
 
-      assertQueryReturns(((TestContext)context).getConnection(new ConnectionProps(List.of("dev"))),
-          "SELECT\n"
-          + "[Product].[All Products] ON 0,\n"
-          + "[Measures].[Store Sales] ON 1\n"
-          + "FROM [Sales]\n"
-          + "WHERE FILTER([Store Type].children, [Store Type].CURRENTMEMBER NOT IN {[Store Type].[Deluxe Supermarket], [Store Type].[Gourmet Supermarket]})\n",
-          "Axis #0:\n"
-          + "{[Store Type].[Store Type].[HeadQuarters]}\n"
-          + "{[Store Type].[Store Type].[Mid-Size Grocery]}\n"
-          + "{[Store Type].[Store Type].[Small Grocery]}\n"
-          + "{[Store Type].[Store Type].[Supermarket]}\n"
-          + "Axis #1:\n"
-          + "{[Product].[Product].[All Products]}\n"
-          + "Axis #2:\n"
-          + "{[Measures].[Store Sales]}\n"
-          + "Row #0: 357,425.65\n"
-);
-  }
+        assertQueryReturns(((TestContext) context).getConnection(new ConnectionProps(List.of("dev"))),
+            "SELECT\n"
+                + "[Product].[All Products] ON 0,\n"
+                + "[Measures].[Store Sales] ON 1\n"
+                + "FROM [Sales]\n"
+                + "WHERE FILTER([Store Type].children, [Store Type].CURRENTMEMBER NOT IN {[Store Type].[Deluxe Supermarket], [Store Type].[Gourmet Supermarket]})\n",
+            "Axis #0:\n"
+                + "{[Store Type].[Store Type].[HeadQuarters]}\n"
+                + "{[Store Type].[Store Type].[Mid-Size Grocery]}\n"
+                + "{[Store Type].[Store Type].[Small Grocery]}\n"
+                + "{[Store Type].[Store Type].[Supermarket]}\n"
+                + "Axis #1:\n"
+                + "{[Product].[Product].[All Products]}\n"
+                + "Axis #2:\n"
+                + "{[Measures].[Store Sales]}\n"
+                + "Row #0: 357,425.65\n"
+        );
+    }
 
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)

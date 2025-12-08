@@ -170,7 +170,7 @@ class MemberCacheControlTest {
     /**
      * Creates a map.
      *
-     * @param keys Keys
+     * @param keys   Keys
      * @param values Values
      * @return Map
      */
@@ -187,16 +187,15 @@ class MemberCacheControlTest {
      * Finds a Member by its name and the name of its containing cube.
      *
      * @param connection connection
-     * @param cubeName Cube name
-     * @param names the full-qualified Member name
+     * @param cubeName   Cube name
+     * @param names      the full-qualified Member name
      * @return the Member
      * @throws OlapRuntimeException when not found.
      */
     protected static RolapMember findMember(
         Connection connection,
         String cubeName,
-        String... names)
-    {
+        String... names) {
         Cube cube = connection.getCatalog().lookupCube(cubeName).orElseThrow();
         CatalogReader scr = cube.getCatalogReader(null).withLocus();
         return (RolapMember)
@@ -206,14 +205,13 @@ class MemberCacheControlTest {
     /**
      * Prints all properties of a Member.
      *
-     * @param pw Print writer
+     * @param pw     Print writer
      * @param member Member
      * @return the same print writer
      */
     private static PrintWriter printMemberProperties(
         PrintWriter pw,
-        Member member)
-    {
+        Member member) {
         pw.print(member.getUniqueName());
         pw.print(" {");
         int k = -1;
@@ -253,14 +251,13 @@ class MemberCacheControlTest {
     /**
      * Prints properties of all Members on an Axis.
      *
-     * @param pw Print writer
+     * @param pw   Print writer
      * @param axis Axis
      * @return the same print writer
      */
     private static PrintWriter printMemberProperties(
         PrintWriter pw,
-        Axis axis)
-    {
+        Axis axis) {
         for (Position pos : axis.getPositions()) {
             for (Member m : pos) {
                 printMemberProperties(pw, m).println();
@@ -272,14 +269,13 @@ class MemberCacheControlTest {
     /**
      * Prints properties of the Row Axis from a Result.
      *
-     * @param pw Print writer
+     * @param pw     Print writer
      * @param result Result
      * @return the same print writer
      */
     private static PrintWriter printRowMemberProperties(
         PrintWriter pw,
-        Result result)
-    {
+        Result result) {
         return printMemberProperties(
             pw,
             result.getAxes()[
@@ -295,8 +291,7 @@ class MemberCacheControlTest {
     }
 
     private CacheControl.MemberSet createInterestingMemberSet(
-        Connection connection, CacheControl cc)
-    {
+        Connection connection, CacheControl cc) {
         return cc.createUnionSet(
             // all stores in OR
             cc.createMemberSet(findMember(connection, "Sales", "Retail", "OR"), true),
@@ -329,7 +324,7 @@ class MemberCacheControlTest {
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testFilter(Context<?> context) {
-    	context.getCatalogCache().clear();
+        context.getCatalogCache().clear();
         prepareTestContext(context);
         final Connection conn = context.getConnectionWithDefaultRole();
         final DiffRepository dr = getDiffRepos();
@@ -349,7 +344,7 @@ class MemberCacheControlTest {
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testMemberOpsFailIfCacheEnabled(Context<?> context) {
-    	context.getCatalogCache().clear();
+        context.getCatalogCache().clear();
         SystemWideProperties.instance().EnableRolapCubeMemberCache = true;
         prepareTestContext(context);
         final Connection conn = context.getConnectionWithDefaultRole();
@@ -362,8 +357,8 @@ class MemberCacheControlTest {
         } catch (IllegalArgumentException e) {
             assertEquals(
                 "Member cache control operations are not allowed unless "
-                + "property daanse.rolap.EnableRolapCubeMemberCache is "
-                + "false",
+                    + "property daanse.rolap.EnableRolapCubeMemberCache is "
+                    + "false",
                 e.getMessage());
         }
     }
@@ -374,8 +369,8 @@ class MemberCacheControlTest {
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testSetPropertyCommandOnLeafMember(Context<?> context) {
-    	context.getCatalogCache().clear();
-    	prepareTestContext(context);
+        context.getCatalogCache().clear();
+        prepareTestContext(context);
         final Connection conn = context.getConnectionWithDefaultRole();
         final DiffRepository dr = getDiffRepos();
         final CacheControl cc = conn.getCacheControl(null);
@@ -385,8 +380,8 @@ class MemberCacheControlTest {
         // check that the MDX results are invariant.
         String mdx =
             "SELECT {[Measures].[Unit Sales]} ON COLUMNS,"
-            + " {[Store].[USA].[CA].[San Francisco].[Store 14]}"
-            + " ON ROWS FROM [Sales]";
+                + " {[Store].[USA].[CA].[San Francisco].[Store 14]}"
+                + " ON ROWS FROM [Sales]";
         Query q = conn.parseQuery(mdx);
         Result r = conn.execute(q);
         dr.assertEquals(
@@ -432,8 +427,8 @@ class MemberCacheControlTest {
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testSetPropertyCommandOnNonLeafMember(Context<?> context) {
-    	context.getCatalogCache().clear();
-    	prepareTestContext(context);
+        context.getCatalogCache().clear();
+        prepareTestContext(context);
         final Connection conn = context.getConnectionWithDefaultRole();
         final DiffRepository dr = getDiffRepos();
         final CacheControl cc = conn.getCacheControl(null);
@@ -482,9 +477,9 @@ class MemberCacheControlTest {
             cc.filter(hqMember.getLevel(), memberSet);
         command =
             cc.createSetPropertyCommand(filteredMemberSet, propertyValues);
-        final MemberEditCommand c = command; 
+        final MemberEditCommand c = command;
         ExecutionContext.where(executionContext, () -> {
-        	cc.execute(c);
+            cc.execute(c);
         });
 
 
@@ -503,7 +498,7 @@ class MemberCacheControlTest {
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testAddCommand(Context<?> context) {
-    	context.getCatalogCache().clear();
+        context.getCatalogCache().clear();
         prepareTestContext(context);
         final Connection conn = context.getConnectionWithDefaultRole();
         final CacheControl cc = conn.getCacheControl(null);
@@ -525,7 +520,7 @@ class MemberCacheControlTest {
             (RolapCubeMember) findMember(
                 conn, "Sales", "Time", "Year", "1997");
         final Member[] cacheRegionMembers =
-            new Member[] {
+            new Member[]{
                 unitSalesCubeMember,
                 caCubeMember,
                 yearCubeMember
@@ -534,63 +529,63 @@ class MemberCacheControlTest {
         assertQueryReturns(conn,
             "select {[Retail].[City].Members} on columns from [Sales]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Retail].[Retail].[BC].[Vancouver]}\n"
-            + "{[Retail].[Retail].[BC].[Victoria]}\n"
-            + "{[Retail].[Retail].[CA].[Alameda]}\n"
-            + "{[Retail].[Retail].[CA].[Beverly Hills]}\n"
-            + "{[Retail].[Retail].[CA].[Los Angeles]}\n"
-            + "{[Retail].[Retail].[CA].[San Diego]}\n"
-            + "{[Retail].[Retail].[CA].[San Francisco]}\n"
-            + "{[Retail].[Retail].[DF].[Mexico City]}\n"
-            + "{[Retail].[Retail].[DF].[San Andres]}\n"
-            + "{[Retail].[Retail].[Guerrero].[Acapulco]}\n"
-            + "{[Retail].[Retail].[Jalisco].[Guadalajara]}\n"
-            + "{[Retail].[Retail].[OR].[Portland]}\n"
-            + "{[Retail].[Retail].[OR].[Salem]}\n"
-            + "{[Retail].[Retail].[Veracruz].[Orizaba]}\n"
-            + "{[Retail].[Retail].[WA].[Bellingham]}\n"
-            + "{[Retail].[Retail].[WA].[Bremerton]}\n"
-            + "{[Retail].[Retail].[WA].[Seattle]}\n"
-            + "{[Retail].[Retail].[WA].[Spokane]}\n"
-            + "{[Retail].[Retail].[WA].[Tacoma]}\n"
-            + "{[Retail].[Retail].[WA].[Walla Walla]}\n"
-            + "{[Retail].[Retail].[WA].[Yakima]}\n"
-            + "{[Retail].[Retail].[Yucatan].[Merida]}\n"
-            + "{[Retail].[Retail].[Zacatecas].[Camacho]}\n"
-            + "{[Retail].[Retail].[Zacatecas].[Hidalgo]}\n"
-            + "Row #0: \n"
-            + "Row #0: \n"
-            + "Row #0: \n"
-            + "Row #0: 21,333\n"
-            + "Row #0: 25,663\n"
-            + "Row #0: 25,635\n"
-            + "Row #0: 2,117\n"
-            + "Row #0: \n"
-            + "Row #0: \n"
-            + "Row #0: \n"
-            + "Row #0: \n"
-            + "Row #0: 26,079\n"
-            + "Row #0: 41,580\n"
-            + "Row #0: \n"
-            + "Row #0: 2,237\n"
-            + "Row #0: 24,576\n"
-            + "Row #0: 25,011\n"
-            + "Row #0: 23,591\n"
-            + "Row #0: 35,257\n"
-            + "Row #0: 2,203\n"
-            + "Row #0: 11,491\n"
-            + "Row #0: \n"
-            + "Row #0: \n"
-            + "Row #0: \n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Retail].[Retail].[BC].[Vancouver]}\n"
+                + "{[Retail].[Retail].[BC].[Victoria]}\n"
+                + "{[Retail].[Retail].[CA].[Alameda]}\n"
+                + "{[Retail].[Retail].[CA].[Beverly Hills]}\n"
+                + "{[Retail].[Retail].[CA].[Los Angeles]}\n"
+                + "{[Retail].[Retail].[CA].[San Diego]}\n"
+                + "{[Retail].[Retail].[CA].[San Francisco]}\n"
+                + "{[Retail].[Retail].[DF].[Mexico City]}\n"
+                + "{[Retail].[Retail].[DF].[San Andres]}\n"
+                + "{[Retail].[Retail].[Guerrero].[Acapulco]}\n"
+                + "{[Retail].[Retail].[Jalisco].[Guadalajara]}\n"
+                + "{[Retail].[Retail].[OR].[Portland]}\n"
+                + "{[Retail].[Retail].[OR].[Salem]}\n"
+                + "{[Retail].[Retail].[Veracruz].[Orizaba]}\n"
+                + "{[Retail].[Retail].[WA].[Bellingham]}\n"
+                + "{[Retail].[Retail].[WA].[Bremerton]}\n"
+                + "{[Retail].[Retail].[WA].[Seattle]}\n"
+                + "{[Retail].[Retail].[WA].[Spokane]}\n"
+                + "{[Retail].[Retail].[WA].[Tacoma]}\n"
+                + "{[Retail].[Retail].[WA].[Walla Walla]}\n"
+                + "{[Retail].[Retail].[WA].[Yakima]}\n"
+                + "{[Retail].[Retail].[Yucatan].[Merida]}\n"
+                + "{[Retail].[Retail].[Zacatecas].[Camacho]}\n"
+                + "{[Retail].[Retail].[Zacatecas].[Hidalgo]}\n"
+                + "Row #0: \n"
+                + "Row #0: \n"
+                + "Row #0: \n"
+                + "Row #0: 21,333\n"
+                + "Row #0: 25,663\n"
+                + "Row #0: 25,635\n"
+                + "Row #0: 2,117\n"
+                + "Row #0: \n"
+                + "Row #0: \n"
+                + "Row #0: \n"
+                + "Row #0: \n"
+                + "Row #0: 26,079\n"
+                + "Row #0: 41,580\n"
+                + "Row #0: \n"
+                + "Row #0: 2,237\n"
+                + "Row #0: 24,576\n"
+                + "Row #0: 25,011\n"
+                + "Row #0: 23,591\n"
+                + "Row #0: 35,257\n"
+                + "Row #0: 2,203\n"
+                + "Row #0: 11,491\n"
+                + "Row #0: \n"
+                + "Row #0: \n"
+                + "Row #0: \n");
         assertAxisReturns(conn, "Sales",
             "[Retail].[Retail].[CA].Children",
             "[Retail].[Retail].[CA].[Alameda]\n"
-            + "[Retail].[Retail].[CA].[Beverly Hills]\n"
-            + "[Retail].[Retail].[CA].[Los Angeles]\n"
-            + "[Retail].[Retail].[CA].[San Diego]\n"
-            + "[Retail].[Retail].[CA].[San Francisco]");
+                + "[Retail].[Retail].[CA].[Beverly Hills]\n"
+                + "[Retail].[Retail].[CA].[Los Angeles]\n"
+                + "[Retail].[Retail].[CA].[San Diego]\n"
+                + "[Retail].[Retail].[CA].[San Francisco]");
         final MemberReader memberReader = hierarchy.getMemberReader();
         final MemberCache memberCache =
             ((SmartMemberReader) memberReader).getMemberCache();
@@ -604,12 +599,12 @@ class MemberCacheControlTest {
 
         AbstractBasicContext<?> abc = (AbstractBasicContext) conn.getContext();
         final IAggregationManager aggMgr =
-          abc.getAggregationManager();
+            abc.getAggregationManager();
         ExecutionContext.where(executionContext, () -> {
-        assertEquals(
-            Double.valueOf("74748"),
-            ((AggregationManager)aggMgr).getCellFromAllCaches(
-                AggregationManager.makeRequest(cacheRegionMembers), conn));
+            assertEquals(
+                Double.valueOf("74748"),
+                ((AggregationManager) aggMgr).getCellFromAllCaches(
+                    AggregationManager.makeRequest(cacheRegionMembers), conn));
         });
         // Now tell the cache that [CA].[Berkeley] is new
         final MemberEditCommand command =
@@ -619,99 +614,99 @@ class MemberCacheControlTest {
         // test that cells have been removed
         ExecutionContext.where(executionContext, () -> {
             assertNull(
-                ((AggregationManager)aggMgr).getCellFromAllCaches(
-                AggregationManager.makeRequest(cacheRegionMembers), conn));
-    	});
+                ((AggregationManager) aggMgr).getCellFromAllCaches(
+                    AggregationManager.makeRequest(cacheRegionMembers), conn));
+        });
         assertAxisReturns(conn, "Sales",
             "[Retail].[Retail].[CA].Children",
             "[Retail].[Retail].[CA].[Alameda]\n"
-            + "[Retail].[Retail].[CA].[Beverly Hills]\n"
-            + "[Retail].[Retail].[CA].[Los Angeles]\n"
-            + "[Retail].[Retail].[CA].[San Diego]\n"
-            + "[Retail].[Retail].[CA].[San Francisco]\n"
-            + "[Retail].[Retail].[CA].[Berkeley]");
+                + "[Retail].[Retail].[CA].[Beverly Hills]\n"
+                + "[Retail].[Retail].[CA].[Los Angeles]\n"
+                + "[Retail].[Retail].[CA].[San Diego]\n"
+                + "[Retail].[Retail].[CA].[San Francisco]\n"
+                + "[Retail].[Retail].[CA].[Berkeley]");
 
         assertQueryReturns(conn,
             "select {[Retail].[Retail].[City].Members} on columns from [Sales]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Retail].[Retail].[BC].[Vancouver]}\n"
-            + "{[Retail].[Retail].[BC].[Victoria]}\n"
-            + "{[Retail].[Retail].[CA].[Alameda]}\n"
-            + "{[Retail].[Retail].[CA].[Berkeley]}\n"
-            + "{[Retail].[Retail].[CA].[Beverly Hills]}\n"
-            + "{[Retail].[Retail].[CA].[Los Angeles]}\n"
-            + "{[Retail].[Retail].[CA].[San Diego]}\n"
-            + "{[Retail].[Retail].[CA].[San Francisco]}\n"
-            + "{[Retail].[Retail].[DF].[Mexico City]}\n"
-            + "{[Retail].[Retail].[DF].[San Andres]}\n"
-            + "{[Retail].[Retail].[Guerrero].[Acapulco]}\n"
-            + "{[Retail].[Retail].[Jalisco].[Guadalajara]}\n"
-            + "{[Retail].[Retail].[OR].[Portland]}\n"
-            + "{[Retail].[Retail].[OR].[Salem]}\n"
-            + "{[Retail].[Retail].[Veracruz].[Orizaba]}\n"
-            + "{[Retail].[Retail].[WA].[Bellingham]}\n"
-            + "{[Retail].[Retail].[WA].[Bremerton]}\n"
-            + "{[Retail].[Retail].[WA].[Seattle]}\n"
-            + "{[Retail].[Retail].[WA].[Spokane]}\n"
-            + "{[Retail].[Retail].[WA].[Tacoma]}\n"
-            + "{[Retail].[Retail].[WA].[Walla Walla]}\n"
-            + "{[Retail].[Retail].[WA].[Yakima]}\n"
-            + "{[Retail].[Retail].[Yucatan].[Merida]}\n"
-            + "{[Retail].[Retail].[Zacatecas].[Camacho]}\n"
-            + "{[Retail].[Retail].[Zacatecas].[Hidalgo]}\n"
-            + "Row #0: \n"
-            + "Row #0: \n"
-            + "Row #0: \n"
-            + "Row #0: \n"
-            + "Row #0: 21,333\n"
-            + "Row #0: 25,663\n"
-            + "Row #0: 25,635\n"
-            + "Row #0: 2,117\n"
-            + "Row #0: \n"
-            + "Row #0: \n"
-            + "Row #0: \n"
-            + "Row #0: \n"
-            + "Row #0: 26,079\n"
-            + "Row #0: 41,580\n"
-            + "Row #0: \n"
-            + "Row #0: 2,237\n"
-            + "Row #0: 24,576\n"
-            + "Row #0: 25,011\n"
-            + "Row #0: 23,591\n"
-            + "Row #0: 35,257\n"
-            + "Row #0: 2,203\n"
-            + "Row #0: 11,491\n"
-            + "Row #0: \n"
-            + "Row #0: \n"
-            + "Row #0: \n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Retail].[Retail].[BC].[Vancouver]}\n"
+                + "{[Retail].[Retail].[BC].[Victoria]}\n"
+                + "{[Retail].[Retail].[CA].[Alameda]}\n"
+                + "{[Retail].[Retail].[CA].[Berkeley]}\n"
+                + "{[Retail].[Retail].[CA].[Beverly Hills]}\n"
+                + "{[Retail].[Retail].[CA].[Los Angeles]}\n"
+                + "{[Retail].[Retail].[CA].[San Diego]}\n"
+                + "{[Retail].[Retail].[CA].[San Francisco]}\n"
+                + "{[Retail].[Retail].[DF].[Mexico City]}\n"
+                + "{[Retail].[Retail].[DF].[San Andres]}\n"
+                + "{[Retail].[Retail].[Guerrero].[Acapulco]}\n"
+                + "{[Retail].[Retail].[Jalisco].[Guadalajara]}\n"
+                + "{[Retail].[Retail].[OR].[Portland]}\n"
+                + "{[Retail].[Retail].[OR].[Salem]}\n"
+                + "{[Retail].[Retail].[Veracruz].[Orizaba]}\n"
+                + "{[Retail].[Retail].[WA].[Bellingham]}\n"
+                + "{[Retail].[Retail].[WA].[Bremerton]}\n"
+                + "{[Retail].[Retail].[WA].[Seattle]}\n"
+                + "{[Retail].[Retail].[WA].[Spokane]}\n"
+                + "{[Retail].[Retail].[WA].[Tacoma]}\n"
+                + "{[Retail].[Retail].[WA].[Walla Walla]}\n"
+                + "{[Retail].[Retail].[WA].[Yakima]}\n"
+                + "{[Retail].[Retail].[Yucatan].[Merida]}\n"
+                + "{[Retail].[Retail].[Zacatecas].[Camacho]}\n"
+                + "{[Retail].[Retail].[Zacatecas].[Hidalgo]}\n"
+                + "Row #0: \n"
+                + "Row #0: \n"
+                + "Row #0: \n"
+                + "Row #0: \n"
+                + "Row #0: 21,333\n"
+                + "Row #0: 25,663\n"
+                + "Row #0: 25,635\n"
+                + "Row #0: 2,117\n"
+                + "Row #0: \n"
+                + "Row #0: \n"
+                + "Row #0: \n"
+                + "Row #0: \n"
+                + "Row #0: 26,079\n"
+                + "Row #0: 41,580\n"
+                + "Row #0: \n"
+                + "Row #0: 2,237\n"
+                + "Row #0: 24,576\n"
+                + "Row #0: 25,011\n"
+                + "Row #0: 23,591\n"
+                + "Row #0: 35,257\n"
+                + "Row #0: 2,203\n"
+                + "Row #0: 11,491\n"
+                + "Row #0: \n"
+                + "Row #0: \n"
+                + "Row #0: \n");
 
         assertQueryReturns(conn,
             "select [Retail].[Retail].Children on 0 from [Sales]",
             "Axis #0:\n"
-            + "{}\n"
-            + "Axis #1:\n"
-            + "{[Retail].[Retail].[BC]}\n"
-            + "{[Retail].[Retail].[CA]}\n"
-            + "{[Retail].[Retail].[DF]}\n"
-            + "{[Retail].[Retail].[Guerrero]}\n"
-            + "{[Retail].[Retail].[Jalisco]}\n"
-            + "{[Retail].[Retail].[OR]}\n"
-            + "{[Retail].[Retail].[Veracruz]}\n"
-            + "{[Retail].[Retail].[WA]}\n"
-            + "{[Retail].[Retail].[Yucatan]}\n"
-            + "{[Retail].[Retail].[Zacatecas]}\n"
-            + "Row #0: \n"
-            + "Row #0: 74,748\n"
-            + "Row #0: \n"
-            + "Row #0: \n"
-            + "Row #0: \n"
-            + "Row #0: 67,659\n"
-            + "Row #0: \n"
-            + "Row #0: 124,366\n"
-            + "Row #0: \n"
-            + "Row #0: \n");
+                + "{}\n"
+                + "Axis #1:\n"
+                + "{[Retail].[Retail].[BC]}\n"
+                + "{[Retail].[Retail].[CA]}\n"
+                + "{[Retail].[Retail].[DF]}\n"
+                + "{[Retail].[Retail].[Guerrero]}\n"
+                + "{[Retail].[Retail].[Jalisco]}\n"
+                + "{[Retail].[Retail].[OR]}\n"
+                + "{[Retail].[Retail].[Veracruz]}\n"
+                + "{[Retail].[Retail].[WA]}\n"
+                + "{[Retail].[Retail].[Yucatan]}\n"
+                + "{[Retail].[Retail].[Zacatecas]}\n"
+                + "Row #0: \n"
+                + "Row #0: 74,748\n"
+                + "Row #0: \n"
+                + "Row #0: \n"
+                + "Row #0: \n"
+                + "Row #0: 67,659\n"
+                + "Row #0: \n"
+                + "Row #0: 124,366\n"
+                + "Row #0: \n"
+                + "Row #0: \n");
 
         List<RolapMember> rootChildren =
             memberCache.getChildrenFromCache(rootMember, null);
@@ -724,7 +719,7 @@ class MemberCacheControlTest {
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testDeleteCommand(Context<?> context) {
-    	context.getCatalogCache().clear();
+        context.getCatalogCache().clear();
         prepareTestContext(context);
         final Connection conn = context.getConnectionWithDefaultRole();
         final CacheControl cc = conn.getCacheControl(null);
@@ -740,7 +735,7 @@ class MemberCacheControlTest {
             (RolapCubeMember) findMember(
                 conn, "Sales", "Time", "Year", "1997");
         final Member[] cacheRegionMembers =
-            new Member[] {
+            new Member[]{
                 unitSalesCubeMember,
                 sfCubeMember,
                 yearCubeMember
@@ -749,10 +744,10 @@ class MemberCacheControlTest {
         assertAxisReturns(conn, "Sales",
             "[Retail].[CA].Children",
             "[Retail].[Retail].[CA].[Alameda]\n"
-            + "[Retail].[Retail].[CA].[Beverly Hills]\n"
-            + "[Retail].[Retail].[CA].[Los Angeles]\n"
-            + "[Retail].[Retail].[CA].[San Diego]\n"
-            + "[Retail].[Retail].[CA].[San Francisco]");
+                + "[Retail].[Retail].[CA].[Beverly Hills]\n"
+                + "[Retail].[Retail].[CA].[Los Angeles]\n"
+                + "[Retail].[Retail].[CA].[San Diego]\n"
+                + "[Retail].[Retail].[CA].[San Francisco]");
 
         final MemberReader memberReader = hierarchy.getMemberReader();
         final MemberCache memberCache =
@@ -769,8 +764,8 @@ class MemberCacheControlTest {
             abc.getAggregationManager();
         ExecutionContext.where(executionContext, () -> {
             assertEquals(
-                    Double.valueOf("2117"),
-                    ((AggregationManager)aggMgr).getCellFromAllCaches(
+                Double.valueOf("2117"),
+                ((AggregationManager) aggMgr).getCellFromAllCaches(
                     AggregationManager.makeRequest(cacheRegionMembers), conn));
         });
 
@@ -786,24 +781,24 @@ class MemberCacheControlTest {
 
         // test that cells have been removed
         ExecutionContext.where(executionContext, () -> {
-        assertNull(
-            ((AggregationManager)aggMgr).getCellFromAllCaches(
-                AggregationManager.makeRequest(cacheRegionMembers), conn));
+            assertNull(
+                ((AggregationManager) aggMgr).getCellFromAllCaches(
+                    AggregationManager.makeRequest(cacheRegionMembers), conn));
         });
         // The list of children should be updated.
         assertAxisReturns(conn, "Sales",
             "[Retail].[Retail].[CA].Children",
             "[Retail].[Retail].[CA].[Alameda]\n"
-            + "[Retail].[Retail].[CA].[Beverly Hills]\n"
-            + "[Retail].[Retail].[CA].[Los Angeles]\n"
-            + "[Retail].[Retail].[CA].[San Diego]");
+                + "[Retail].[Retail].[CA].[Beverly Hills]\n"
+                + "[Retail].[Retail].[CA].[Los Angeles]\n"
+                + "[Retail].[Retail].[CA].[San Diego]");
     }
 
     @Disabled //TODO need investigate
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testMoveCommand(Context<?> context) {
-    	context.getCatalogCache().clear();
+        context.getCatalogCache().clear();
         prepareTestContext(context);
         final Connection conn = context.getConnectionWithDefaultRole();
         final CacheControl cc = conn.getCacheControl(null);
@@ -837,10 +832,10 @@ class MemberCacheControlTest {
         assertAxisReturns(conn, "Sales",
             "[Retail].[CA].Children",
             "[Retail].[CA].[Alameda]\n"
-            + "[Retail].[CA].[Beverly Hills]\n"
-            + "[Retail].[CA].[Los Angeles]\n"
-            + "[Retail].[CA].[San Diego]\n"
-            + "[Retail].[CA].[San Francisco]");
+                + "[Retail].[CA].[Beverly Hills]\n"
+                + "[Retail].[CA].[Los Angeles]\n"
+                + "[Retail].[CA].[San Diego]\n"
+                + "[Retail].[CA].[San Francisco]");
         assertAxisReturns(conn, "Sales",
             "[Retail].[CA].[Alameda].Children",
             "[Retail].[CA].[Alameda].[HQ]");
@@ -880,7 +875,7 @@ class MemberCacheControlTest {
         assertAxisReturns(conn, "Sales",
             "[Retail].[CA].[Alameda].Children",
             "[Retail].[CA].[Alameda].[HQ]\n"
-            + "[Retail].[CA].[Alameda].[Store 14]");
+                + "[Retail].[CA].[Alameda].[Store 14]");
 
         // Test parent object
         assertTrue(
@@ -891,7 +886,7 @@ class MemberCacheControlTest {
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testMoveFailBadLevel(Context<?> context) {
-    	context.getCatalogCache().clear();
+        context.getCatalogCache().clear();
         prepareTestContext(context);
         final Connection conn = context.getConnectionWithDefaultRole();
         final CacheControl cc = conn.getCacheControl(null);
@@ -919,10 +914,10 @@ class MemberCacheControlTest {
         assertAxisReturns(conn, "Sales",
             "[Retail].[CA].Children",
             "[Retail].[CA].[Alameda]\n"
-            + "[Retail].[CA].[Beverly Hills]\n"
-            + "[Retail].[CA].[Los Angeles]\n"
-            + "[Retail].[CA].[San Diego]\n"
-            + "[Retail].[CA].[San Francisco]");
+                + "[Retail].[CA].[Beverly Hills]\n"
+                + "[Retail].[CA].[Los Angeles]\n"
+                + "[Retail].[CA].[San Diego]\n"
+                + "[Retail].[CA].[San Francisco]");
         assertAxisReturns(conn, "Sales",
             "[Retail].[CA].[San Francisco].Children",
             "[Retail].[CA].[San Francisco].[Store 14]");
@@ -957,10 +952,10 @@ class MemberCacheControlTest {
         assertAxisReturns(conn, "Sales",
             "[Retail].[CA].Children",
             "[Retail].[CA].[Alameda]\n"
-            + "[Retail].[CA].[Beverly Hills]\n"
-            + "[Retail].[CA].[Los Angeles]\n"
-            + "[Retail].[CA].[San Diego]\n"
-            + "[Retail].[CA].[San Francisco]");
+                + "[Retail].[CA].[Beverly Hills]\n"
+                + "[Retail].[CA].[Los Angeles]\n"
+                + "[Retail].[CA].[San Diego]\n"
+                + "[Retail].[CA].[San Francisco]");
 
         // Test parent object. should be the same
         assertTrue(
@@ -974,7 +969,7 @@ class MemberCacheControlTest {
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testAddCommandNegative(Context<?> context) {
-    	context.getCatalogCache().clear();
+        context.getCatalogCache().clear();
         prepareTestContext(context);
         final Connection conn = context.getConnectionWithDefaultRole();
         final CacheControl cc = conn.getCacheControl(null);
@@ -1087,13 +1082,13 @@ class MemberCacheControlTest {
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testFlushHierarchy(Context<?> context) {
-    	context.getCatalogCache().clear();
+        context.getCatalogCache().clear();
         prepareTestContext(context);
         flushCache(context.getConnectionWithDefaultRole());
         final CacheControl cacheControl =
             context.getConnectionWithDefaultRole().getCacheControl(null);
         final Cube salesCube =
-                context.getConnectionWithDefaultRole()
+            context.getConnectionWithDefaultRole()
                 .getCatalog().lookupCube("Sales").orElseThrow();
 
         final Logger logger = RolapUtil.SQL_LOGGER;
@@ -1112,7 +1107,7 @@ class MemberCacheControlTest {
             final Runnable storeFlusher =
                 new Runnable() {
                     @Override
-					public void run() {
+                    public void run() {
                         cacheControl.flush(storeMemberSet);
                     }
                 };
@@ -1128,7 +1123,7 @@ class MemberCacheControlTest {
             final Runnable storeYucatanFlusher =
                 new Runnable() {
                     @Override
-					public void run() {
+                    public void run() {
                         cacheControl.flush(storeYucatanMemberSet);
                     }
                 };
@@ -1137,30 +1132,30 @@ class MemberCacheControlTest {
                 sw, true, storeFlusher,
                 new Runnable() {
                     @Override
-					public void run() {
+                    public void run() {
                         // Check that <Member>.Children uses cache when applied
                         // to an 'all' member.
                         assertAxisReturns(context.getConnectionWithDefaultRole(), "Sales",
                             "[Store].Children",
                             "[Store].[Canada]\n"
-                            + "[Store].[Mexico]\n"
-                            + "[Store].[USA]");
+                                + "[Store].[Mexico]\n"
+                                + "[Store].[USA]");
                     }
                 });
             checkFlushHierarchy(
                 sw, true, storeFlusher,
                 new Runnable() {
                     @Override
-					public void run() {
+                    public void run() {
                         // Check that <Member>.Children uses cache when applied
                         // to regular member.
                         assertAxisReturns(context.getConnectionWithDefaultRole(), "Sales",
                             "[Store].[USA].[CA].Children",
                             "[Store].[USA].[CA].[Alameda]\n"
-                            + "[Store].[USA].[CA].[Beverly Hills]\n"
-                            + "[Store].[USA].[CA].[Los Angeles]\n"
-                            + "[Store].[USA].[CA].[San Diego]\n"
-                            + "[Store].[USA].[CA].[San Francisco]");
+                                + "[Store].[USA].[CA].[Beverly Hills]\n"
+                                + "[Store].[USA].[CA].[Los Angeles]\n"
+                                + "[Store].[USA].[CA].[San Diego]\n"
+                                + "[Store].[USA].[CA].[San Francisco]");
                     }
                 });
 
@@ -1170,23 +1165,23 @@ class MemberCacheControlTest {
                 sw, false, storeYucatanFlusher,
                 new Runnable() {
                     @Override
-					public void run() {
+                    public void run() {
                         // Check that <Member>.Children uses cache when applied
                         // to regular member.
                         assertAxisReturns(context.getConnectionWithDefaultRole(), "Sales",
                             "[Store].[USA].[CA].Children",
                             "[Store].[USA].[CA].[Alameda]\n"
-                            + "[Store].[USA].[CA].[Beverly Hills]\n"
-                            + "[Store].[USA].[CA].[Los Angeles]\n"
-                            + "[Store].[USA].[CA].[San Diego]\n"
-                            + "[Store].[USA].[CA].[San Francisco]");
+                                + "[Store].[USA].[CA].[Beverly Hills]\n"
+                                + "[Store].[USA].[CA].[Los Angeles]\n"
+                                + "[Store].[USA].[CA].[San Diego]\n"
+                                + "[Store].[USA].[CA].[San Francisco]");
                     }
                 });
 
             checkFlushHierarchy(
                 sw, true, storeFlusher, new Runnable() {
                     @Override
-					public void run() {
+                    public void run() {
                         // Check that <Hierarchy>.Members uses cache.
                         assertExprReturns(context.getConnectionWithDefaultRole(), "Sales",
                             "Count([Store].Members)", "63");
@@ -1195,7 +1190,7 @@ class MemberCacheControlTest {
             checkFlushHierarchy(
                 sw, true, storeFlusher, new Runnable() {
                     @Override
-					public void run() {
+                    public void run() {
                         // Check that <Level>.Members uses cache.
                         assertExprReturns(context.getConnectionWithDefaultRole(), "Sales",
                             "Count([Store].[Store Name].Members)", "25");
@@ -1215,7 +1210,7 @@ class MemberCacheControlTest {
             final Runnable timeFlusher =
                 new Runnable() {
                     @Override
-					public void run() {
+                    public void run() {
                         cacheControl.flush(timeMemberSet);
                     }
                 };
@@ -1224,7 +1219,7 @@ class MemberCacheControlTest {
                 sw, true, timeFlusher,
                 new Runnable() {
                     @Override
-					public void run() {
+                    public void run() {
                         // Check that <Level>.Members uses cache.
                         assertExprReturns(context.getConnectionWithDefaultRole(), "Sales",
                             "Count([Time].[Month].Members)",
@@ -1235,13 +1230,13 @@ class MemberCacheControlTest {
                 sw, true, timeFlusher,
                 new Runnable() {
                     @Override
-					public void run() {
+                    public void run() {
                         // Check that <Level>.Members uses cache.
                         assertAxisReturns(context.getConnectionWithDefaultRole(), "Sales",
                             "[Time].[1997].[Q2].Children",
                             "[Time].[1997].[Q2].[4]\n"
-                            + "[Time].[1997].[Q2].[5]\n"
-                            + "[Time].[1997].[Q2].[6]");
+                                + "[Time].[1997].[Q2].[5]\n"
+                                + "[Time].[1997].[Q2].[6]");
                     }
                 });
         } finally {
@@ -1254,17 +1249,16 @@ class MemberCacheControlTest {
      * the 2nd and the 3rd, flushes the cache, and makes sure that the 3rd time
      * causes SQL to be executed.
      *
-     * @param writer Writer, written into each time a SQL statement is executed
+     * @param writer   Writer, written into each time a SQL statement is executed
      * @param affected Whether the cache flush affects the command
-     * @param flusher Functor that performs cache flushing action to be tested
-     * @param command Command to execute that requires cache contents
+     * @param flusher  Functor that performs cache flushing action to be tested
+     * @param command  Command to execute that requires cache contents
      */
     private void checkFlushHierarchy(
         StringWriter writer,
         boolean affected,
         Runnable flusher,
-        Runnable command)
-    {
+        Runnable command) {
         // Run command for first time.
         command.run();
 

@@ -20,7 +20,7 @@
 7,11,2
 8,10,6
 8,11,2
-# aggregate over prod_id 
+# aggregate over prod_id
 ## TableName: test_lp_xxx_fact
 ## ColumnNames: category,product_category,amount,fact_count
 ## ColumnTypes: INTEGER,VARCHAR(30),INTEGER,INTEGER

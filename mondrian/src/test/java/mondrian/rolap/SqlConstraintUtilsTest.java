@@ -82,13 +82,11 @@ import org.opencube.junit5.propupdator.AppandFoodMartCatalog;
 /**
  * <code>SqlConstraintUtilsTest</code> tests the functions defined in
  * {@link SqlConstraintUtils}.
- *
  */
 class SqlConstraintUtilsTest {
 
     private void assertSameContent(
-        String msg, Collection<Member> expected, Collection<Member> actual)
-    {
+        String msg, Collection<Member> expected, Collection<Member> actual) {
         if (expected == null) {
             assertEquals(expected, actual, msg);
         }
@@ -106,29 +104,28 @@ class SqlConstraintUtilsTest {
         Member[] expectedByDefault,
         Member[] expectedOnDisjoint,
         Member[] argMembersArray,
-        Evaluator evaluator)
-    {
-      final List<Member> expectedListOnDisjoin =
-          Collections.unmodifiableList(Arrays.asList(expectedOnDisjoint));
-      final List<Member> expectedListByDefault =
-          Collections.unmodifiableList(Arrays.asList(expectedByDefault));
-      final List<Member> argMembersList =
-          Collections.unmodifiableList(Arrays.asList(argMembersArray));
-      assertSameContent(
-          msg + " - (list, eval)",
-          expectedListByDefault,
-          SqlConstraintUtils.expandSupportedCalculatedMembers(
-              argMembersList, evaluator).getMembers());
-      assertSameContent(
-          msg + " - (list, eval, false)",
-          expectedListByDefault,
-          SqlConstraintUtils.expandSupportedCalculatedMembers(
-              argMembersList, evaluator, false).getMembers());
-      assertSameContent(
-          msg + " - (list, eval, true)",
-          expectedListOnDisjoin,
-          SqlConstraintUtils.expandSupportedCalculatedMembers(
-              argMembersList, evaluator, true).getMembers());
+        Evaluator evaluator) {
+        final List<Member> expectedListOnDisjoin =
+            Collections.unmodifiableList(Arrays.asList(expectedOnDisjoint));
+        final List<Member> expectedListByDefault =
+            Collections.unmodifiableList(Arrays.asList(expectedByDefault));
+        final List<Member> argMembersList =
+            Collections.unmodifiableList(Arrays.asList(argMembersArray));
+        assertSameContent(
+            msg + " - (list, eval)",
+            expectedListByDefault,
+            SqlConstraintUtils.expandSupportedCalculatedMembers(
+                argMembersList, evaluator).getMembers());
+        assertSameContent(
+            msg + " - (list, eval, false)",
+            expectedListByDefault,
+            SqlConstraintUtils.expandSupportedCalculatedMembers(
+                argMembersList, evaluator, false).getMembers());
+        assertSameContent(
+            msg + " - (list, eval, true)",
+            expectedListOnDisjoin,
+            SqlConstraintUtils.expandSupportedCalculatedMembers(
+                argMembersList, evaluator, true).getMembers());
     }
 
     private Member makeNoncalculatedMember(String toString) {
@@ -146,13 +143,13 @@ class SqlConstraintUtilsTest {
 
         final String queryText =
             "SELECT {[Measures].[Customer Count]} ON 0 "
-            + "FROM [Sales] "
-            + "WHERE [Time].[1997]";
+                + "FROM [Sales] "
+                + "WHERE [Time].[1997]";
 
         final Query query = connection.parseQuery(queryText);
         final QueryAxis querySlicerAxis = query.getSlicerAxis();
         final Member slicerMember =
-            ((MemberExpression)querySlicerAxis.getSet()).getMember();
+            ((MemberExpression) querySlicerAxis.getSet()).getMember();
         final Hierarchy slicerHierarchy =
             query.getCube().getTimeHierarchy(null);
 
@@ -167,7 +164,7 @@ class SqlConstraintUtilsTest {
         CompoundSlicerRolapMember placeHolderMember =
             Mockito.mock(CompoundSlicerRolapMember.class);
         Mockito.doReturn(slicerHierarchy)
-        .when(placeHolderMember).getHierarchy();
+            .when(placeHolderMember).getHierarchy();
         // tested call
         Member r = SqlConstraintUtils.replaceCompoundSlicerPlaceholder(
             placeHolderMember, rolapEvaluator);
@@ -176,54 +173,52 @@ class SqlConstraintUtilsTest {
     }
 
 
-
     // test with a placeholder member
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
     void testExpandSupportedCalculatedMembers2(Context<?> context) {
-      final Connection connection = context.getConnectionWithDefaultRole();
+        final Connection connection = context.getConnectionWithDefaultRole();
 
-      final String queryText =
-          "SELECT {[Measures].[Customer Count]} ON 0 "
-          + "FROM [Sales] "
-          + "WHERE [Time].[1997]";
+        final String queryText =
+            "SELECT {[Measures].[Customer Count]} ON 0 "
+                + "FROM [Sales] "
+                + "WHERE [Time].[1997]";
 
-      final Query query = connection.parseQuery(queryText);
-      final QueryAxis querySlicerAxis = query.getSlicerAxis();
-      final Member slicerMember =
-          ((MemberExpression)querySlicerAxis.getSet()).getMember();
-      final Hierarchy slicerHierarchy =
-          query.getCube().getTimeHierarchy(null);
+        final Query query = connection.parseQuery(queryText);
+        final QueryAxis querySlicerAxis = query.getSlicerAxis();
+        final Member slicerMember =
+            ((MemberExpression) querySlicerAxis.getSet()).getMember();
+        final Hierarchy slicerHierarchy =
+            query.getCube().getTimeHierarchy(null);
 
-      final ExecutionImpl execution = new ExecutionImpl(query.getStatement(), Optional.empty());
-      final RolapEvaluatorRoot rolapEvaluatorRoot =
-          new RolapEvaluatorRoot(execution);
-      final RolapEvaluator rolapEvaluator =
-          new RolapEvaluator(rolapEvaluatorRoot);
-      final Member expectedMember = slicerMember;
-      setSlicerContext(rolapEvaluator, expectedMember);
+        final ExecutionImpl execution = new ExecutionImpl(query.getStatement(), Optional.empty());
+        final RolapEvaluatorRoot rolapEvaluatorRoot =
+            new RolapEvaluatorRoot(execution);
+        final RolapEvaluator rolapEvaluator =
+            new RolapEvaluator(rolapEvaluatorRoot);
+        final Member expectedMember = slicerMember;
+        setSlicerContext(rolapEvaluator, expectedMember);
 
-      CompoundSlicerRolapMember placeHolderMember =
-          Mockito.mock(CompoundSlicerRolapMember.class);
-      Mockito.doReturn(slicerHierarchy)
-      .when(placeHolderMember).getHierarchy();
+        CompoundSlicerRolapMember placeHolderMember =
+            Mockito.mock(CompoundSlicerRolapMember.class);
+        Mockito.doReturn(slicerHierarchy)
+            .when(placeHolderMember).getHierarchy();
 
-      Member endMember0 = makeNoncalculatedMember("0");
+        Member endMember0 = makeNoncalculatedMember("0");
 
-      // (0, placeholder)
-      Member[] argMembers = new Member[] {endMember0, placeHolderMember};
-      Member[] expectedMembers = new Member[] {endMember0, slicerMember};
-      Member[] expectedMembersOnDisjoin = new Member[] {endMember0};
-      assertApartExpandSupportedCalculatedMembers(
-          "(0, placeholder)",
-          expectedMembers, expectedMembersOnDisjoin, argMembers,
-          rolapEvaluator);
+        // (0, placeholder)
+        Member[] argMembers = new Member[]{endMember0, placeHolderMember};
+        Member[] expectedMembers = new Member[]{endMember0, slicerMember};
+        Member[] expectedMembersOnDisjoin = new Member[]{endMember0};
+        assertApartExpandSupportedCalculatedMembers(
+            "(0, placeholder)",
+            expectedMembers, expectedMembersOnDisjoin, argMembers,
+            rolapEvaluator);
     }
 
     public TupleConstraintStruct getCalculatedMember(
         final List<List<Member>> table,
-        int arity)
-    {
+        int arity) {
         Member memberMock = mock(Member.class);
 
         Expression[] funCallArgExps = new Expression[0];
@@ -284,14 +279,14 @@ class SqlConstraintUtilsTest {
 
     @ParameterizedTest
     @ContextSource(propertyUpdater = AppandFoodMartCatalog.class, dataloader = FastFoodmardDataLoader.class)
-    void testConstrainLevel(Context<?> context){
+    void testConstrainLevel(Context<?> context) {
 
-        final RolapCubeLevel level = mock( RolapCubeLevel.class);
+        final RolapCubeLevel level = mock(RolapCubeLevel.class);
         final RolapCube baseCube = mock(RolapCube.class);
         final RolapStar.Column column = mock(RolapStar.Column.class);
 
         final AggStar aggStar = null;
-        final Dialect dialect =  context.getDialect();
+        final Dialect dialect = context.getDialect();
         final SqlQuery query = new SqlQuery(dialect, context.getConfigValue(ConfigConstants.GENERATE_FORMATTED_SQL, ConfigConstants.GENERATE_FORMATTED_SQL_DEFAULT_VALUE, Boolean.class));
 
         when(level.getBaseStarKeyColumn(baseCube)).thenReturn(column);
@@ -302,14 +297,14 @@ class SqlConstraintUtilsTest {
         columnValue[0] = "dummyValue";
 
         StringBuilder levelStrBuilder = SqlConstraintUtils.constrainLevel(level, query, baseCube, aggStar, columnValue, false);
-        assertEquals("dummyName = 'dummyValue'",  levelStrBuilder.toString());
+        assertEquals("dummyName = 'dummyValue'", levelStrBuilder.toString());
     }
 
     private void setSlicerContext(RolapEvaluator e, Member m) {
-      List<Member> members = new ArrayList<>();
-      members.add( m );
-      Map<Hierarchy, Set<Member>> membersByHierarchy = new HashMap<>();
-      membersByHierarchy.put( m.getHierarchy(), new HashSet<>(members) );
-      e.setSlicerContext( members, membersByHierarchy );
+        List<Member> members = new ArrayList<>();
+        members.add(m);
+        Map<Hierarchy, Set<Member>> membersByHierarchy = new HashMap<>();
+        membersByHierarchy.put(m.getHierarchy(), new HashSet<>(members));
+        e.setSlicerContext(members, membersByHierarchy);
     }
 }
