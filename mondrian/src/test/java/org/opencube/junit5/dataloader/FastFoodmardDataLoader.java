@@ -18,8 +18,6 @@
  */
 package org.opencube.junit5.dataloader;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map.Entry;
@@ -387,7 +385,8 @@ public class FastFoodmardDataLoader implements DataLoader {
 		Dialect dialect = dataBaseInfo.getValue();
 	try (Connection connection = dataSource.getConnection()) {
 
-	    // ddl = drop+create+index bucket; csv-load is logged by DataLoaderUtil.importCSV.
+	    // ddl = drop+create bucket; csv-load is logged by DataLoaderUtil.importCSV, the index
+	    // build by the "index" phase below.
 	    // DBTIMING db=<id> phase=<name> ms=<duration> [detail=...] — stable grep format
 	    // for the harness collector (dbtiming_report.sh).
 	    long tDdl = System.nanoTime();
@@ -398,15 +397,26 @@ public class FastFoodmardDataLoader implements DataLoader {
 	    List<String> createTablesSqls = createTablesSQLs(dialect);
 	    DataLoaderUtil.executeSql(connection, createTablesSqls,true);
 
-	    List<String> createIndexesSqls = createIndexSQLs(dialect);
-	    DataLoaderUtil.executeSql(connection, createIndexesSqls,true);
-
 	    LOGGER.warn("DBTIMING db={} phase=ddl ms={}", DataLoaderUtil.dbId(dialect),
 		    (System.nanoTime() - tDdl) / 1_000_000);
 
-	   Path dir= Paths.get(Constants.TESTFILES_DIR+"loader/foodmart/data");
+	    // The canonical FoodMart CSVs ship inside the rolap.mapping instance bundle, beside the
+	    // mapping that describes them. legacy.xmla used to keep a second copy under testfiles/,
+	    // identical in content but writing TRUE/FALSE where the canonical one writes 1/0.
+	    DataLoaderUtil.importCSV(dataSource, dialect, foodmardTables,
+		    DataLoaderUtil.fromClasspath(
+			    org.eclipse.daanse.rolap.mapping.instance.emf.complex.foodmart.CatalogSupplier.class));
 
-	    DataLoaderUtil.importCSV(dataSource, dialect,foodmardTables,dir);
+	    // The 94 indexes used to exist before the first of the 876042 rows arrived, so every
+	    // INSERT maintained all of them. Building them afterwards is the same end state -- the
+	    // 15 UNIQUE ones still reject duplicates, only at build time rather than on insert.
+	    long tIndex = System.nanoTime();
+	    List<String> createIndexesSqls = createIndexSQLs(dialect);
+	    DataLoaderUtil.executeSql(connection, createIndexesSqls,true);
+	    LOGGER.warn("DBTIMING db={} phase=index ms={}", DataLoaderUtil.dbId(dialect),
+		    (System.nanoTime() - tIndex) / 1_000_000);
+
+	    DataLoaderUtil.analyze(dataSource, dialect, foodmardTables);
 
 //	   imported by csv no agg using sql
 //	    InputStream sqlFile= new FileInputStream(new File(Constants.TESTFILES_DIR+"loader/foodmart/insert.sql"));

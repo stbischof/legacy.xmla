@@ -317,15 +317,18 @@ public class Checkin_7634Modifier implements CatalogMappingSupplier {
 
         Column class_prod7631 = org.eclipse.daanse.cwm.model.cwm.resource.relational.RelationalFactory.eINSTANCE.createColumn();
         class_prod7631.setName("class");
-        class_prod7631.setType(SqlSimpleTypes.Sql99.integerType());
+        // Checkin_7634.csv upstream declares these VARCHAR(30) -- the values are Class0/Brand01/
+        // Item011. Declared INTEGER here, mondrian quoted the member key by the column type
+        // and emitted where "prod7631"."class" = Class1, unquoted, on every dialect.
+        class_prod7631.setType(SqlSimpleTypes.varcharType(30));
 
         Column brand_prod7631 = org.eclipse.daanse.cwm.model.cwm.resource.relational.RelationalFactory.eINSTANCE.createColumn();
         brand_prod7631.setName("brand");
-        brand_prod7631.setType(SqlSimpleTypes.Sql99.integerType());
+        brand_prod7631.setType(SqlSimpleTypes.varcharType(30));
 
         Column item_prod7631 = org.eclipse.daanse.cwm.model.cwm.resource.relational.RelationalFactory.eINSTANCE.createColumn();
         item_prod7631.setName("item");
-        item_prod7631.setType(SqlSimpleTypes.Sql99.integerType());
+        item_prod7631.setType(SqlSimpleTypes.varcharType(30));
 
         // Create prod7631 table using RolapMappingFactory
         Table prod7631 = org.eclipse.daanse.cwm.model.cwm.resource.relational.RelationalFactory.eINSTANCE.createTable();

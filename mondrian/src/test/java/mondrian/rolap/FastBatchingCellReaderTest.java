@@ -258,19 +258,16 @@ class FastBatchingCellReaderTest extends BatchTestCase {
                 return dialect;
             }
         };
-        switch (getDatabaseProduct(dialect.name())) {
-        case ORACLE:
-        case TERADATA:
-        case DB2:
-        case DB2_AS400:
-        case DB2_OLD_AS400:
-        case GREENPLUM:
-            assertTrue(fbcr.getDialect().supportsGroupingSets());
-            break;
-        default:
-            assertFalse(fbcr.getDialect().supportsGroupingSets());
-            break;
-        }
+        // The list below is a product enumeration; DatabaseProduct has no DUCKDB constant, so
+        // DuckDB lands in the default branch and is asserted not to support grouping sets --
+        // while DuckDbDialect is the one dialect that reports true. Ask the dialect by name
+        // instead of maintaining a second, silently diverging list.
+        boolean expected = switch (getDatabaseProduct(dialect.name())) {
+        case ORACLE, TERADATA, DB2, DB2_AS400, DB2_OLD_AS400, GREENPLUM -> true;
+        default -> "DUCKDB".equalsIgnoreCase(dialect.name());
+        };
+        assertEquals(expected, fbcr.getDialect().supportsGroupingSets(),
+                "grouping-sets capability of " + dialect.name());
     }
 
     @ParameterizedTest
@@ -985,67 +982,73 @@ class FastBatchingCellReaderTest extends BatchTestCase {
         if (!getDialect(connection).supportsGroupingSets()) {
             return;
         }
-        final BatchLoader fbcr = createFbcr(null, salesCube);
+        // Every other dialect returns above: DuckDB is the only one whose supportsGroupingSets()
+        // is true, so this body had never actually run, and unlike its neighbours it was never
+        // wrapped -- createFbcr calls ExecutionContext.current().
+        ExecutionContext.where(executionContext, () -> {
+            final BatchLoader fbcr = createFbcr(null, salesCube);
 
-        BatchLoader.Batch summaryBatch = createBatch(connection, fbcr,
-                new String[] { tableTime, tableProductClass, tableProductClass },
-                new String[] { fieldYear, fieldProductFamily, fieldProductDepartment },
-                new String[][] { fieldValuesYear, fieldValuesProductFamily, fieldValueProductDepartment },
-                cubeNameSales, measureUnitSales);
+            BatchLoader.Batch summaryBatch = createBatch(connection, fbcr,
+                    new String[] { tableTime, tableProductClass, tableProductClass },
+                    new String[] { fieldYear, fieldProductFamily, fieldProductDepartment },
+                    new String[][] { fieldValuesYear, fieldValuesProductFamily, fieldValueProductDepartment },
+                    cubeNameSales, measureUnitSales);
 
-        BatchLoader.Batch detailedBatch = createBatch(connection, fbcr,
-                new String[] { tableTime, tableProductClass, tableProductClass, tableCustomer },
-                new String[] { fieldYear, fieldProductFamily, fieldProductDepartment, fieldGender }, new String[][] {
-                        fieldValuesYear, fieldValuesProductFamily, fieldValueProductDepartment, fieldValuesGender },
-                cubeNameSales, measureUnitSales);
+            BatchLoader.Batch detailedBatch = createBatch(connection, fbcr,
+                    new String[] { tableTime, tableProductClass, tableProductClass, tableCustomer },
+                    new String[] { fieldYear, fieldProductFamily, fieldProductDepartment, fieldGender }, new String[][] {
+                            fieldValuesYear, fieldValuesProductFamily, fieldValueProductDepartment, fieldValuesGender },
+                    cubeNameSales, measureUnitSales);
 
-        final BatchLoader.CompositeBatch compositeBatch = new BatchLoader.CompositeBatch(detailedBatch);
+            final BatchLoader.CompositeBatch compositeBatch = new BatchLoader.CompositeBatch(detailedBatch);
 
-        compositeBatch.add(summaryBatch);
+            compositeBatch.add(summaryBatch);
 
-        final List<Future<Map<Segment, SegmentWithData>>> segmentFutures = new ArrayList<>();
+            final List<Future<Map<Segment, SegmentWithData>>> segmentFutures = new ArrayList<>();
 
-        AbstractBasicContext<?> abc = (AbstractBasicContext) context;
-        ((SegmentCacheManager) (abc.getAggregationManager().getCacheMgr())).execute(new CacheCommand<Void>() {
-            private final ExecutionContext executionContext = ExecutionContext.current();
+            AbstractBasicContext<?> abc = (AbstractBasicContext) context;
+            ((SegmentCacheManager) (abc.getAggregationManager().getCacheMgr())).execute(new CacheCommand<Void>() {
+                private final ExecutionContext executionContext = ExecutionContext.current();
 
-            @Override
-            public Void call() throws Exception {
-                compositeBatch.load(segmentFutures);
-                return null;
+                @Override
+                public Void call() throws Exception {
+                    compositeBatch.load(segmentFutures);
+                    return null;
+                }
+
+                @Override
+                public ExecutionContext getExecutionContext() {
+                    return executionContext;
+                }
+            });
+
+            assertEquals(1, segmentFutures.size());
+            assertEquals(2, segmentFutures.get(0).get().size());
+            // The order of the segments is not deterministic, so we need to
+            // iterate over the segments and find a match for the batch.
+            // If none are found, we fail.
+            boolean found = false;
+            for (Segment seg : segmentFutures.get(0).get().keySet()) {
+                if (detailedBatch.getConstrainedColumnsBitKey().equals(seg.getConstrainedColumnsBitKey())) {
+                    found = true;
+                    break;
+                }
             }
-
-            @Override
-            public ExecutionContext getExecutionContext() {
-                return executionContext;
+            if (!found) {
+                fail("No bitkey match found.");
             }
+            found = false;
+            for (Segment seg : segmentFutures.get(0).get().keySet()) {
+                if (summaryBatch.getConstrainedColumnsBitKey().equals(seg.getConstrainedColumnsBitKey())) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                fail("No bitkey match found.");
+            }
+            return null;
         });
-
-        assertEquals(1, segmentFutures.size());
-        assertEquals(2, segmentFutures.get(0).get().size());
-        // The order of the segments is not deterministic, so we need to
-        // iterate over the segments and find a match for the batch.
-        // If none are found, we fail.
-        boolean found = false;
-        for (Segment seg : segmentFutures.get(0).get().keySet()) {
-            if (detailedBatch.getConstrainedColumnsBitKey().equals(seg.getConstrainedColumnsBitKey())) {
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            fail("No bitkey match found.");
-        }
-        found = false;
-        for (Segment seg : segmentFutures.get(0).get().keySet()) {
-            if (summaryBatch.getConstrainedColumnsBitKey().equals(seg.getConstrainedColumnsBitKey())) {
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            fail("No bitkey match found.");
-        }
     }
 
     /**
@@ -1139,21 +1142,21 @@ class FastBatchingCellReaderTest extends BatchTestCase {
          * .withColumn(SQLExpressionMappingColumnImpl.builder()
          * .withSqls(List.of(SqlStatementMappingImpl.builder()
          * .withDialects(List.of("generic"))
-         * .withSql("(select `warehouse_class`.`warehouse_class_id` AS `warehouse_class_id` from `warehouse_class` AS `warehouse_class` where `warehouse_class`.`warehouse_class_id` = `warehouse`.`warehouse_class_id` and `warehouse_class`.`description` = 'Large Owned')"
+         * .withSql("(select warehouse_class.warehouse_class_id AS warehouse_class_id from warehouse_class AS warehouse_class where warehouse_class.warehouse_class_id = warehouse.warehouse_class_id and warehouse_class.description = 'Large Owned')"
          * ) .build())) .build()) .build(), CountMeasureMappingImpl.builder()
          * .withName("Count Distinct of Warehouses (Large Independent)")
          * .withDistinct(true) .withFormatString("#,##0")
          * .withColumn(SQLExpressionMappingColumnImpl.builder()
          * .withSqls(List.of(SqlStatementMappingImpl.builder()
          * .withDialects(List.of("generic"))
-         * .withSql("(select `warehouse_class`.`warehouse_class_id` AS `warehouse_class_id` from `warehouse_class` AS `warehouse_class` where `warehouse_class`.`warehouse_class_id` = `warehouse`.`warehouse_class_id` and `warehouse_class`.`description` = 'Large Independent')"
+         * .withSql("(select warehouse_class.warehouse_class_id AS warehouse_class_id from warehouse_class AS warehouse_class where warehouse_class.warehouse_class_id = warehouse.warehouse_class_id and warehouse_class.description = 'Large Independent')"
          * ) .build())) .build()) .build(), CountMeasureMappingImpl.builder()
          * .withName("Count All of Warehouses (Large Independent)")
          * .withFormatString("#,##0")
          * .withColumn(SQLExpressionMappingColumnImpl.builder()
          * .withSqls(List.of(SqlStatementMappingImpl.builder()
          * .withDialects(List.of("generic"))
-         * .withSql("(select `warehouse_class`.`warehouse_class_id` AS `warehouse_class_id` from `warehouse_class` AS `warehouse_class` where `warehouse_class`.`warehouse_class_id` = `warehouse`.`warehouse_class_id` and `warehouse_class`.`description` = 'Large Independent')"
+         * .withSql("(select warehouse_class.warehouse_class_id AS warehouse_class_id from warehouse_class AS warehouse_class where warehouse_class.warehouse_class_id = warehouse.warehouse_class_id and warehouse_class.description = 'Large Independent')"
          * ) .build())) .build()) .build(), CountMeasureMappingImpl.builder()
          * .withName("Count Distinct Store+Warehouse") .withDistinct(true)
          * .withFormatString("#,##0")
@@ -1176,6 +1179,47 @@ class FastBatchingCellReaderTest extends BatchTestCase {
          * various distinct count measures using SQL expressions
          */
         class TestLoadDistinctSqlMeasureModifierEmf implements CatalogMappingSupplier {
+
+            /** The dialects that quote identifiers with a backtick. */
+            private static final List<String> BACKTICK_DIALECTS = List.of("mysql", "mariadb", "infobright");
+
+            /** Every other dialect the TCK runs; they all quote with ANSI double quotes. */
+            private static final List<String> ANSI_DIALECTS = List.of("postgres", "h2", "duckdb", "derby", "sqlite",
+                    "mssql", "clickhouse", "oracle");
+
+            /**
+             * Raw SQL is copied into the generated statement untouched, so the fragment has to
+             * quote its identifiers the way the target dialect does. Derby and Oracle fold an
+             * unquoted identifier to upper case and would not find the lower-case tables the
+             * loader creates; MySQL reads a double-quoted identifier as a string literal, which
+             * makes the predicate silently false rather than raising an error. Name every dialect
+             * explicitly so a wrong guess cannot hide, and keep a "generic" entry because
+             * SqlExpressionResolver.genericSql() looks for exactly that one.
+             */
+            private void addQuotedVariants(ExpressionColumn column, String ansiSql, String mysqlSql) {
+                column.getSqls().add(sqlStatement(ansiSql, "generic"));
+                ANSI_DIALECTS.forEach(dialect -> column.getSqls().add(sqlStatement(ansiSql, dialect)));
+                BACKTICK_DIALECTS.forEach(dialect -> column.getSqls().add(sqlStatement(mysqlSql, dialect)));
+            }
+
+            private SqlStatement sqlStatement(String sql, String dialect) {
+                SqlStatement statement = SourceFactory.eINSTANCE.createSqlStatement();
+                statement.getDialects().add(dialect);
+                statement.setSql(sql);
+                return statement;
+            }
+
+            private String warehouseClassSubselect(String description, char q) {
+                return "(select " + q + "warehouse_class" + q + "." + q + "warehouse_class_id" + q + " AS " + q
+                        + "warehouse_class_id" + q + " from " + q + "warehouse_class" + q + " AS " + q
+                        + "warehouse_class" + q + " where " + q + "warehouse_class" + q + "." + q + "warehouse_class_id"
+                        + q + " = " + q + "warehouse" + q + "." + q + "warehouse_class_id" + q + " and " + q
+                        + "warehouse_class" + q + "." + q + "description" + q + " = '" + description + "')";
+            }
+
+            private String storeIdPlusWarehouseId(char q) {
+                return q + "store_id" + q + "+" + q + "warehouse_id" + q;
+            }
 
             private CatalogImpl catalog;
 
@@ -1210,11 +1254,8 @@ class FastBatchingCellReaderTest extends BatchTestCase {
                 measure1.setFormatString("#,##0");
 
                 ExpressionColumn sqlCol1 = org.eclipse.daanse.rolap.mapping.model.database.relational.RelationalFactory.eINSTANCE.createExpressionColumn();
-                SqlStatement sqlStmt1 = SourceFactory.eINSTANCE.createSqlStatement();
-                sqlStmt1.getDialects().add("generic");
-                sqlStmt1.setSql(
-                        "(select `warehouse_class`.`warehouse_class_id` AS `warehouse_class_id` from `warehouse_class` AS `warehouse_class` where `warehouse_class`.`warehouse_class_id` = `warehouse`.`warehouse_class_id` and `warehouse_class`.`description` = 'Large Owned')");
-                sqlCol1.getSqls().add(sqlStmt1);
+                addQuotedVariants(sqlCol1, warehouseClassSubselect("Large Owned", '"'),
+                        warehouseClassSubselect("Large Owned", '`'));
                 measure1.setColumn(sqlCol1);
 
                 // 2. Count Distinct of Warehouses (Large Independent)
@@ -1224,11 +1265,8 @@ class FastBatchingCellReaderTest extends BatchTestCase {
                 measure2.setFormatString("#,##0");
 
                 ExpressionColumn sqlCol2 = org.eclipse.daanse.rolap.mapping.model.database.relational.RelationalFactory.eINSTANCE.createExpressionColumn();
-                SqlStatement sqlStmt2 = SourceFactory.eINSTANCE.createSqlStatement();
-                sqlStmt2.getDialects().add("generic");
-                sqlStmt2.setSql(
-                        "(select `warehouse_class`.`warehouse_class_id` AS `warehouse_class_id` from `warehouse_class` AS `warehouse_class` where `warehouse_class`.`warehouse_class_id` = `warehouse`.`warehouse_class_id` and `warehouse_class`.`description` = 'Large Independent')");
-                sqlCol2.getSqls().add(sqlStmt2);
+                addQuotedVariants(sqlCol2, warehouseClassSubselect("Large Independent", '"'),
+                        warehouseClassSubselect("Large Independent", '`'));
                 measure2.setColumn(sqlCol2);
 
                 // 3. Count All of Warehouses (Large Independent)
@@ -1238,11 +1276,8 @@ class FastBatchingCellReaderTest extends BatchTestCase {
                 measure3.setFormatString("#,##0");
 
                 ExpressionColumn sqlCol3 = org.eclipse.daanse.rolap.mapping.model.database.relational.RelationalFactory.eINSTANCE.createExpressionColumn();
-                SqlStatement sqlStmt3 = SourceFactory.eINSTANCE.createSqlStatement();
-                sqlStmt3.getDialects().add("generic");
-                sqlStmt3.setSql(
-                        "(select `warehouse_class`.`warehouse_class_id` AS `warehouse_class_id` from `warehouse_class` AS `warehouse_class` where `warehouse_class`.`warehouse_class_id` = `warehouse`.`warehouse_class_id` and `warehouse_class`.`description` = 'Large Independent')");
-                sqlCol3.getSqls().add(sqlStmt3);
+                addQuotedVariants(sqlCol3, warehouseClassSubselect("Large Independent", '"'),
+                        warehouseClassSubselect("Large Independent", '`'));
                 measure3.setColumn(sqlCol3);
 
                 // 4. Count Distinct Store+Warehouse
@@ -1252,10 +1287,7 @@ class FastBatchingCellReaderTest extends BatchTestCase {
                 measure4.setFormatString("#,##0");
 
                 ExpressionColumn sqlCol4 = org.eclipse.daanse.rolap.mapping.model.database.relational.RelationalFactory.eINSTANCE.createExpressionColumn();
-                SqlStatement sqlStmt4 = SourceFactory.eINSTANCE.createSqlStatement();
-                sqlStmt4.getDialects().add("generic");
-                sqlStmt4.setSql("`store_id`+`warehouse_id`");
-                sqlCol4.getSqls().add(sqlStmt4);
+                addQuotedVariants(sqlCol4, storeIdPlusWarehouseId('"'), storeIdPlusWarehouseId('`'));
                 measure4.setColumn(sqlCol4);
 
                 // 5. Count All Store+Warehouse
@@ -1265,10 +1297,7 @@ class FastBatchingCellReaderTest extends BatchTestCase {
                 measure5.setFormatString("#,##0");
 
                 ExpressionColumn sqlCol5 = org.eclipse.daanse.rolap.mapping.model.database.relational.RelationalFactory.eINSTANCE.createExpressionColumn();
-                SqlStatement sqlStmt5 = SourceFactory.eINSTANCE.createSqlStatement();
-                sqlStmt5.getDialects().add("generic");
-                sqlStmt5.setSql("`store_id`+`warehouse_id`");
-                sqlCol5.getSqls().add(sqlStmt5);
+                addQuotedVariants(sqlCol5, storeIdPlusWarehouseId('"'), storeIdPlusWarehouseId('`'));
                 measure5.setColumn(sqlCol5);
 
                 // 6. Store Count
@@ -1340,10 +1369,10 @@ class FastBatchingCellReaderTest extends BatchTestCase {
                 + "on \"warehouse\".\"stores_id\" = \"store\".\"store_id\" " + "group by \"store\".\"store_type\"";
 
         // Derby splits into multiple statements.
-        String loadCountDistinct_derby1 = "select \"store\".\"store_type\" as \"c0\", count(distinct (select \"warehouse_class\".\"warehouse_class_id\" AS \"warehouse_class_id\" from \"warehouse_class\" AS \"warehouse_class\" where \"warehouse_class\".\"warehouse_class_id\" = \"warehouse\".\"warehouse_class_id\" and \"warehouse_class\".\"description\" = 'Large Owned')) as \"m0\" from \"store\" as \"store\" join \"warehouse\" as \"warehouse\" on \"warehouse\".\"stores_id\" = \"store\".\"store_id\" group by \"store\".\"store_type\"";
-        String loadCountDistinct_derby2 = "select \"store\".\"store_type\" as \"c0\", count(distinct (select \"warehouse_class\".\"warehouse_class_id\" AS \"warehouse_class_id\" from \"warehouse_class\" AS \"warehouse_class\" where \"warehouse_class\".\"warehouse_class_id\" = \"warehouse\".\"warehouse_class_id\" and \"warehouse_class\".\"description\" = 'Large Independent')) as \"m0\" from \"store\" as \"store\" join \"warehouse\" as \"warehouse\" on \"warehouse\".\"stores_id\" = \"store\".\"store_id\" group by \"store\".\"store_type\"";
-        String loadCountDistinct_derby3 = "select \"store\".\"store_type\" as \"c0\", count(distinct \"store_id\"+\"warehouse_id\") as \"m0\" from \"store\" as \"store\" join \"warehouse\" as \"warehouse\" on \"warehouse\".\"stores_id\" = \"store\".\"store_id\" group by \"store\".\"store_type\"";
-        String loadOtherAggs_derby = "select \"store\".\"store_type\" as \"c0\", count((select \"warehouse_class\".\"warehouse_class_id\" AS \"warehouse_class_id\" from \"warehouse_class\" AS \"warehouse_class\" where \"warehouse_class\".\"warehouse_class_id\" = \"warehouse\".\"warehouse_class_id\" and \"warehouse_class\".\"description\" = 'Large Independent')) as \"m0\", count(\"store_id\"+\"warehouse_id\") as \"m1\", count(\"warehouse\".\"stores_id\") as \"m2\" from \"store\" as \"store\" join \"warehouse\" as \"warehouse\" on \"warehouse\".\"stores_id\" = \"store\".\"store_id\" group by \"store\".\"store_type\"";
+        String loadCountDistinct_derby1 = "select \"store\".\"store_type\" as \"c0\", count(distinct (select \"warehouse_class\".\"warehouse_class_id\" AS \"warehouse_class_id\" from \"warehouse_class\" AS \"warehouse_class\" where \"warehouse_class\".\"warehouse_class_id\" = \"warehouse\".\"warehouse_class_id\" and \"warehouse_class\".\"description\" = 'Large Owned')) as \"m0\" from \"warehouse\" as \"warehouse\" join \"store\" as \"store\" on \"warehouse\".\"stores_id\" = \"store\".\"store_id\" group by \"store\".\"store_type\"";
+        String loadCountDistinct_derby2 = "select \"store\".\"store_type\" as \"c0\", count(distinct (select \"warehouse_class\".\"warehouse_class_id\" AS \"warehouse_class_id\" from \"warehouse_class\" AS \"warehouse_class\" where \"warehouse_class\".\"warehouse_class_id\" = \"warehouse\".\"warehouse_class_id\" and \"warehouse_class\".\"description\" = 'Large Independent')) as \"m0\" from \"warehouse\" as \"warehouse\" join \"store\" as \"store\" on \"warehouse\".\"stores_id\" = \"store\".\"store_id\" group by \"store\".\"store_type\"";
+        String loadCountDistinct_derby3 = "select \"store\".\"store_type\" as \"c0\", count(distinct \"store_id\"+\"warehouse_id\") as \"m0\" from \"warehouse\" as \"warehouse\" join \"store\" as \"store\" on \"warehouse\".\"stores_id\" = \"store\".\"store_id\" group by \"store\".\"store_type\"";
+        String loadOtherAggs_derby = "select \"store\".\"store_type\" as \"c0\", count((select \"warehouse_class\".\"warehouse_class_id\" AS \"warehouse_class_id\" from \"warehouse_class\" AS \"warehouse_class\" where \"warehouse_class\".\"warehouse_class_id\" = \"warehouse\".\"warehouse_class_id\" and \"warehouse_class\".\"description\" = 'Large Independent')) as \"m0\", count(\"store_id\"+\"warehouse_id\") as \"m1\", count(\"warehouse\".\"stores_id\") as \"m2\" from \"warehouse\" as \"warehouse\" join \"store\" as \"store\" on \"warehouse\".\"stores_id\" = \"store\".\"store_id\" group by \"store\".\"store_type\"";
 
         // MySQL does it in one statement.
         String load_mysql = "select" + " `store`.`store_type` as `c0`,"

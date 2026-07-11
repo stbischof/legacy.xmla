@@ -88,8 +88,12 @@ public class H2DatabaseProvider implements DatabaseProvider {
 		// docs/multi-dialect-activation/driver-tuning.md). DB_CLOSE_DELAY=-1 keeps
 		// the named database alive after the probe connection below closes (memFS
 		// survived implicitly because its files stay in the in-memory FS registry).
+		// DAANSE_H2_URL_EXTRA appends further ;SETTING=value pairs, so driver settings can be
+		// measured against a run without recompiling. Empty by default: the URL is unchanged.
+		String extra = System.getenv("DAANSE_H2_URL_EXTRA");
 		String JDBC_SQLITE_MEMORY = "jdbc:h2:mem:" + UUID.randomUUID().toString()
-				+ ";DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1";
+				+ ";DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1"
+				+ (extra == null || extra.isBlank() ? "" : ";" + extra.strip());
 		JdbcDataSource cpDataSource = new JdbcDataSource();
 		cpDataSource.setUrl(JDBC_SQLITE_MEMORY);
 		cpDataSource.setUser("sa");

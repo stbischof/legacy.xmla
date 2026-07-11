@@ -1038,8 +1038,11 @@ class ParentChildHierarchyTest {
                 + " `store`.`store_state` ASC,"
                 + " `store`.`store_city` ASC,"
                 + " `store`.`store_name` ASC,"
-                + " `position`.`pay_type` ASC,"
+                // the select list above names Store Type before Pay Type, and the generated
+                // ORDER BY follows it. This pin had the two the other way round -- upstream's
+                // select and order by agree, ours did not.
                 + " `store`.`store_type` ASC,"
+                + " `position`.`pay_type` ASC,"
                 + " `employee`.`management_role` ASC,"
                 + " `employee`.`position_title` ASC,"
                 + " `department`.`department_id` ASC,"

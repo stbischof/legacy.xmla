@@ -62,7 +62,8 @@ public class MinimalDataLoader implements DataLoader {
 
             Path dir= Paths.get(Constants.TESTFILES_DIR+"loader/minimal/data");
 
-            DataLoaderUtil.importCSV(dataBaseInfo.getKey(), dialect, minimalTables, dir);
+            DataLoaderUtil.importCSV(dataBaseInfo.getKey(), dialect, minimalTables, DataLoaderUtil.fromDirectory(dir));
+            DataLoaderUtil.analyze(dataBaseInfo.getKey(), dialect, minimalTables);
 
 
         }

@@ -21,20 +21,27 @@ package org.opencube.junit5.dataloader;
 import static mondrian.enums.DatabaseProduct.getDatabaseProduct;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -85,9 +92,6 @@ public class DataLoaderUtil {
 	 */
 	private static final String DUCKDB_APPENDER_PROPERTY = "mondrian.test.duckdb.appender";
 
-	/** WARN once (not per table) if the appender fast path has to fall back. */
-	private static final AtomicBoolean DUCKDB_APPENDER_WARNED = new AtomicBoolean();
-
 	/**
 	 * Creates an index.
 	 *
@@ -103,6 +107,15 @@ public class DataLoaderUtil {
 
 		if (!supportsIndexDdl(dialect)) {
 			// index creation is OPTIONAL per database product — see supportsIndexDdl
+			return List.of();
+		}
+
+		if (isDuckDb(dialect)) {
+			// DuckDB is columnar: mondrian's scans never use these secondary indexes, but
+			// every one of the ~876k rows the loader appends has to maintain all 94 of them.
+			// Skipped here rather than by making DuckDbDialect.supportsIndexDdl() report
+			// false, which would be a lie -- DuckDB does support CREATE INDEX, and that
+			// capability is read outside the tests too.
 			return List.of();
 		}
 
@@ -292,8 +305,14 @@ public class DataLoaderUtil {
 		public static final Type Smallint = new Type("SMALLINT");
 		public static final Type Varchar30 = new Type("VARCHAR(30)");
 		public static final Type Varchar255 = new Type("VARCHAR(255)");
+		public static final Type Varchar1024 = new Type("VARCHAR(1024)");
 		public static final Type Varchar60 = new Type("VARCHAR(60)");
 		public static final Type Real = new Type("REAL");
+		/**
+		 * 64-bit float. {@link #Real} is single precision -- postgres maps it to float4, whose
+		 * seven significant digits cannot hold SteelWheels' TOTALPRICE sum of 10,645,949.18.
+		 */
+		public static final Type Double = new Type("DOUBLE");
 		public static final Type Boolean = new Type("BOOLEAN");
 		public static final Type Bigint = new Type("BIGINT");
 		public static final Type Date = new Type("DATE");
@@ -309,8 +328,23 @@ public class DataLoaderUtil {
 		 */
 		String toPhysical(Dialect dialect) {
 			if (this == Integer || this == Currency || this == Smallint || this == Varchar30 || this == Varchar60
-					|| this == Varchar255 || this == Real) {
+					|| this == Varchar255 || this == Varchar1024 || this == Real) {
 				return name;
+			}
+			if (this == Double) {
+				switch (getDatabaseProduct(dialect.name())) {
+				case POSTGRES:
+				case GREENPLUM:
+				case DERBY:
+					return "DOUBLE PRECISION";
+				case MSSQL:
+				case SYBASE:
+					return "FLOAT";
+				case ORACLE:
+					return "BINARY_DOUBLE";
+				default:
+					return name;
+				}
 			}
 			if (this == Boolean) {
 				switch (getDatabaseProduct(dialect.name())) {
@@ -370,65 +404,6 @@ public class DataLoaderUtil {
 		}
 	}
 
-	/**
-	 * After data has been loaded from a file or via JDBC, creates any derived data.
-	 */
-	public static void loadFromSqlInserts(Connection connection, Dialect dialect, InputStream sqlFile)
-			throws Exception {
-
-		try {
-			final InputStreamReader reader = new InputStreamReader(sqlFile);
-			final BufferedReader bufferedReader = new BufferedReader(reader);
-
-			String line;
-			int lineNumber = 0;
-//			discard(lineNumber);
-
-			StringBuilder buf = new StringBuilder();
-
-			String fromQuoteChar = null;
-			String toQuoteChar = dialect.getQuoteIdentifierString();
-			while ((line = bufferedReader.readLine()) != null) {
-				++lineNumber;
-
-				line = line.trim();
-				if (line.startsWith("#") || line.length() == 0) {
-					continue;
-				}
-
-				if (fromQuoteChar == null) {
-					if (line.indexOf('`') >= 0) {
-						fromQuoteChar = "`";
-					} else if (line.indexOf('"') >= 0) {
-						fromQuoteChar = "\"";
-					}
-				}
-
-				if (fromQuoteChar != null && !fromQuoteChar.equals(toQuoteChar)) {
-					line = line.replaceAll(fromQuoteChar, toQuoteChar);
-				}
-
-				// End of buf
-				if (line.charAt(line.length() - 1) == ';') {
-					buf.append(" ").append(line.substring(0, line.length() - 1));
-
-					executeDDL(connection, buf.toString());
-					buf.setLength(0);
-
-				} else {
-					buf.append(" ").append(line.substring(0, line.length()));
-				}
-			}
-
-			if (buf.length() > 0) {
-				executeDDL(connection, buf.toString());
-			}
-		} finally {
-			if (sqlFile != null) {
-				sqlFile.close();
-			}
-		}
-	}
 
 	/**
 	 * Executes a DDL statement.
@@ -453,7 +428,51 @@ public class DataLoaderUtil {
 		}
 	}
 
-	public static long importCSV(DataSource dataSource, Dialect dialect, List<Table> tables, Path csvDir)
+	/**
+	 * Where a table's CSV comes from. Every call opens a fresh reader: the DuckDB appender path
+	 * falls back to the JDBC batch path and then has to read the file a second time.
+	 */
+	@FunctionalInterface
+	public interface CsvSource {
+		Reader open(String tableName) throws IOException;
+	}
+
+	/** CSVs from a directory on disk. */
+	public static CsvSource fromDirectory(Path csvDir) {
+		return tableName -> Files.newBufferedReader(csvDir.resolve(tableName + ".csv"), StandardCharsets.UTF_8);
+	}
+
+	/**
+	 * CSVs from a rolap.mapping instance bundle, where they sit at {@code /data/<table>.csv} next
+	 * to the mapping that describes them. That copy is the canonical one; {@code anchor} is any
+	 * class of the bundle that carries it (its {@code CatalogSupplier}, say).
+	 */
+	public static CsvSource fromClasspath(Class<?> anchor) {
+		return tableName -> {
+			// The published bundles carry the CSVs at the jar root; a local build leaves them
+			// beside the class. Accept both rather than depend on which one is installed.
+			String relative = "data/" + tableName + ".csv";
+			InputStream in = anchor.getResourceAsStream(relative);
+			if (in == null) {
+				in = anchor.getResourceAsStream("/" + relative);
+			}
+			if (in == null) {
+				throw new FileNotFoundException(relative + " is not on the classpath of " + anchor.getName());
+			}
+			return new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+		};
+	}
+
+	/**
+	 * The canonical FoodMart CSVs encode booleans as 1/0; the copy that used to live under
+	 * testfiles wrote TRUE/FALSE. {@code Boolean.parseBoolean("1")} is false, so neither
+	 * {@code parseBoolean} nor {@code Boolean.valueOf} will do.
+	 */
+	private static boolean parseBoolean(String field) {
+		return "1".equals(field) || "true".equalsIgnoreCase(field);
+	}
+
+	public static long importCSV(DataSource dataSource, Dialect dialect, List<Table> tables, CsvSource csvSource)
 			throws SQLException {
 		long tCsv = System.nanoTime();
         CsvReader.CsvReaderBuilder builder = CsvReader.builder()
@@ -470,7 +489,7 @@ public class DataLoaderUtil {
 			long seqRows = 0;
 			try (Connection connection = dataSource.getConnection()) {
 				for (Table table : tables) {
-					seqRows += importTable(connection, dialect, table, builder, csvDir);
+					seqRows += importTable(connection, dialect, table, builder, csvSource);
 				}
 			}
 			logCsvLoad(dialect, tCsv, seqRows);
@@ -478,16 +497,115 @@ public class DataLoaderUtil {
 		}
 
 		AtomicLong rows = new AtomicLong();
+		// A stack trace on stderr is not a failure. Collect what went wrong and say so:
+		// four tables once loaded zero rows here and the run reported success.
+		List<String> failures = Collections.synchronizedList(new ArrayList<>());
 		tables.parallelStream().forEach(table -> {
 			try (Connection connection = dataSource.getConnection();) {
-				rows.addAndGet(importTable(connection, dialect, table, builder, csvDir));
+				long imported = importTable(connection, dialect, table, builder, csvSource);
+				rows.addAndGet(imported);
+				verifyRowCount(connection, dialect, table, imported, failures);
 			} catch (Exception e) {
-				e.printStackTrace();
+				failures.add(table.tableName + ": " + e);
+				LOGGER.error("CSV import failed for table {}", table.tableName, e);
 			}
 
 		});
+		if (!failures.isEmpty()) {
+			throw new SQLException("CSV import failed for " + failures.size() + " of " + tables.size()
+					+ " tables: " + failures);
+		}
 		logCsvLoad(dialect, tCsv, rows.get());
 		return rows.get();
+	}
+
+	/**
+	 * Nothing ever gathered optimizer statistics after the load. H2 collects column selectivity
+	 * only when told to, and a freshly loaded postgres table has no entry in pg_statistic until
+	 * autovacuum gets around to it -- the tests start long before that. Both then plan the
+	 * star-schema joins from defaults.
+	 *
+	 * <p>
+	 * Measured on the dbheavy subset. h2: the run drops from ~174s to ~127s, summed query time
+	 * from ~95s to ~71s, and its slowest query from 7301 ms to 1544 ms -- the signature of a
+	 * bad plan, not of a slow engine. postgres: 100s to 92s, summed query time 38.9s to 28.4s.
+	 * ANALYZE itself costs 61-85 ms on h2 and 850 ms on postgres.
+	 *
+	 * <p>
+	 * Only h2 and postgres for now. DuckDB keeps its statistics itself (ANALYZE returns in 0 ms
+	 * and changes nothing), and
+	 * MySQL and MariaDB have no bare ANALYZE -- theirs is {@code ANALYZE TABLE <name>}, which
+	 * no one has measured yet. DAANSE_ANALYZE=false switches it off.
+	 *
+	 * <p>
+	 * Call this after the indexes exist, not from inside the import: Derby's statistics describe
+	 * index cardinalities, so gathering them on an unindexed table tells the optimizer nothing.
+	 */
+	static void analyze(DataSource dataSource, Dialect dialect, List<Table> tables) {
+		if (!Boolean.parseBoolean(System.getenv().getOrDefault("DAANSE_ANALYZE", "true"))) {
+			return;
+		}
+		// DatabaseProduct has no H2 constant, so compare the dialect name directly
+		String name = dialect == null || dialect.name() == null ? "" : dialect.name();
+		long t = System.nanoTime();
+		try (Connection connection = dataSource.getConnection()) {
+			List<String> sqls = analyzeSqls(connection, name, tables);
+			if (sqls.isEmpty()) {
+				return;
+			}
+			try (Statement statement = connection.createStatement()) {
+				for (String sql : sqls) {
+					statement.execute(sql);
+				}
+			}
+		} catch (SQLException e) {
+			LOGGER.warn("db={} ANALYZE failed", dbId(dialect), e);
+			return;
+		}
+		LOGGER.warn("DBTIMING db={} phase=analyze ms={}", dbId(dialect), (System.nanoTime() - t) / 1_000_000);
+	}
+
+	/** @return the statements that gather optimizer statistics, empty if the dialect has none */
+	private static List<String> analyzeSqls(Connection connection, String dialectName, List<Table> tables)
+			throws SQLException {
+		if (dialectName.equalsIgnoreCase("H2") || dialectName.equalsIgnoreCase("POSTGRES")
+				|| dialectName.equalsIgnoreCase("POSTGRESQL")) {
+			// h2 samples 10000 rows per table by default; DAANSE_ANALYZE_SQL="ANALYZE SAMPLE_SIZE 0"
+			// makes it read every row. Overridable so the trade can be measured.
+			return List.of(System.getenv().getOrDefault("DAANSE_ANALYZE_SQL", "ANALYZE"));
+		}
+		return List.of();
+	}
+
+	/**
+	 * Reads back what the import claims to have written. The loader counts CSV rows, not
+	 * stored rows, so a table can be reported as loaded while the database holds nothing —
+	 * exactly how four tables went missing without a single failing test.
+	 *
+	 * <p>
+	 * A mismatch fails the load on DuckDB, whose native-appender path this guards and whose
+	 * behaviour is covered by the h2/mysql/duckdb gate. On the other dialects it only warns:
+	 * widening it to a hard failure needs a run against all ten of them first.
+	 */
+	private static void verifyRowCount(Connection connection, Dialect dialect, Table table, long expected,
+			List<String> failures) {
+		String sql = "SELECT count(*) FROM " + dialect.quoteIdentifier(table.schemaName, table.tableName);
+		long actual;
+		try (Statement statement = connection.createStatement(); ResultSet rs = statement.executeQuery(sql)) {
+			actual = rs.next() ? rs.getLong(1) : -1;
+		} catch (Exception e) {
+			LOGGER.warn("could not verify the row count of {}", table.tableName, e);
+			return;
+		}
+		if (actual == expected) {
+			return;
+		}
+		String message = table.tableName + ": imported " + expected + " rows but the table holds " + actual;
+		if (isDuckDb(dialect)) {
+			failures.add(message);
+		} else {
+			LOGGER.warn("row-count mismatch after CSV import -- {}", message);
+		}
 	}
 
 	/**
@@ -506,35 +624,32 @@ public class DataLoaderUtil {
 
 	/** @return the number of CSV rows batched for this table (0 on failure) */
 	private static long importTable(Connection connection, Dialect dialect, Table table,
-			CsvReader.CsvReaderBuilder builder, Path csvDir) {
+			CsvReader.CsvReaderBuilder builder, CsvSource csvSource) {
 		System.out.println("+" + table.tableName);
-
-		Path p = csvDir.resolve(table.tableName + ".csv");
-
-		if (!p.toFile().exists()) {
-			System.out.println("file does not exist-" + table.tableName);
-		}
 
 		if (isDuckDb(dialect) && Boolean.parseBoolean(System.getProperty(DUCKDB_APPENDER_PROPERTY, "true"))) {
 			try {
-				return importTableDuckDbAppender(connection, table, builder, p);
+				return importTableDuckDbAppender(connection, table, builder, csvSource);
 			} catch (Exception e) {
-				if (DUCKDB_APPENDER_WARNED.compareAndSet(false, true)) {
-					LOGGER.warn("DuckDB appender fast path failed for table {} — falling back to generic JDBC batch",
-							table.tableName, e);
-				}
+				// Warn per table, not once per JVM: a single flag hid three of the four
+				// tables that silently ended up empty.
+				LOGGER.warn("DuckDB appender fast path failed for table {} — falling back to generic JDBC batch",
+						table.tableName, e);
 				try {
 					// drop partially appended rows before re-loading generically
 					executeDDL(connection,
 							"DELETE FROM " + dialect.quoteIdentifier(table.schemaName, table.tableName));
 				} catch (Exception cleanupFailure) {
-					LOGGER.warn("DuckDB appender fallback: could not clean partially loaded table {}",
-							table.tableName, cleanupFailure);
-					return 0;
+					// The appender may have written part of the table. Falling back now would
+					// duplicate those rows; returning 0 (what this used to do) left the table
+					// empty and reported success. Neither is acceptable -- fail loudly.
+					throw new IllegalStateException("DuckDB appender failed for table " + table.tableName
+							+ " and the partially loaded rows could not be removed, so the table"
+							+ " can be neither reloaded nor trusted", cleanupFailure);
 				}
 			}
 		}
-		return importTableJdbcBatch(connection, dialect, table, builder, p);
+		return importTableJdbcBatch(connection, dialect, table, builder, csvSource);
 	}
 
 	/**
@@ -552,11 +667,12 @@ public class DataLoaderUtil {
 	 * appender commits on {@code close()}.
 	 */
 	private static long importTableDuckDbAppender(Connection connection, Table table,
-			CsvReader.CsvReaderBuilder builder, Path csvFile) throws Exception {
+			CsvReader.CsvReaderBuilder builder, CsvSource csvSource) throws Exception {
 		DuckDBConnection duck = connection.unwrap(DuckDBConnection.class);
 		String schema = table.schemaName != null ? table.schemaName : DuckDBConnection.DEFAULT_SCHEMA;
 		long rows = 0;
-		try (CloseableIterator<NamedCsvRecord> it = builder.ofNamedCsvRecord(csvFile).iterator();
+		try (Reader reader = csvSource.open(table.tableName);
+				CloseableIterator<NamedCsvRecord> it = builder.ofNamedCsvRecord(reader).iterator();
 				DuckDBAppender appender = duck.createAppender(schema, table.tableName)) {
 			while (it.hasNext()) {
 				NamedCsvRecord r = it.next();
@@ -568,7 +684,7 @@ public class DataLoaderUtil {
 					} else if (col.type.equals(Type.Bigint)) {
 						appender.append(field.equals("") ? 0L : Long.parseLong(field));
 					} else if (col.type.equals(Type.Boolean)) {
-						appender.append((short) (Boolean.parseBoolean(field) ? 1 : 0));
+						appender.append((short) (parseBoolean(field) ? 1 : 0));
 					} else if (col.type.equals(Type.Currency)) {
 						// the appender requires the exact column scale
 						// (DECIMAL(10,4)); CSV values carry 0-4 decimals.
@@ -580,6 +696,8 @@ public class DataLoaderUtil {
 						appender.append(Date.valueOf(field).toLocalDate());
 					} else if (col.type.equals(Type.Integer)) {
 						appender.append(field.equals("") ? 0 : Integer.parseInt(field));
+					} else if (col.type.equals(Type.Double)) {
+						appender.append(field.equals("") ? 0.0 : Double.parseDouble(field));
 					} else if (col.type.equals(Type.Real)) {
 						// generic path binds via setDouble; DuckDB REAL is float32
 						appender.append((float) (field.equals("") ? 0.0 : Double.parseDouble(field)));
@@ -601,7 +719,7 @@ public class DataLoaderUtil {
 
 	/** Generic per-row JDBC prepared-statement batch import (all databases). */
 	private static long importTableJdbcBatch(Connection connection, Dialect dialect, Table table,
-			CsvReader.CsvReaderBuilder builder, Path p) {
+			CsvReader.CsvReaderBuilder builder, CsvSource csvSource) {
 		long rows = 0;
 		// ClickHouse (jdbc-v2) throws SQLFeatureNotSupportedException on
 		// setAutoCommit(false) — transactions are unsupported and the metadata says
@@ -613,7 +731,8 @@ public class DataLoaderUtil {
 //					//TODO: also load them
 //					return;
 //				}
-                try (CloseableIterator<NamedCsvRecord> it = builder.ofNamedCsvRecord(p).iterator()) {
+                try (Reader reader = csvSource.open(table.tableName);
+                        CloseableIterator<NamedCsvRecord> it = builder.ofNamedCsvRecord(reader).iterator()) {
                     if (!it.hasNext()) {
                         throw new IllegalStateException("No header found");
                     }
@@ -652,7 +771,7 @@ public class DataLoaderUtil {
                                 ps.setLong(i, field.equals("") ? 0l : Long.valueOf(field));
 
                             } else if (col.type.equals(DataLoaderUtil.Type.Boolean)) {
-                                ps.setBoolean(i, field.equals("") ? Boolean.FALSE : Boolean.valueOf(field));
+                                ps.setBoolean(i, !field.equals("") && parseBoolean(field));
 
                             } else if (col.type.equals(DataLoaderUtil.Type.Currency)) {
                                 ps.setDouble(i, field.equals("") ? 0.0 : Double.valueOf(field));
@@ -663,6 +782,8 @@ public class DataLoaderUtil {
                             } else if (col.type.equals(DataLoaderUtil.Type.Integer)) {
                                 ps.setInt(i, field.equals("") ? 0 : Integer.valueOf(field));
 
+                            } else if (col.type.equals(DataLoaderUtil.Type.Double)) {
+                                ps.setDouble(i, field.equals("") ? 0.0 : Double.valueOf(field));
                             } else if (col.type.equals(DataLoaderUtil.Type.Real)) {
                                 ps.setDouble(i, field.equals("") ? 0.0 : Double.valueOf(field));
 
@@ -678,8 +799,15 @@ public class DataLoaderUtil {
                             } else if (col.type.equals(DataLoaderUtil.Type.Varchar30)) {
                                 ps.setString(i, field);
 
-                            } else if (col.type.equals(DataLoaderUtil.Type.Varchar60)) {
+                            } else if (col.type.equals(DataLoaderUtil.Type.Varchar60)
+                                    || col.type.equals(DataLoaderUtil.Type.Varchar1024)) {
                                 ps.setString(i, field);
+                            } else {
+                                // The chain used to end here. A type without a branch left its
+                                // parameter unbound, and the driver reported it far away as
+                                // "No value specified for parameter N".
+                                throw new SQLException("no JDBC binding for column type "
+                                        + col.type.name + " on " + table.tableName + "." + col.name);
                             }
 
                             i++;
@@ -714,10 +842,15 @@ public class DataLoaderUtil {
 	}
 
 	public static void executeSql(Connection connection, List<String> sqls, boolean paralel) throws SQLException {
-		// SQLite serializes writers; run its DDL/DML sequentially on the one connection.
-		Stream<String> s = (paralel && !isSqlite(connection)) ? sqls.parallelStream() : sqls.stream();
+		// All statements share ONE connection, and a JDBC connection is not required to be
+		// thread-safe. SQLite serializes writers; DuckDB fails outright, one racing statement
+		// poisoning the next with "Attempting to execute an unsuccessful or closed pending
+		// query" -- which silently cost four tables their CREATE TABLE and then their data.
+		Stream<String> s = (paralel && !isSqlite(connection) && !isDuckDb(connection)) ? sqls.parallelStream()
+				: sqls.stream();
 		AtomicInteger failed = new AtomicInteger();
 		AtomicReference<String> firstFailure = new AtomicReference<>();
+		AtomicReference<String> firstCreateTableFailure = new AtomicReference<>();
 		s.forEach(sql -> {
 			try (Statement statement = connection.createStatement();) {
 				System.out.println(sql);
@@ -725,6 +858,9 @@ public class DataLoaderUtil {
 			} catch (Exception e) {
 				failed.incrementAndGet();
 				firstFailure.compareAndSet(null, sql + " -> " + e);
+				if (startsWithIgnoreCase(sql, "CREATE TABLE")) {
+					firstCreateTableFailure.compareAndSet(null, sql + " -> " + e);
+				}
 				LOGGER.debug("DDL statement failed: {}", sql, e);
 			}
 		});
@@ -732,7 +868,17 @@ public class DataLoaderUtil {
 			LOGGER.warn("DDL: {}/{} statements failed (expected on dialects without DROP TABLE IF EXISTS); first: {}",
 					failed.get(), sqls.size(), firstFailure.get());
 		}
+		// A failed DROP TABLE IF EXISTS is routine, and a failed CREATE INDEX costs only speed.
+		// A failed CREATE TABLE is fatal on every dialect: the table the tests are about to
+		// query does not exist, and the load that follows quietly writes nothing.
+		if (firstCreateTableFailure.get() != null) {
+			throw new SQLException("CREATE TABLE failed, the load would silently be empty: "
+					+ firstCreateTableFailure.get());
+		}
+	}
 
+	private static boolean startsWithIgnoreCase(String sql, String prefix) {
+		return sql != null && sql.stripLeading().regionMatches(true, 0, prefix, 0, prefix.length());
 	}
 
 	/**
@@ -758,6 +904,19 @@ public class DataLoaderUtil {
 			}
 			String product = connection.getMetaData().getDatabaseProductName();
 			return product != null && product.toLowerCase().contains("sqlite");
+		} catch (SQLException e) {
+			return false;
+		}
+	}
+
+	private static boolean isDuckDb(Connection connection) {
+		try {
+			String url = connection.getMetaData().getURL();
+			if (url != null && url.startsWith("jdbc:duckdb")) {
+				return true;
+			}
+			String product = connection.getMetaData().getDatabaseProductName();
+			return product != null && product.toLowerCase().contains("duckdb");
 		} catch (SQLException e) {
 			return false;
 		}

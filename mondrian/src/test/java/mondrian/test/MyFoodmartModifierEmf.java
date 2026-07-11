@@ -232,6 +232,10 @@ public class MyFoodmartModifierEmf implements CatalogMappingSupplier {
 
         SqlStatement mysqlSql = SourceFactory.eINSTANCE.createSqlStatement();
         mysqlSql.getDialects().add("mysql");
+        // CaptionTest runs this for MARIADB too, but no mariadb statement was ever registered:
+        // it fell through to the generic "the_year" || '-12-31', and in MariaDB's default mode
+        // || is logical OR, so the caption came out as 1 instead of 1997-12-31.
+        mysqlSql.getDialects().add("mariadb");
         mysqlSql.setSql("concat(cast(`the_year` as char(4)), '-12-31')");
 
         SqlStatement derbySql = SourceFactory.eINSTANCE.createSqlStatement();

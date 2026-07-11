@@ -27,6 +27,12 @@
 
   <appender name="ROLL_FILE"
     class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!-- Every root event is written twice (STDOUT + here), but only STDOUT is captured
+         into the TCK group logs the reports parse. Set DAANSE_LOG_FILE=OFF to drop this
+         second write path for a run. -->
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>${DAANSE_LOG_FILE:-TRACE}</level>
+    </filter>
     <file>log/log.log</file>
     <rollingPolicy
       class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
@@ -59,8 +65,8 @@
   <!-- Statement-generation "why/how it was built" trace. Kept at TRACE (always on): build-decision lines
        + per-column detail + builder OLD/NEW SQL. The one expensive part — SqlSelectQuery rebuilding the
        legacy SQL to compare — is NOT driven by this level; it is gated by -Ddaanse.sql.gen.legacycompare=true
-       so always-on TRACE stays cheap. -->
-  <logger name="daanse.sql.gen" level="TRACE"/>
+       so always-on TRACE stays cheap. Override with DAANSE_LOG_SQLGEN to measure what the trace costs. -->
+  <logger name="daanse.sql.gen" level="${DAANSE_LOG_SQLGEN:-TRACE}"/>
   <logger name="org.eclipse.daanse.olap.core.LoggingEventBus" level="WARN"/>
   <logger name="org.eclipse.daanse.jdbc.db.dialect.db.common.AbstractJdbcDialect" level="WARN"/>
 
