@@ -49,8 +49,13 @@ class DrillThroughQuerySpecTest {
     ResultSet resultSet = connection.createStatement().executeQuery(drillThroughMdx, Optional.empty(), null);
 
     assertEquals(1, resultSet.getMetaData().getColumnCount());
+    // The drill-through SQL aliases the column with the level's name:
+    //   select "product_class"."product_department" as "Product Department" from ...
+    // getColumnLabel is that alias by definition. getColumnName is not: JDBC leaves it to the
+    // driver whether to look the base column up, so h2 answers "product_department" while
+    // postgres and duckdb hand back the alias. Assert the part the generator promises.
     assertEquals
-      ("product_department", resultSet.getMetaData().getColumnName(1));
+      ("Product Department", resultSet.getMetaData().getColumnLabel(1));
   }
 
 }

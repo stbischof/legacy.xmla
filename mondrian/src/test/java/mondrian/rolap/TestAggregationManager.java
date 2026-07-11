@@ -3538,6 +3538,7 @@ class TestAggregationManager extends BatchTestCase {
                     sqlOra,
                     sqlOra.length())},
             false, false, true);
+        context.getCatalogCache().clear();
     }
 
     @ParameterizedTest
@@ -3565,56 +3566,63 @@ class TestAggregationManager extends BatchTestCase {
         */
         withSchemaEmf(context, SchemaModifiersEmf.TestAggregationManagerModifier3::new);
 
-        RolapCatalog rolapCatalog = (RolapCatalog) context.getConnectionWithDefaultRole().getCatalogReader()
-                .getCatalog();
-        RolapStar star = rolapCatalog.getRolapStarRegistry().getStar("sales_fact_1997");
-        AggStar aggStarSpy = spy(
-            getAggStar(star, "agg_c_special_sales_fact_1997"));
-        // make sure the test AggStar will be prioritized first
-        when(aggStarSpy.getSize(context.getConfigValue(ConfigConstants.CHOOSE_AGGREGATE_BY_VOLUME, ConfigConstants.CHOOSE_AGGREGATE_BY_VOLUME_DEFAULT_VALUE ,Boolean.class))).thenReturn(0l);
+        // getConnectionWithDefaultRole() builds a NEW connection on every call, so hold one:
+        // asking twice can hand back two catalogs and two stars, and the spy would then sit in
+        // one star while findAgg searches the other. The spy lands in the SHARED, cached star,
+        // so flush the schema cache afterwards -- otherwise the getSize()=0 spy survives into the
+        // next test (testLevelKeyAsSqlExpWithAgg reads the same star and picks the wrong aggregate).
+        Connection connection = context.getConnectionWithDefaultRole();
+        try {
+            RolapCatalog rolapCatalog = (RolapCatalog) connection.getCatalogReader().getCatalog();
+            RolapStar star = rolapCatalog.getRolapStarRegistry().getStar("sales_fact_1997");
+            AggStar aggStarSpy = spy(
+                getAggStar(star, "agg_c_special_sales_fact_1997"));
+            // make sure the test AggStar will be prioritized first
+            when(aggStarSpy.getSize(context.getConfigValue(ConfigConstants.CHOOSE_AGGREGATE_BY_VOLUME, ConfigConstants.CHOOSE_AGGREGATE_BY_VOLUME_DEFAULT_VALUE ,Boolean.class))).thenReturn(0l);
 
-        RolapCatalog rolapCatalog2 = (RolapCatalog) context.getConnectionWithDefaultRole().getCatalogReader()
-                .getCatalog();
-        rolapCatalog2.getRolapStarRegistry().getStar("sales_fact_1997").addAggStar(aggStarSpy);
+            star.addAggStar(aggStarSpy);
 
-        boolean[] rollup = { false };
-        AggStar returnedStar = AggregationManager
-            .findAgg(
-                star, aggStarSpy.getLevelBitKey(),
-                aggStarSpy.getMeasureBitKey(), rollup);
-        assertTrue(rollup[0],
-                "Rollup should be true since AggStar has ignored columns ");
-        assertEquals(aggStarSpy, returnedStar);
-        assertTrue(aggStarSpy.hasIgnoredColumns(),
-                "Unused columns are present, should be marked as "
-                        + "having ignored columns.");
+            boolean[] rollup = { false };
+            AggStar returnedStar = AggregationManager
+                .findAgg(
+                    star, aggStarSpy.getLevelBitKey(),
+                    aggStarSpy.getMeasureBitKey(), rollup);
+            assertTrue(rollup[0],
+                    "Rollup should be true since AggStar has ignored columns ");
+            assertEquals(aggStarSpy, returnedStar);
+            assertTrue(aggStarSpy.hasIgnoredColumns(),
+                    "Unused columns are present, should be marked as "
+                            + "having ignored columns.");
 
-        String sqlOra =
-            "select\n"
-            + "    \"customer\".\"gender\" as \"c0\",\n"
-            + "    sum(\"agg_c_special_sales_fact_1997\".\"unit_sales_sum\") as \"m0\"\n"
-            + "from\n"
-            + "    \"customer\" \"customer\",\n"
-            + "    \"agg_c_special_sales_fact_1997\" \"agg_c_special_sales_fact_1997\"\n"
-            + "where\n"
-            + "    \"agg_c_special_sales_fact_1997\".\"customer_id\" = \"customer\".\"customer_id\"\n"
-            + "group by\n"
-            + "    \"customer\".\"gender\"";
-        String sqlMysql =
-            "select `customer`.`gender` as `c0`, sum(`agg_c_special_sales_fact_1997`.`unit_sales_sum`) as `m0`";
-        assertQuerySqlOrNot(
-            context.getConnectionWithDefaultRole(),
-            "select gender.gender.members on 0 from sales",
-            new SqlPattern[]{
-                new SqlPattern(
-                    DatabaseProduct.MYSQL,
-                    sqlMysql,
-                    sqlMysql.length()),
-                new SqlPattern(
-                    DatabaseProduct.ORACLE,
-                    sqlOra,
-                    sqlOra.length())},
-            false, false, true);
+            String sqlOra =
+                "select\n"
+                + "    \"customer\".\"gender\" as \"c0\",\n"
+                + "    sum(\"agg_c_special_sales_fact_1997\".\"unit_sales_sum\") as \"m0\"\n"
+                + "from\n"
+                + "    \"customer\" \"customer\",\n"
+                + "    \"agg_c_special_sales_fact_1997\" \"agg_c_special_sales_fact_1997\"\n"
+                + "where\n"
+                + "    \"agg_c_special_sales_fact_1997\".\"customer_id\" = \"customer\".\"customer_id\"\n"
+                + "group by\n"
+                + "    \"customer\".\"gender\"";
+            String sqlMysql =
+                "select `customer`.`gender` as `c0`, sum(`agg_c_special_sales_fact_1997`.`unit_sales_sum`) as `m0`";
+            assertQuerySqlOrNot(
+                connection,
+                "select gender.gender.members on 0 from sales",
+                new SqlPattern[]{
+                    new SqlPattern(
+                        DatabaseProduct.MYSQL,
+                        sqlMysql,
+                        sqlMysql.length()),
+                    new SqlPattern(
+                        DatabaseProduct.ORACLE,
+                        sqlOra,
+                        sqlOra.length())},
+                false, false, true);
+        } finally {
+            flushSchemaCache(connection);
+        }
     }
 
     @ParameterizedTest

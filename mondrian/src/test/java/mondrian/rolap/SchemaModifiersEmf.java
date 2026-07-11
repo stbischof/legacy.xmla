@@ -603,11 +603,14 @@ public class SchemaModifiersEmf {
             Level levelRole = LevelFactory.eINSTANCE.createLevel();
             levelRole.setName("Role");
             levelRole.setColumn((Column) copier.get(CatalogSupplier.COLUMN_MANAGEMENT_ROLE_EMPLOYEE));
+            // Read this level from the employee_manager alias of the self-join.
+            levelRole.setRelationalSource(employeeManagerQuery);
             levelRole.setUniqueMembers(true);
 
             Level levelTitle = LevelFactory.eINSTANCE.createLevel();
             levelTitle.setName("Title");
             levelTitle.setColumn((Column) copier.get(CatalogSupplier.COLUMN_POSITION_TITLE_EMPLOYEE));
+            levelTitle.setRelationalSource(employeeManagerQuery);
             levelTitle.setUniqueMembers(false);
 
             ExplicitHierarchy hierarchyEmployee = HierarchyFactory.eINSTANCE.createExplicitHierarchy();
@@ -663,7 +666,7 @@ public class SchemaModifiersEmf {
             employeeConnectorA.setForeignKey((Column) copier.get(CatalogSupplier.COLUMN_PRODUCT_ID_INVENTORY_FACT));
 
             storeTypeConnectorA.setOverrideDimensionName("Store Type");
-            storeTypeConnectorA.setDimension((Dimension) copier.get(CatalogSupplier.DIMENSION_STORE_TYPE_WITH_SOURCE_EMPLOYEE));
+            storeTypeConnectorA.setDimension((Dimension) copier.get(CatalogSupplier.DIMENSION_STORE_TYPE_WITH_SOURCE_STORE));
             storeTypeConnectorA.setForeignKey((Column) copier.get(CatalogSupplier.COLUMN_WAREHOUSE_ID_INVENTORY_FACT));
 
             // Dimension Connectors for Cube B
@@ -672,7 +675,7 @@ public class SchemaModifiersEmf {
             employeeConnectorB.setForeignKey(CatalogSupplier.COLUMN_TIME_ID_INVENTORY_FACT);
 
             storeTypeConnectorB.setOverrideDimensionName("Store Type");
-            storeTypeConnectorB.setDimension((Dimension) copier.get(CatalogSupplier.DIMENSION_STORE_TYPE_WITH_SOURCE_EMPLOYEE));
+            storeTypeConnectorB.setDimension((Dimension) copier.get(CatalogSupplier.DIMENSION_STORE_TYPE_WITH_SOURCE_STORE));
             storeTypeConnectorB.setForeignKey((Column) copier.get(CatalogSupplier.COLUMN_STORE_ID_INVENTORY_FACT));
 
             // Cube A

@@ -156,10 +156,10 @@ class SchemaTest {
 
     private static final String CUBES_AB =
             "<Cube name=\"CubeA\" defaultMeasure=\"Unit Sales\">\n"
-            + " <Table name=\"sales_fact_1997\" alias=\"TableAlias\">\n"
+            + " <Table name=\"sales_fact_1997\" alias=\"tablealias\">\n"
             + "   <!-- count=32 -->\n"
             + "   <SQL dialect=\"mysql\">\n"
-            + "     `TableAlias`.`promotion_id` = 108\n"
+            + "     tablealias.promotion_id = 108\n"
             + "   </SQL>\n"
             + " </Table>\n"
             + " <DimensionUsage name=\"Store Type\" source=\"Store Type\" foreignKey=\"store_id\"/>\n"
@@ -167,10 +167,10 @@ class SchemaTest {
             + " <Measure name=\"Fantastic Count for Different Types of Promotion\" column=\"promotion_id\" aggregator=\"count\" formatString=\"Standard\"/>\n"
             + "</Cube>\n"
             + "<Cube name=\"CubeB\" defaultMeasure=\"Unit Sales\">\n"
-            + " <Table name=\"sales_fact_1997\" alias=\"TableAlias\">\n"
+            + " <Table name=\"sales_fact_1997\" alias=\"tablealias\">\n"
             + "   <!-- count=22 -->\n"
             + "   <SQL dialect=\"mysql\">\n"
-            + "     `TableAlias`.`promotion_id` = 112\n"
+            + "     tablealias.promotion_id = 112\n"
             + "   </SQL>\n"
             + " </Table>\n"
             + " <DimensionUsage name=\"Store Type\" source=\"Store Type\" foreignKey=\"store_id\"/>\n"
@@ -6111,7 +6111,7 @@ class SchemaTest {
                                     List.of(
                                     SqlStatementMappingImpl.builder().withSql("select * from \"inventory_fact_1997\" as \"FOOBAR\"").withDialects(List.of("generic")).build(),
                                     SqlStatementMappingImpl.builder().withSql("select * from \"inventory_fact_1997\" as \"FOOBAR\"").withDialects(List.of("oracle")).build(),
-                                    SqlStatementMappingImpl.builder().withSql("select * from `inventory_fact_1997` as `FOOBAR`").withDialects(List.of("mysql")).build(),
+                                    SqlStatementMappingImpl.builder().withSql("select * from `inventory_fact_1997` as `FOOBAR`").withDialects(List.of("mysql", "mariadb")).build(),
                                     SqlStatementMappingImpl.builder().withSql("select * from `inventory_fact_1997` as `FOOBAR`").withDialects(List.of("infobright")).build()
                                 ))
                                 .build()
@@ -6146,7 +6146,7 @@ class SchemaTest {
                                             List.of(
                                             SqlStatementMappingImpl.builder().withSql("select * from \"inventory_fact_1997\" as \"FOOBAR\"").withDialects(List.of("generic")).build(),
                                             SqlStatementMappingImpl.builder().withSql("select * from \"inventory_fact_1997\" as \"FOOBAR\"").withDialects(List.of("oracle")).build(),
-                                            SqlStatementMappingImpl.builder().withSql("select * from `inventory_fact_1997` as `FOOBAR`").withDialects(List.of("mysql")).build(),
+                                            SqlStatementMappingImpl.builder().withSql("select * from `inventory_fact_1997` as `FOOBAR`").withDialects(List.of("mysql", "mariadb")).build(),
                                             SqlStatementMappingImpl.builder().withSql("select * from `inventory_fact_1997` as `FOOBAR`").withDialects(List.of("infobright")).build()
                                         ))
                                         .build()
@@ -6292,6 +6292,7 @@ class SchemaTest {
             org.eclipse.daanse.rolap.mapping.model.database.source.SqlStatement stmt1c = SourceFactory.eINSTANCE.createSqlStatement();
             stmt1c.setSql("select * from `inventory_fact_1997` as `FOOBAR`");
             stmt1c.getDialects().add("mysql");
+                stmt1c.getDialects().add("mariadb");
 
             org.eclipse.daanse.rolap.mapping.model.database.source.SqlStatement stmt1d = SourceFactory.eINSTANCE.createSqlStatement();
             stmt1d.setSql("select * from `inventory_fact_1997` as `FOOBAR`");
@@ -6355,6 +6356,7 @@ class SchemaTest {
             org.eclipse.daanse.rolap.mapping.model.database.source.SqlStatement stmt2c = SourceFactory.eINSTANCE.createSqlStatement();
             stmt2c.setSql("select * from `inventory_fact_1997` as `FOOBAR`");
             stmt2c.getDialects().add("mysql");
+                stmt2c.getDialects().add("mariadb");
 
             org.eclipse.daanse.rolap.mapping.model.database.source.SqlStatement stmt2d = SourceFactory.eINSTANCE.createSqlStatement();
             stmt2d.setSql("select * from `inventory_fact_1997` as `FOOBAR`");
@@ -6484,7 +6486,7 @@ class SchemaTest {
                                 .withSqlStatements(
                                     List.of(
                                     SqlStatementMappingImpl.builder().withSql("select * from \"inventory_fact_1997\" as \"FOOBAR\"").withDialects(List.of("generic", "oracle")).build(),
-                                    SqlStatementMappingImpl.builder().withSql("select * from `inventory_fact_1997` as `FOOBAR`").withDialects(List.of("mysql", "infobright")).build()
+                                    SqlStatementMappingImpl.builder().withSql("select * from `inventory_fact_1997` as `FOOBAR`").withDialects(List.of("mysql", "mariadb", "infobright")).build()
                                 ))
                                 .build()
                                 )
@@ -6692,6 +6694,7 @@ class SchemaTest {
             org.eclipse.daanse.rolap.mapping.model.database.source.SqlStatement stmt2 = SourceFactory.eINSTANCE.createSqlStatement();
             stmt2.setSql("select * from `inventory_fact_1997` as `FOOBAR`");
             stmt2.getDialects().add("mysql");
+                stmt2.getDialects().add("mariadb");
             stmt2.getDialects().add("infobright");
 
             sqlViewDef.getDialectStatements().add(stmt1);
@@ -6779,7 +6782,7 @@ class SchemaTest {
                                     .withSqlStatements(
                                         List.of(
                                         SqlStatementMappingImpl.builder().withSql("select * from \"store\" as \"FOOBAR\"").withDialects(List.of("generic", "oracle")).build(),
-                                        SqlStatementMappingImpl.builder().withSql("select * from `store` as `FOOBAR`").withDialects(List.of("mysql", "infobright")).build()
+                                        SqlStatementMappingImpl.builder().withSql("select * from `store` as `FOOBAR`").withDialects(List.of("mysql", "mariadb", "infobright")).build()
                                     ))
                                     .build()
                                     )
@@ -6928,6 +6931,7 @@ class SchemaTest {
             org.eclipse.daanse.rolap.mapping.model.database.source.SqlStatement stmt2 = SourceFactory.eINSTANCE.createSqlStatement();
             stmt2.setSql("select * from `store` as `FOOBAR`");
             stmt2.getDialects().add("mysql");
+                stmt2.getDialects().add("mariadb");
             stmt2.getDialects().add("infobright");
 
             sqlViewDef.getDialectStatements().add(stmt1);
@@ -18935,21 +18939,21 @@ class SchemaTest {
             promotionCountMeasureB.setFormatString("Standard");
 
             // SQL WHERE for CubeA
-            sqlWhereA.setSql("`TableAlias`.`promotion_id` = 108");
-            sqlWhereA.getDialects().add("mysql");
+            sqlWhereA.setSql("tablealias.promotion_id = 108");
+            sqlWhereA.getDialects().add("generic");
 
             // Table Query A with alias and WHERE
             tableQueryA.setTable((Table) copier.get(CatalogSupplier.TABLE_SALES_FACT));
-            tableQueryA.setAlias("TableAlias");
+            tableQueryA.setAlias("tablealias");
             tableQueryA.setSqlWhereExpression(sqlWhereA);
 
             // SQL WHERE for CubeB
-            sqlWhereB.setSql("`TableAlias`.`promotion_id` = 112");
-            sqlWhereB.getDialects().add("mysql");
+            sqlWhereB.setSql("tablealias.promotion_id = 112");
+            sqlWhereB.getDialects().add("generic");
 
             // Table Query B with alias and WHERE
             tableQueryB.setTable((Table) copier.get(CatalogSupplier.TABLE_SALES_FACT));
-            tableQueryB.setAlias("TableAlias");
+            tableQueryB.setAlias("tablealias");
             tableQueryB.setSqlWhereExpression(sqlWhereB);
 
             // Dimension Connector A (Store Type)
@@ -20736,10 +20740,10 @@ class SchemaTest {
                 result.add(PhysicalCubeMappingImpl.builder()
                     .withName("CubeA")
                     .withDefaultMeasure(mA)
-                    .withQuery(TableQueryMappingImpl.builder().withTable(FoodmartMappingSupplier.SALES_FACT_1997_TABLE).withAlias("TableAlias")
+                    .withQuery(TableQueryMappingImpl.builder().withTable(FoodmartMappingSupplier.SALES_FACT_1997_TABLE).withAlias("tablealias")
                     		.withSqlWhereExpression(SqlStatementMappingImpl.builder()
-                    				.withSql("`TableAlias`.`promotion_id` = 108")
-                    				.withDialects(List.of("mysql"))
+                    				.withSql("tablealias.promotion_id = 108")
+                    				.withDialects(List.of("generic"))
                     				.build()).build())
                     .withDimensionConnectors(List.of(
                     	DimensionConnectorMappingImpl.builder()
@@ -20771,10 +20775,10 @@ class SchemaTest {
                 result.add(PhysicalCubeMappingImpl.builder()
                     .withName("CubeB")
                     .withDefaultMeasure(mB)
-                    .withQuery(TableQueryMappingImpl.builder().withTable(FoodmartMappingSupplier.SALES_FACT_1997_TABLE).withAlias("TableAlias")
+                    .withQuery(TableQueryMappingImpl.builder().withTable(FoodmartMappingSupplier.SALES_FACT_1997_TABLE).withAlias("tablealias")
                     		.withSqlWhereExpression(SqlStatementMappingImpl.builder()
-                    				.withSql("`TableAlias`.`promotion_id` = 112")
-                    				.withDialects(List.of("mysql"))
+                    				.withSql("tablealias.promotion_id = 112")
+                    				.withDialects(List.of("generic"))
                     				.build()).build())
                     .withDimensionConnectors(List.of(
                         	DimensionConnectorMappingImpl.builder()

@@ -144,7 +144,8 @@ public class ExpressiveNamesDataLoader implements DataLoader {
 
             Path dir= Paths.get(Constants.TESTFILES_DIR+"loader/expressivenames/data");
 
-            DataLoaderUtil.importCSV(dataBaseInfo.getKey(), dialect, expressiveNamesTables, dir);
+            DataLoaderUtil.importCSV(dataBaseInfo.getKey(), dialect, expressiveNamesTables, DataLoaderUtil.fromDirectory(dir));
+            DataLoaderUtil.analyze(dataBaseInfo.getKey(), dialect, expressiveNamesTables);
 
 
         }
